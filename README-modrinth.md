@@ -45,51 +45,6 @@ BetaLands is a land-protection and land-management plugin designed for Minecraft
 | Economy | [iConomy 5.01](https://www.reddit.com/r/GoldenAgeMinecraft/s/UDZmFBgxf4) |
 | Optional | [Towny 0.76](https://bukkit.org/threads/157978/), [Dynmap 0.24](https://dev.bukkit.org/projects/dynmap/files/552350), [BlueMap b173](https://github.com/Moresteck/BlueMap) |
 
-## Quick Start
-
-1. Create a main land in an unclaimed chunk:
-
-```text
-/land create AAA
-```
-
-2. Expand into an adjacent chunk:
-
-```text
-/land claim
-```
-
-3. Select two corners with a wooden hoe, or use `/land pos1` and `/land pos2`, then create a 3D subclaim:
-
-```text
-/land subcreate shop
-```
-
-4. Invite an online player:
-
-```text
-/land add Steve
-```
-
-The invited player accepts with:
-
-```text
-/land accept AAA
-```
-
-5. Set a spawn and teleport:
-
-```text
-/land setspawn
-/land tp
-```
-
-6. View land banks and rent:
-
-```text
-/land bank info
-/land rent info
-```
 
 ## Documentation
 
