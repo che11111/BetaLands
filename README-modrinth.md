@@ -19,7 +19,7 @@ BetaLands is a land-protection and land-management plugin designed for Minecraft
 
 | BlueMap | Dynmap | Land Details |
 | :---: | :---: | :---: |
-| <img src="img/1.png" width="260" alt="Land boundaries in BlueMap"> | <img src="img/2.png" width="260" alt="Land boundaries in Dynmap"> | <img src="img/3.png" width="260" alt="Land detail card on a web map"> |
+| <img src="https://raw.githubusercontent.com/che11111/BetaLands/main/img/1.png" width="260" alt="Land boundaries in BlueMap"> | <img src="https://raw.githubusercontent.com/che11111/BetaLands/main/img/2.png" width="260" alt="Land boundaries in Dynmap"> | <img src="https://raw.githubusercontent.com/che11111/BetaLands/main/img/3.png" width="260" alt="Land detail card on a web map"> |
 
 ## Highlights
 
