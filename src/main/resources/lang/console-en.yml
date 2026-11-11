@@ -1,0 +1,62 @@
+prefix: "[BetaLands]"
+
+config:
+  directory-create-failed: "Could not create the plugin data directory: {path}"
+  config-create-failed: "Could not create config.yml: {error}"
+  levels-create-failed: "Could not create levels.yml: {error}"
+
+startup:
+  audit-ready: "Audit log database ready: {path}"
+  audit-failed: "Could not initialize the audit log database: {error}"
+  levels-ready: "Loaded {count} land levels."
+  economy-hook: "Hooked iConomy economy."
+  economy-missing: "iConomy is unavailable; charged operations are disabled."
+  towny-hook: "Detected Towny {version}; live Towny migration data is available."
+  map-disabled: "Map integrations are disabled in config.yml."
+  dynmap-hook: "Connected to Dynmap; marker API readiness will be checked."
+  dynmap-failed: "Could not hook Dynmap: {error}"
+  bluemap-hook: "Hooked BlueMap marker API."
+  bluemap-failed: "Could not hook BlueMap: {error}"
+  bstats-failed: "Could not initialize bStats: {error}"
+  ready: "BetaLands {version} enabled with {lands} lands. Outside-build-hours={hours}."
+  command-missing: "Command land is missing from plugin.yml."
+
+shutdown:
+  stopping: "BetaLands disabling."
+
+data:
+  load-failed: "Could not load BetaLands data: {error}"
+  read-only: "BetaLands is running in read-only mode to protect existing files."
+  save-failed: "Could not save BetaLands data: {error}"
+  save-blocked: "Save blocked because data loading failed. Restore or repair the TSV files."
+  invalid-line: "Skipped invalid {file} line {line}: {error}"
+
+maps:
+  dynmap-refresh-failed: "Dynmap marker refresh failed: {error}"
+  bluemap-refresh-failed: "BlueMap marker refresh failed: {error}"
+  refresh-slow: "Map marker refresh took {milliseconds} ms."
+  dynmap-updated: "Dynmap updated {lands} land(s) with {markers} marker(s)."
+  dynmap-world-missing: "Dynmap could not find the Bukkit world for {count} land(s); stored world names were used."
+  dynmap-api-waiting: "Dynmap is installed, but its Marker API is not initialized. Enable org.dynmap.MarkersComponent in configuration.txt. BetaLands will keep checking."
+  dynmap-plugin-unavailable: "Dynmap is not available for hooking ({state}). BetaLands will keep checking."
+  dynmap-marker-create-failed: "Dynmap rejected {count} Betalands area marker(s). Check the Dynmap version and Marker API configuration."
+  dynmap-land-draw-failed: "Could not draw {count} Betalands land(s) on Dynmap. First error: {error}"
+
+audit:
+  land-write-failed: "Could not write a land audit record: {error}"
+  economy-write-failed: "Could not write an economy audit record: {error}"
+
+towny:
+  migration-start: "Towny migration started. Source={source}"
+  migration-backup: "BetaLands data backed up to {path}"
+  migration-converting: "Reading and converting Towny town blocks in the background..."
+  migration-applying: "Converted {count} land entries. Applying them to BetaLands..."
+  migration-empty: "Towny migration found no town lands. Existing data was not changed."
+  migration-save-failed: "Towny data reached memory but saving failed."
+  migration-warning: "Towny migration warning: {warning}"
+  migration-complete: "Towny migration complete. source={source}, towns={towns}, blocks={blocks}, subclaims={subclaims}, added={added}, updated={updated}, conflicts={conflicts}"
+  import-failed: "Towny import failed: {error}"
+
+economy:
+  hook-failed: "Could not hook iConomy: {error}"
+

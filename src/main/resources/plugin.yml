@@ -1,0 +1,79 @@
+name: BetaLands
+main: dev.che1s.betalands.BetaLandsPlugin
+version: 1.1.7
+description: Beta 1.7.3 lands with 2D claims, 3D subclaims, permissions and map markers
+authors: [che1s]
+softdepend: [iConomy, Towny, dynmap, BlueMap]
+
+commands:
+  land:
+    description: BetaLands main command
+    usage: /<command> help
+
+permissions:
+  betalands.use:
+    description: Allows normal BetaLands commands
+    default: true
+  betalands.create.main:
+    description: Allows creating main lands
+    default: true
+  betalands.create.claim:
+    description: Allows expanding main lands
+    default: true
+  betalands.create.subclaim:
+    description: Allows selecting and creating 3D subclaims
+    default: true
+  betalands.teleport:
+    description: Allows teleporting to owned or joined lands
+    default: true
+  betalands.member.invite:
+    description: Allows inviting players to managed lands
+    default: true
+  betalands.member.kick:
+    description: Allows removing members from managed lands
+    default: true
+  betalands.member.permission:
+    description: Allows changing member permissions in managed lands
+    default: true
+  betalands.land.rename:
+    description: Allows renaming managed lands
+    default: true
+  betalands.land.setowner:
+    description: Allows transferring main-land ownership
+    default: true
+  betalands.land.delete:
+    description: Allows requesting deletion of owned lands
+    default: true
+  betalands.land.flags:
+    description: Allows editing protection flags in managed lands
+    default: true
+  betalands.land.setspawn:
+    description: Allows setting managed land spawn points
+    default: true
+  betalands.land.logs:
+    description: Allows reading logs for managed lands
+    default: true
+  betalands.bank.use:
+    description: Allows using owned land banks
+    default: true
+  betalands.rent.use:
+    description: Allows managing or paying configured land rent
+    default: true
+  betalands.bypass:
+    description: Bypasses all BetaLands protection checks
+    default: op
+  betalands.admin:
+    description: Allows migration, reload and administrative commands
+    default: op
+  betalands.admin.force:
+    description: Allows administrator commands that bypass member quotas
+    default: op
+  betalands.level.default:
+    description: Uses the default BetaLands level
+    default: true
+  betalands.level.vip:
+    description: Uses the VIP BetaLands level
+    default: false
+  betalands.level.svip:
+    description: Uses the SVIP BetaLands level
+    default: false

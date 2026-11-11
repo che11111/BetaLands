@@ -1,0 +1,6 @@
+mayor=Alice
+residents=Alice,Bob
+isPublic=true
+pvp=false
+townBlocks=world:[0]0,0,0;[0]1,0,0;
+spawn=world,8,64,8

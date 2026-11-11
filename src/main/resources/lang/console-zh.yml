@@ -1,0 +1,62 @@
+prefix: "[BetaLands]"
+
+config:
+  directory-create-failed: "无法创建插件数据目录：{path}"
+  config-create-failed: "无法创建 config.yml：{error}"
+  levels-create-failed: "无法创建 levels.yml：{error}"
+
+startup:
+  audit-ready: "审计日志数据库已就绪：{path}"
+  audit-failed: "无法初始化审计日志数据库：{error}"
+  levels-ready: "已加载 {count} 个领地等级。"
+  economy-hook: "已连接 iConomy 经济系统。"
+  economy-missing: "未找到可用的 iConomy，收费类操作当前不可用。"
+  towny-hook: "已检测到 Towny {version}，可读取在线 Towny 数据进行迁移。"
+  map-disabled: "config.yml 中已禁用地图集成。"
+  dynmap-hook: "已连接 Dynmap，之后会检查标记 API 是否就绪。"
+  dynmap-failed: "无法连接 Dynmap：{error}"
+  bluemap-hook: "已连接 BlueMap 标记 API。"
+  bluemap-failed: "无法连接 BlueMap：{error}"
+  bstats-failed: "无法初始化 bStats：{error}"
+  ready: "BetaLands {version} 已启用，当前领地数 {lands}，领地外建造解锁时间 {hours} 小时。"
+  command-missing: "plugin.yml 中缺少 land 指令。"
+
+shutdown:
+  stopping: "BetaLands 正在关闭。"
+
+data:
+  load-failed: "无法载入 BetaLands 数据：{error}"
+  read-only: "BetaLands 已进入只读模式，以保护现有文件。"
+  save-failed: "无法保存 BetaLands 数据：{error}"
+  save-blocked: "数据载入失败，已阻止保存。请恢复或修复 TSV 文件。"
+  invalid-line: "已跳过无效的 {file} 第 {line} 行：{error}"
+
+maps:
+  dynmap-refresh-failed: "刷新 Dynmap 标记失败：{error}"
+  bluemap-refresh-failed: "刷新 BlueMap 标记失败：{error}"
+  refresh-slow: "地图标记刷新耗时 {milliseconds} 毫秒。"
+  dynmap-updated: "Dynmap 已更新 {lands} 个领地，共 {markers} 个标记。"
+  dynmap-world-missing: "Dynmap 无法在 Bukkit 中找到 {count} 个领地的世界，已改用保存的世界名称。"
+  dynmap-api-waiting: "Dynmap 已安装，但标记 API 尚未初始化。请在 configuration.txt 中启用 org.dynmap.MarkersComponent；BetaLands 会继续检查。"
+  dynmap-plugin-unavailable: "暂时无法连接 Dynmap（{state}）；BetaLands 会继续检查。"
+  dynmap-marker-create-failed: "Dynmap 拒绝了 {count} 个 BetaLands 区域标记，请检查 Dynmap 版本和 Marker API 配置。"
+  dynmap-land-draw-failed: "有 {count} 个 BetaLands 领地无法绘制到 Dynmap，首个错误：{error}"
+
+audit:
+  land-write-failed: "写入领地审计日志失败：{error}"
+  economy-write-failed: "写入经济审计日志失败：{error}"
+
+towny:
+  migration-start: "Towny 迁移开始，来源：{source}"
+  migration-backup: "BetaLands 数据已备份到：{path}"
+  migration-converting: "正在后台读取并转换 Towny 城镇区块..."
+  migration-applying: "已转换 {count} 条领地数据，正在应用到 BetaLands..."
+  migration-empty: "Towny 迁移未找到城镇领地，现有数据保持不变。"
+  migration-save-failed: "Towny 数据已写入内存，但保存失败。"
+  migration-warning: "Towny 迁移警告：{warning}"
+  migration-complete: "Towny 迁移完成。来源={source}，城镇={towns}，方块={blocks}，子领地={subclaims}，新增={added}，更新={updated}，冲突={conflicts}"
+  import-failed: "Towny 数据导入失败：{error}"
+
+economy:
+  hook-failed: "无法连接 iConomy：{error}"
+

@@ -1,0 +1,125 @@
+# BetaLands 等级配置文件 / BetaLands level configuration
+# 修改后执行 /land admin reload，或重启服务器。 / Run /land admin reload or restart the server after changes.
+
+# 玩家同时拥有多个等级权限时，使用 priority 最高的等级。 / The highest-priority permission level is selected.
+# default-level 是玩家没有任何等级权限时使用的配置。 / default-level is used when no level permission matches.
+
+default-level: default
+
+levels:
+  default:
+    # 显示名称，只用于消息和状态显示。 / Display name used in messages and status output.
+    display-name: "Default"
+
+    # 玩家必须拥有该权限才会使用此等级。 / Permission required to use this level.
+    permission: "betalands.level.default"
+
+    # 数值越大优先级越高。 / Higher values have higher priority.
+    priority: 0
+
+    # 最多可拥有的主领地数量。 / Maximum number of owned main lands.
+    max-main-lands: 5
+
+    # 单个主领地最多可占有的 16×16 区块数量。 / Maximum 16x16 chunks per main land.
+    max-main-chunks: 100
+
+    # 每个主领地最多可创建的子领地数量。 / Maximum subclaims per main land.
+    max-subclaims-per-main: 3
+
+    # 单个主领地及其全部子领地的成员总数，不计算领地所有者。 / Maximum family members excluding the owner.
+    max-family-members: 8
+
+    # 玩家最多可以加入多少个领地。 / Maximum number of lands a player may join.
+    # 只统计显式加入且拥有 build 权限的主领地和子领地。 / Counts explicit BUILD access on main lands and subclaims.
+    # 通过主领地继承到子领地的 build 不会重复增加数量。 / Inherited BUILD access on subclaims is not counted twice.
+    max-joined-lands: 5
+
+    prices:
+      # 创建主领地价格。 / Main-land creation price.
+      create-main: 300.00
+
+      # 扩展一个 16×16 区块的价格。 / Base price for claiming one 16x16 chunk.
+      claim-chunk: 20.00
+
+      # 阶梯扩展费增量：基础价 + 当前主领地区块数 × 该数值。 / Expansion increment: base + current chunks x this value.
+      claim-chunk-increment: 5.00
+
+      # 创建子领地时每个方块的价格。 / Subclaim price per block.
+      subclaim-per-block: 0.01
+
+      # 每隔多少天结算一次维护费；每日费率仍按天累计。 / Charge maintenance every N days while accruing by daily rates.
+      maintenance-interval-days: 3
+
+      # 主领地每个 16×16 区块每天累计的维护费费率。 / Daily maintenance rate per 16x16 chunk.
+      maintenance-per-chunk-per-day: 0.30
+
+      # 主领地每位家庭成员每天累计的维护费费率。 / Daily maintenance rate per family member.
+      maintenance-per-member-per-day: 0.50
+
+  vip:
+    # 显示名称 / Display name.
+    display-name: "VIP"
+    # 使用该等级所需的权限 / Permission required for this level.
+    permission: "betalands.level.vip"
+    # 等级权限优先级 / Level permission priority.
+    priority: 10
+    # 最多主领地数量 / Maximum main lands.
+    max-main-lands: 15
+    # 每个主领地的最大 16×16 区块数 / Maximum chunks per main land.
+    max-main-chunks: 200
+    # 每个主领地的最大子领地数 / Maximum subclaims per main land.
+    max-subclaims-per-main: 10
+    # 最大家庭成员数 / Maximum family members.
+    max-family-members: 15
+    # 最多可加入的领地数 / Maximum joined lands.
+    max-joined-lands: 30
+
+    prices:
+      # 主领地创建价格 / Main-land creation price.
+      create-main: 250.00
+      # 区块基础扩展价格 / Base chunk expansion price.
+      claim-chunk: 20.00
+      # 区块扩展递增价格 / Increment per existing chunk.
+      claim-chunk-increment: 4.00
+      # 子领地每方块价格 / Subclaim price per block.
+      subclaim-per-block: 0.008
+      # 维护费结算间隔天数 / Maintenance interval in days.
+      maintenance-interval-days: 3
+      # 每区块每日维护费率 / Daily maintenance per chunk.
+      maintenance-per-chunk-per-day: 0.25
+      # 每成员每日维护费率 / Daily maintenance per member.
+      maintenance-per-member-per-day: 0.40
+
+  svip:
+    # 显示名称 / Display name.
+    display-name: "SVIP"
+    # 使用该等级所需的权限 / Permission required for this level.
+    permission: "betalands.level.svip"
+    # 等级权限优先级 / Level permission priority.
+    priority: 20
+    # 最多主领地数量 / Maximum main lands.
+    max-main-lands: 30
+    # 每个主领地的最大 16×16 区块数 / Maximum chunks per main land.
+    max-main-chunks: 300
+    # 每个主领地的最大子领地数 / Maximum subclaims per main land.
+    max-subclaims-per-main: 50
+    # 最大家庭成员数 / Maximum family members.
+    max-family-members: 40
+    # 最多可加入的领地数 / Maximum joined lands.
+    max-joined-lands: 100
+
+    prices:
+      # 主领地创建价格 / Main-land creation price.
+      create-main: 200.00
+      # 区块基础扩展价格 / Base chunk expansion price.
+      claim-chunk: 20.00
+      # 区块扩展递增价格 / Increment per existing chunk.
+      claim-chunk-increment: 3.00
+      # 子领地每方块价格 / Subclaim price per block.
+      subclaim-per-block: 0.005
+      # 维护费结算间隔天数 / Maintenance interval in days.
+      maintenance-interval-days: 3
+      # 每区块每日维护费率 / Daily maintenance per chunk.
+      maintenance-per-chunk-per-day: 0.20
+      # 每成员每日维护费率 / Daily maintenance per member.
+      maintenance-per-member-per-day: 0.30

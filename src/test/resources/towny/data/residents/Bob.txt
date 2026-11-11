@@ -1,0 +1,2 @@
+town=TestTown
+townBlocks=world:[0]1,0,0;

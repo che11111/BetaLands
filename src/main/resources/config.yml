@@ -1,0 +1,171 @@
+# BetaLands 配置文件 / BetaLands configuration / Minecraft Beta 1.7.3 Project Poseidon
+# 修改可热更新项后执行 /land admin reload，其他项目需重启服务器。 / Run /land admin reload for hot-reloadable options; restart for the others.
+
+language:
+  # 控制台语言：auto、zh 或 en。 / Console language: auto, zh, or en.
+  # auto 根据服务器 JVM 默认语言选择中文或英文。 / auto selects Chinese or English from the server JVM language.
+  # 不影响游戏内消息；游戏内固定使用 lang/game.yml。 / Does not affect in-game messages; lang/game.yml is used for players.
+  console: auto
+
+  # Dynmap/BlueMap 图层名和标记详情语言：auto、zh 或 en。 / Dynmap/BlueMap marker language: auto, zh, or en.
+  # auto 根据服务器 JVM 默认语言自动选择。 / auto follows the server JVM language.
+  map: auto
+
+protection:
+  # 是否允许主领地所有者和拥有 manage 权限的成员修改保护开关。 / Allow owners and manage-permission members to edit flags.
+  # 关闭后只有管理员可以修改领地级开关。 / When disabled, only administrators can edit land flags.
+  allow-land-flag-editing: true
+
+  # 领地外建造所需的累计在线小时数。 / Required accumulated online hours before building outside land.
+  # 未达到时禁止在领地外放置、破坏、倒桶和盛桶。 / Below the threshold, placement, breaking, and buckets are blocked outside land.
+  # 0 表示立即开放领地外建造。 / 0 unlocks outside building immediately.
+  outside-build-hours: 0
+
+  # 是否允许 OP 自动绕过方块、交互和 PVP 保护。 / Allow OPs to bypass block, interaction, and PVP protection.
+  op-bypass: true
+
+  # 是否允许爆炸破坏领地内方块。 / Allow explosions to damage blocks inside land.
+  explosions-in-lands: false
+
+  # 是否允许火焰在领地内点燃并破坏方块。 / Allow fire to ignite and burn blocks inside land.
+  fire-in-lands: false
+
+  # 是否阻止液体从领地外流入其他领地。 / Block fluids from crossing into a different land.
+  block-fluid-crossing: true
+
+  # 是否允许玩家默认在领地内互相伤害。 / Allow PVP inside land by default.
+  allow-pvp-by-default: false
+
+  # 是否允许非成员公众传送到领地。 / Allow non-members to teleport to land.
+  public-teleport: true
+
+  # 是否允许自然生成的生物在领地内出现。 / Allow natural mob spawning inside land.
+  # 刷怪箱、刷怪蛋和插件生成的生物不受此开关影响。 / Spawners, spawn eggs, and plugin-created mobs are not affected.
+  mob-spawning: true
+
+  # 是否允许玩家和生物踩踏农田或作物。 / Allow players and mobs to trample farmland and crops.
+  trampling: true
+
+limits:
+  # 单个主领地允许的最大水平面积，单位为方块。 / Maximum horizontal area per main land, in blocks.
+  max-main-area: 1000000
+
+  # 单个 3D 子领地允许的最大体积，单位为方块。 / Maximum volume per 3D subclaim, in blocks.
+  max-sub-volume: 1000000
+
+  # 领地名称允许的最小字符数。 / Minimum land-name length.
+  min-name-length: 2
+
+  # 领地名称允许的最大字符数。 / Maximum land-name length.
+  max-name-length: 24
+
+storage:
+  # 数据存储后端：sqlite、mysql 或 tsv。 / Storage backend: sqlite, mysql, or tsv.
+  type: sqlite
+
+  # 自动保存领地、成员和玩家在线时间的间隔，单位为秒。 / Autosave interval in seconds.
+  save-interval-seconds: 300
+
+  sqlite:
+    # 相对于 plugins/BetaLands/ 的文件名。 / File path relative to plugins/BetaLands/.
+    file: betalands.db
+
+  # 仅在 type: mysql 时使用，请预先创建数据库。 / Used only by type: mysql; create the database first.
+  mysql:
+    host: 127.0.0.1
+    port: 3306
+    database: betalands
+    username: root
+    password: ""
+    table-prefix: betalands_
+    use-ssl: false
+    connect-timeout-seconds: 5
+
+maps:
+  # 是否在地图中显示 3D 子领地。 / Show 3D subclaims on maps.
+  # 当前只影响 BlueMap；关闭后保护仍然生效。 / Currently affects BlueMap only; protection remains active.
+  show-subclaims: true
+
+  dynmap:
+    # 是否启用 Dynmap 领地标记。 / Enable Dynmap land markers.
+    enabled: true
+
+    # 插件启动后是否立即注入一次 Dynmap 标记。 / Inject Dynmap markers once after plugin startup.
+    # 关闭后只按每日时间刷新；手动 /land admin refresh-map dynmap 仍然可用。 / When false, refresh daily; manual refresh still works.
+    startup-refresh: true
+
+    # Dynmap 每天在服务器本地时间的该时刻刷新。 / Refresh Dynmap daily at this server-local time.
+    # 已知限制：Dynmap 刷新占用主线程并可能导致卡顿，暂无法异步。 / Known issue: Dynmap refresh uses the main thread and may lag; async is unavailable.
+    # 默认每天凌晨 01:00 刷新 Dynmap。 / Defaults to 01:00 local server time every day.
+    daily-refresh-hour: 1
+    daily-refresh-minute: 0
+
+  bluemap:
+    # 是否启用 BlueMap 领地标记。 / Enable BlueMap land markers.
+    enabled: true
+
+    # 领地变化后合并刷新 BlueMap 的延迟，单位为秒。 / BlueMap refresh coalescing delay in seconds after land changes.
+    refresh-delay-seconds: 15
+
+  # 颜色支持 auto 或带引号的 #RRGGBB，例如 "#3FA9F5"。 / Colors accept auto or a quoted #RRGGBB value such as "#3FA9F5".
+  # Dynmap 的 auto 按领地主人生成颜色。 / Dynmap auto derives colors from the land owner.
+  # BlueMap 的 auto 使用默认主领地蓝色和子领地橙色。 / BlueMap auto uses blue main lands and orange subclaims.
+  colors:
+    dynmap:
+      main: auto
+      subclaim: auto
+    bluemap:
+      main: auto
+      subclaim: auto
+
+territory-messages:
+  # 玩家跨入或离开主领地、子领地时是否发送提示。 / Send messages when entering or leaving land.
+  enabled: true
+
+  # 从领地进入野外时是否显示 Wilderness 提示。 / Show the Wilderness message after leaving land.
+  show-wilderness: true
+
+logs:
+  # 普通玩家查询领地日志时是否隐藏管理员/后台操作。 / Hide administrator and background actions from player land logs.
+  # 管理员通过 /land admin logs 查询时始终包含管理员操作。 / /land admin logs always includes administrator actions.
+  hide-admin-actions-from-players: true
+
+  # 自动删除多少天以前的日志。0 表示永久保留。 / Delete logs older than this many days; 0 keeps them forever.
+  # 示例：10 表示每天清理 10 天前的记录。 / Example: 10 deletes records older than 10 days.
+  retention-days: 0
+
+bstats:
+  # 是否发送匿名使用统计；不会发送玩家名或聊天内容。 / Send anonymous usage statistics; no player names or chat content are sent.
+  # 全局关闭项位于 plugins/bStats/config.yml。 / Global opt-out is plugins/bStats/config.yml.
+  enabled: true
+
+towny:
+  # 迁移 Towny 时是否把居民 plot 转换为 3D 子领地。 / Convert Towny resident plots to 3D subclaims.
+  import-resident-plots-as-subclaims: true
+
+economy:
+  # 是否启用领地收费。 / Enable land charges.
+  # 关闭后创建、扩展和子领地操作全部免费。 / When disabled, creation, expansion, and subclaims are free.
+  enabled: true
+
+  # 玩家金额输入最多保留的小数位数，可填 0-2。 / Maximum decimal places for player-entered amounts, from 0 to 2.
+  # 超过该位数的银行、租金或 bank-all 金额会被直接拒绝。 / Bank, rent, and bank-all amounts with more places are rejected.
+  max-decimal-places: 2
+
+  # 是否要求服务器必须有可用的 iConomy。 / Require a working iConomy installation.
+  # true：经济插件不可用时拒绝收费类领地操作。 / true: reject charged land operations without an economy.
+  # false：经济插件不可用时按免费模式运行。 / false: run charged operations for free without an economy.
+  require-economy: true
+
+  # 管理员和 OP 执行领地操作时是否同样收费。 / Charge administrators and OPs for land operations.
+  charge-admins: true
+
+  # 管理员或 OP 创建主领地时是否默认永久豁免维护费。 / Exempt administrator-created main lands from maintenance by default.
+  # 可通过 /land admin maintenance-exempt <true|false> [land] 单独修改。 / Override with /land admin maintenance-exempt <true|false> [land].
+  admin-created-maintenance-exempt: true
+
+  # 新建子领地时写入的默认每日租金额；租金仍需通过 /land rent set 开启。 / Initial daily amount stored for new subclaims; rent stays disabled until /land rent set.
+  default-subclaim-rent: 3.00
+
+  # 新建主领地时写入的默认每日租金额；租金仍需通过 /land rent set 开启。 / Initial daily amount stored for new main lands; rent stays disabled until /land rent set.
+  default-main-rent: 0.00
