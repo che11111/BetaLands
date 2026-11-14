@@ -112,7 +112,7 @@ public final class PluginConfig {
         bluemapRefreshDelaySeconds = positiveInt(configuration,
                 "maps.bluemap.refresh-delay-seconds", legacyMapRefreshDelay);
         dynmapDailyRefreshHour = boundedInt(configuration,
-                "maps.dynmap.daily-refresh-hour", 1, 0, 23);
+                "maps.dynmap.daily-refresh-hour", 3, 0, 23);
         dynmapDailyRefreshMinute = boundedInt(configuration,
                 "maps.dynmap.daily-refresh-minute", 0, 0, 59);
         dynmapStartupRefresh = bool(configuration,

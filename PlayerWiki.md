@@ -42,7 +42,7 @@ Map details show the land ID, world, occupied chunks, area, type, number of subc
     <td align="center" width="33%">
       <img src="https://raw.githubusercontent.com/che11111/BetaLands/main/img/2.png" alt="Land boundaries in Dynmap" width="100%">
       <br>
-      <sub>Refreshes daily at 01:00</sub>
+      <sub>Refreshes daily at 03:00</sub>
     </td>
     <td align="center" width="33%">
       <img src="https://raw.githubusercontent.com/che11111/BetaLands/main/img/3.png" alt="Land details on a web map" width="100%">

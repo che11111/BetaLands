@@ -39,7 +39,7 @@
     <td align="center" width="33%">
       <img src="https://raw.githubusercontent.com/che11111/BetaLands/main/img/2.png" alt="Dynmap 中展示的领地范围" width="100%">
       <br>
-      <sub>每天凌晨 `01:00` 刷新</sub>
+      <sub>每天凌晨 `03:00` 刷新</sub>
     </td>
     <td align="center" width="33%">
       <img src="https://raw.githubusercontent.com/che11111/BetaLands/main/img/3.png" alt="网页地图中展示的领地标签" width="100%">

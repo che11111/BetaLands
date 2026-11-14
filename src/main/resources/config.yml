@@ -102,8 +102,8 @@ maps:
 
     # Dynmap 每天在服务器本地时间的该时刻刷新。 / Refresh Dynmap daily at this server-local time.
     # 已知限制：Dynmap 刷新占用主线程并可能导致卡顿，暂无法异步。 / Known issue: Dynmap refresh uses the main thread and may lag; async is unavailable.
-    # 默认每天凌晨 01:00 刷新 Dynmap。 / Defaults to 01:00 local server time every day.
-    daily-refresh-hour: 1
+    # 默认每天凌晨 03:00 刷新 Dynmap。 / Defaults to 03:00 local server time every day.
+    daily-refresh-hour: 3
     daily-refresh-minute: 0
 
   bluemap:

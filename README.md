@@ -384,13 +384,13 @@ maps:
 
 With the default disabled value, no markers are injected at startup, but the daily refresh remains enabled. Prefer `/land admin refresh-map dynmap` for explicit synchronization. Dynmap refresh runs on the main thread and may cause temporary lag.
 
-BlueMap and Dynmap use independent schedules. BlueMap waits 15 seconds after land changes by default. Dynmap refreshes daily at server-local `01:00`:
+BlueMap and Dynmap use independent schedules. BlueMap waits 15 seconds after land changes by default. Dynmap refreshes daily at server-local `03:00`:
 
 ```yaml
 maps:
   dynmap:
     enabled: true
-    daily-refresh-hour: 1
+    daily-refresh-hour: 3
     daily-refresh-minute: 0
   bluemap:
     enabled: true
@@ -470,7 +470,7 @@ Clear the browser cache and force-refresh the map. Dynmap 0.25+ frontend resourc
 
 ### 5.4 Dynmap Refresh Thread Limitation (Known Issue)
 
-Dynmap 0.24 marker refreshes currently run on the Bukkit main thread and can cause lag. An asynchronous build/delta-marker approach similar to BlueMap was tested, but Dynmap did not render markers reliably. Dynmap therefore refreshes daily at `01:00` by default to reduce the effect on peak hours.
+Dynmap 0.24 marker refreshes currently run on the Bukkit main thread and can cause lag. An asynchronous build/delta-marker approach similar to BlueMap was tested, but Dynmap did not render markers reliably. Dynmap therefore refreshes daily at `03:00` by default to reduce the effect on peak hours.
 
 ## 6 Administration and Maintenance
 

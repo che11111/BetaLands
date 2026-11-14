@@ -112,7 +112,7 @@ public class PluginConfigTest {
         List<String> defaults = Arrays.asList(
                 "maps:",
                 "  dynmap:",
-                "    daily-refresh-hour: 1",
+                "    daily-refresh-hour: 3",
                 "    daily-refresh-minute: 0",
                 "  bluemap:",
                 "    refresh-delay-seconds: 15");
@@ -126,7 +126,7 @@ public class PluginConfigTest {
             Files.write(file.toPath(), merged, StandardCharsets.UTF_8);
             Configuration configuration = new Configuration(file);
             configuration.load();
-            assertEquals(1, configuration.getInt(
+            assertEquals(3, configuration.getInt(
                     "maps.dynmap.daily-refresh-hour", 0));
             assertEquals(0, configuration.getInt(
                     "maps.dynmap.daily-refresh-minute", -1));

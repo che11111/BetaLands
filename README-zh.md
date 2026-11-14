@@ -376,13 +376,13 @@ maps:
 
 默认关闭后不会在启动时注入标记，但仍按 `daily-refresh-hour/minute` 每日刷新；建议使用 `/land admin refresh-map dynmap` 手动同步。Dynmap 刷新在主线程执行，可能造成暂时卡顿。
 
-BlueMap 和 Dynmap 分别调度。BlueMap 默认在领地变化后 15 秒刷新，Dynmap 默认每天服务器本地时间凌晨 `01:00` 刷新：
+BlueMap 和 Dynmap 分别调度。BlueMap 默认在领地变化后 15 秒刷新，Dynmap 默认每天服务器本地时间凌晨 `03:00` 刷新：
 
 ```yaml
 maps:
   dynmap:
     enabled: true
-    daily-refresh-hour: 1
+    daily-refresh-hour: 3
     daily-refresh-minute: 0
   bluemap:
     enabled: true
@@ -462,7 +462,7 @@ set.areas = {};
 
 ### 5.4 Dynmap 刷新线程限制（已知问题）
 
-Dynmap 0.24 版本的标记刷新目前在 Bukkit 主线程完成。会导致服务器卡顿；曾尝试改为类似 BlueMap 的异步构建和差量标记，但实际测试中 Dynmap 无法稳定显示标记，因此目前无法采用异步线程。默认将 Dynmap 刷新安排到每天凌晨 `01:00`，以降低在线高峰受到影响。
+Dynmap 0.24 版本的标记刷新目前在 Bukkit 主线程完成。会导致服务器卡顿；曾尝试改为类似 BlueMap 的异步构建和差量标记，但实际测试中 Dynmap 无法稳定显示标记，因此目前无法采用异步线程。默认将 Dynmap 刷新安排到每天凌晨 `03:00`，以降低在线高峰受到影响。
 
 ## 6 管理与维护
 
