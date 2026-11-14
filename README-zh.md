@@ -410,7 +410,7 @@ maps:
 
 Dynmap 的 `auto` 会根据领地主人生成颜色；BlueMap 的 `auto` 使用默认蓝色主领地和橙色子领地。修改颜色后执行 `/land admin reload`。
 
-Dynmap 和 BlueMap 的图层名称、标记详情位于 `BetaLands/lang/map-zh.yml` 和 `map-en.yml`，通过 `config.yml` 的 `language.map` 选择。
+Dynmap 和 BlueMap 的图层名称、标记详情位于 `BetaLands/lang/map-<语言>.yml`，通过 `config.yml` 的 `language.map` 选择。内置英语、简体中文、繁体中文、日语、韩语、德语、法语、西班牙语和俄语，也可以指定 `lang/` 下任意安全的完整 `.yml` 文件名。
 
 Dynmap 是俯视地图，子领地标记可以显示水平范围和 Y 范围信息，但无法显示 BlueMap 那样的三维挤出柱体。
 
@@ -513,13 +513,13 @@ logs:
 
 | 控制台消息 | 地图标记消息 |
 | --- | --- |
-| 语言文件：`lang/` 下的 `console-en.yml`、`console-zh.yml`、`console-ja.yml`、`console-ko.yml`、`console-zh-tw.yml`、`console-de.yml`、`console-fr.yml`、`console-es.yml`、`console-ru.yml` | 语言文件：`lang/map-zh.yml`、`lang/map-en.yml` |
+| 语言文件：`lang/` 下的 `console-en.yml`、`console-zh.yml`、`console-ja.yml`、`console-ko.yml`、`console-zh-tw.yml`、`console-de.yml`、`console-fr.yml`、`console-es.yml`、`console-ru.yml` | 语言文件：`lang/` 下的 `map-en.yml`、`map-zh.yml`、`map-ja.yml`、`map-ko.yml`、`map-zh-tw.yml`、`map-de.yml`、`map-fr.yml`、`map-es.yml`、`map-ru.yml` |
 | 配置：`language.console` | 配置：`language.map: auto` |
-| 可选值：`auto` 或完整的控制台 `.yml` 文件名 | 可选值：`auto`、`zh`、`en` |
+| 可选值：`auto` 或完整的 `.yml` 文件名 | 可选值：`auto` 或完整的 `.yml` 文件名 |
 | 用于 Hook、刷新和错误等后台消息 | 用于 Dynmap/BlueMap 图层名称和领地详情 |
 
 
-修改后执行 `/land admin reload`。控制台支持英语、简体中文、日语、韩语、繁体中文、德语、法语、西班牙语和俄语；`auto` 根据服务器 JVM 语言和地区自动选择，中文 `TW`、`HK`、`MO` 地区使用繁体中文，其他中文地区使用简体中文，不支持的地区回退到英语。不支持裸语言代码或自定义游戏文件名；自定义控制台文件不存在或缺少键时回退到 `console-en.yml`。
+修改后执行 `/land admin reload`。控制台和地图都支持英语、简体中文、日语、韩语、繁体中文、德语、法语、西班牙语和俄语；两者的 `auto` 使用同一套服务器 JVM 语言和地区规则，中文 `TW`、`HK`、`MO` 地区使用繁体中文，其他中文地区使用简体中文，不支持的地区回退到英语。裸语言值（例如 `zh`、`en`）不是有效配置；自定义控制台文件不存在或缺少键时回退到 `console-en.yml`，自定义地图文件不存在、无效或缺少键时回退到 `map-en.yml`。
 
 游戏内消息统一使用以下颜色规则：
 

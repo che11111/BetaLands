@@ -67,3 +67,9 @@ towny:
 
 economy:
   hook-failed: "Не удалось подключиться к iConomy: {error}"
+
+admin:
+  reloaded-v2: "Конфигурация, уровни земли и перезагружаемые интеграции обновлены."
+  status-header: "Состояние BetaLands"
+  status-counts: "Земли={lands}, игроки={players}, открытие внешнего строительства={hours} ч."
+  status-economy-scaled: "Экономика={economy}, уровень по умолчанию={level}, уровней={levels}, создание={create}, заявка={claim}+{increment}*чанков, подобласть/блок={subBlock}"

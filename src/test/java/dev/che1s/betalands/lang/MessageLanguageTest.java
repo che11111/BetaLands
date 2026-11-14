@@ -46,6 +46,39 @@ public class MessageLanguageTest {
                 MessageService.consoleFileForLocale("es", "ES"));
         assertEquals("console-ru.yml",
                 MessageService.consoleFileForLocale("ru", "RU"));
+        assertEquals("map-zh.yml",
+                MessageService.mapFileForLocale("zh", "CN"));
+        assertEquals("map-zh-tw.yml",
+                MessageService.mapFileForLocale("zh", "TW"));
+        assertEquals("map-ja.yml",
+                MessageService.mapFileForLocale("ja", "JP"));
+        assertEquals("map-ko.yml",
+                MessageService.mapFileForLocale("ko", "KR"));
+        assertEquals("map-de.yml",
+                MessageService.mapFileForLocale("de", "DE"));
+        assertEquals("map-fr.yml",
+                MessageService.mapFileForLocale("fr", "FR"));
+        assertEquals("map-es.yml",
+                MessageService.mapFileForLocale("es", "ES"));
+        assertEquals("map-ru.yml",
+                MessageService.mapFileForLocale("ru", "RU"));
+        assertEquals("map-en.yml",
+                MessageService.mapFileForLocale("pt", "BR"));
+    }
+
+    @Test
+    public void resolvesMapLanguageFilenamesSafely() {
+        assertEquals("map-fr.yml",
+                MessageService.resolveMapFile("map-fr.yml"));
+        assertEquals("console-fr.yml",
+                MessageService.resolveMapFile("console-fr.yml"));
+        assertEquals("my-custom-map.yml",
+                MessageService.resolveMapFile("my-custom-map.yml"));
+        assertEquals("map-en.yml", MessageService.resolveMapFile("zh"));
+        assertEquals("map-en.yml", MessageService.resolveMapFile("en"));
+        assertEquals("map-en.yml", MessageService.resolveMapFile("fr"));
+        assertEquals("map-en.yml",
+                MessageService.resolveMapFile("../../map-fr.yml"));
     }
 
     @Test

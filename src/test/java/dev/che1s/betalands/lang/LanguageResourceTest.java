@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.io.File;
 import java.net.URL;
 import java.util.HashSet;
+import java.util.Set;
 
 import org.bukkit.util.config.Configuration;
 import org.junit.Test;
@@ -83,6 +84,41 @@ public class LanguageResourceTest {
                 new HashSet<String>(english.getAll().keySet()),
                 new HashSet<String>(config.getAll().keySet()));
         }
+    }
+
+    @Test
+    public void mapLanguageFilesExist() throws Exception {
+        String[] files = {
+            "map-en.yml", "map-zh.yml", "map-ja.yml",
+            "map-ko.yml", "map-zh-tw.yml", "map-de.yml",
+            "map-fr.yml", "map-es.yml", "map-ru.yml"
+        };
+        Set<String> englishKeys = mapKeys(readResource("/lang/map-en.yml"));
+        for (String file : files) {
+            assertEquals("Key mismatch in " + file,
+                englishKeys, mapKeys(readResource("/lang/" + file)));
+        }
+    }
+
+    private Set<String> mapKeys(String content) {
+        Set<String> keys = new HashSet<String>();
+        String section = null;
+        String[] lines = content.split("\\r?\\n");
+        for (String line : lines) {
+            String trimmed = line.trim();
+            if (trimmed.length() == 0 || trimmed.startsWith("#")
+                    || trimmed.indexOf(':') < 0) {
+                continue;
+            }
+            String key = trimmed.substring(0, trimmed.indexOf(':')).trim();
+            int indent = line.indexOf(trimmed);
+            if (indent == 0) {
+                section = key;
+            } else if (indent == 2 && section != null) {
+                keys.add(section + "." + key);
+            }
+        }
+        return keys;
     }
 
     private Configuration loadConfiguration(String path) throws Exception {

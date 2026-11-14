@@ -67,3 +67,9 @@ towny:
 
 economy:
   hook-failed: "iConomy konnte nicht verbunden werden: {error}"
+
+admin:
+  reloaded-v2: "Konfiguration, Landstufen und neu ladbare Integrationen wurden aktualisiert."
+  status-header: "BetaLands-Status"
+  status-counts: "Länder={lands}, Spieler={players}, Freischaltung außerhalb={hours} Stunden"
+  status-economy-scaled: "Wirtschaft={economy}, Standardstufe={level}, Stufen={levels}, Erstellen={create}, Beanspruchen={claim}+{increment}*Chunks, Untergebiet/Block={subBlock}"

@@ -418,7 +418,7 @@ maps:
 
 Dynmap `auto` derives colors from the land owner. BlueMap `auto` uses blue main lands and orange subclaims. Run `/land admin reload` after changing colors.
 
-Marker-set names and detail text are in `BetaLands/lang/map-zh.yml` and `map-en.yml`, selected through `language.map` in `config.yml`.
+Marker-set names and detail text are in `BetaLands/lang/map-<language>.yml`, selected through `language.map` in `config.yml`. Built-in languages are English, Simplified Chinese, Traditional Chinese, Japanese, Korean, German, French, Spanish, and Russian. Any safe complete `.yml` filename under `lang/` can also be selected.
 
 Dynmap is top-down. Subclaim markers can include Y-range data but cannot display the 3D extruded volumes used by BlueMap.
 
@@ -519,12 +519,12 @@ In-game messages use the fixed file `lang/game.yml`; `language.game` must remain
 
 | Console Messages | Map Marker Messages |
 | --- | --- |
-| Files: `console-en.yml`, `console-zh.yml`, `console-ja.yml`, `console-ko.yml`, `console-zh-tw.yml`, `console-de.yml`, `console-fr.yml`, `console-es.yml`, `console-ru.yml` under `lang/` | Files: `lang/map-zh.yml`, `lang/map-en.yml` |
+| Files: `console-en.yml`, `console-zh.yml`, `console-ja.yml`, `console-ko.yml`, `console-zh-tw.yml`, `console-de.yml`, `console-fr.yml`, `console-es.yml`, `console-ru.yml` under `lang/` | Files: `map-en.yml`, `map-zh.yml`, `map-ja.yml`, `map-ko.yml`, `map-zh-tw.yml`, `map-de.yml`, `map-fr.yml`, `map-es.yml`, `map-ru.yml` under `lang/` |
 | Setting: `language.console` | Setting: `language.map: auto` |
-| Values: `auto` or a complete safe `.yml` console filename | Values: `auto`, `zh`, `en` |
+| Values: `auto` or a complete safe `.yml` filename | Values: `auto` or a complete safe `.yml` filename |
 | Used for hooks, refreshes, errors, and other background output | Used for Dynmap/BlueMap layer names and land details |
 
-Run `/land admin reload` after editing. Console messages support English, Simplified Chinese, Japanese, Korean, Traditional Chinese, German, French, Spanish, and Russian. `auto` follows the server JVM language and country; Chinese `TW`, `HK`, and `MO` locales select Traditional Chinese, other Chinese locales select Simplified Chinese, and unsupported locales fall back to English. Bare language codes and custom game filenames are not supported. Custom console files fall back to `console-en.yml` when missing or incomplete.
+Run `/land admin reload` after editing. Console and map messages support English, Simplified Chinese, Japanese, Korean, Traditional Chinese, German, French, Spanish, and Russian. Both `auto` values use the same server JVM language and country rules; Chinese `TW`, `HK`, and `MO` locales select Traditional Chinese, other Chinese locales select Simplified Chinese, and unsupported locales fall back to English. Bare language values such as `zh` and `en` are not valid configuration. Custom game filenames are not supported. Custom console files fall back to `console-en.yml` when missing or incomplete; custom or invalid map files fall back to `map-en.yml` when missing or incomplete.
 
 In-game messages follow these color rules:
 

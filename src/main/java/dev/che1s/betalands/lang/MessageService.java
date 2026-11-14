@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.util.config.Configuration;
 
 import dev.che1s.betalands.BetaLandsPlugin;
@@ -28,6 +29,17 @@ public final class MessageService {
             "console-es.yml",
             "console-ru.yml"
     };
+    private static final String[] MAP_LANGUAGE_FILES = {
+            "map-en.yml",
+            "map-zh.yml",
+            "map-ja.yml",
+            "map-ko.yml",
+            "map-zh-tw.yml",
+            "map-de.yml",
+            "map-fr.yml",
+            "map-es.yml",
+            "map-ru.yml"
+    };
     private static final Pattern SAFE_LANGUAGE_FILE =
             Pattern.compile("^[A-Za-z0-9][A-Za-z0-9._-]*\\.yml$");
 
@@ -37,6 +49,7 @@ public final class MessageService {
     private Configuration console;
     private Configuration consoleFallback;
     private Configuration mapLanguage;
+    private Configuration mapFallback;
     private String gamePrefix;
     private String consolePrefix;
     private boolean mapChinese;
@@ -56,17 +69,19 @@ public final class MessageService {
         for (String filename : CONSOLE_LANGUAGE_FILES) {
             ensureFile(folder, filename);
         }
-        File mapZh = ensureFile(folder, "map-zh.yml");
         File mapEn = ensureFile(folder, "map-en.yml");
+        for (String filename : MAP_LANGUAGE_FILES) {
+            ensureFile(folder, filename);
+        }
         String consoleFilename = resolveConsoleFile(
                 plugin.getSettings().getConsoleLanguage());
         String gameFilename = resolveGameFile(
                 plugin.getSettings().getGameLanguage());
+        String mapFilename = resolveMapFile(
+                plugin.getSettings().getMapLanguage());
         File requestedConsole = new File(folder, consoleFilename);
         File requestedGame = new File(folder, gameFilename);
-        String selectedMapLanguage = resolvedLanguage(plugin.getSettings().getMapLanguage());
-        mapChinese = isChinese(selectedMapLanguage);
-        File mapFile = isChinese(selectedMapLanguage) ? mapZh : mapEn;
+        File requestedMap = new File(folder, mapFilename);
 
         consoleFallback = new Configuration(consoleEn);
         consoleFallback.load();
@@ -75,8 +90,10 @@ public final class MessageService {
         gameFallback = new Configuration(gameFile);
         gameFallback.load();
         game = requestedGame.isFile() ? load(requestedGame) : gameFallback;
-        mapLanguage = new Configuration(mapFile);
-        mapLanguage.load();
+        mapFallback = new Configuration(mapEn);
+        mapFallback.load();
+        mapLanguage = requestedMap.isFile() ? load(requestedMap) : mapFallback;
+        mapChinese = mapFilename.toLowerCase(Locale.ROOT).startsWith("map-zh");
         gamePrefix = fallbackValue(game, gameFallback,
                 "prefix", ChatColor.YELLOW + "[BetaLands] ");
         consolePrefix = fallbackValue(console, consoleFallback,
@@ -106,6 +123,18 @@ public final class MessageService {
                     "file", gameFilename,
                     "fallback", "game.yml");
         }
+        if (isInvalidLanguageValue(plugin.getSettings().getMapLanguage(),
+                mapFilename)) {
+            warning("language.invalid-file",
+                    "Invalid language filename '{file}'; using {fallback}.",
+                    "file", plugin.getSettings().getMapLanguage(),
+                    "fallback", "map-en.yml");
+        } else if (!requestedMap.isFile()) {
+            warning("language.file-fallback",
+                    "Language file {file} was not found; using {fallback}.",
+                    "file", mapFilename,
+                    "fallback", "map-en.yml");
+        }
     }
 
     public String game(String key, String fallback, String... replacements) {
@@ -119,11 +148,13 @@ public final class MessageService {
     }
 
     public void send(CommandSender sender, String key, String fallback, String... replacements) {
-        sender.sendMessage(game(key, fallback, replacements));
+        sender.sendMessage(sender instanceof Player
+                ? game(key, fallback, replacements)
+                : console(key, fallback, replacements));
     }
 
     public String map(String key, String fallback, String... replacements) {
-        String value = mapLanguage == null ? fallback : mapLanguage.getString(key, fallback);
+        String value = fallbackValue(mapLanguage, mapFallback, key, fallback);
         return replace(value, replacements);
     }
 
@@ -133,7 +164,8 @@ public final class MessageService {
 
     public String console(String key, String fallback, String... replacements) {
         String value = fallbackValue(console, consoleFallback, key, fallback);
-        return consolePrefix + " " + replace(value, replacements);
+        return ChatColor.translateAlternateColorCodes(
+                '&', consolePrefix + " " + replace(value, replacements));
     }
 
     public void info(String key, String fallback, String... replacements) {
@@ -286,21 +318,21 @@ public final class MessageService {
                 .replace("&r", "");
     }
 
-    static String resolvedLanguage(String configured) {
-        if (configured == null || "auto".equalsIgnoreCase(configured)) {
-            String systemLanguage = System.getProperty("user.language",
-                    Locale.getDefault().getLanguage());
-            return isChinese(systemLanguage) ? "zh" : "en";
-        }
-        return isChinese(configured) ? "zh" : "en";
-    }
-
     static boolean isChinese(String language) {
         String value = language == null ? "zh" : language.toLowerCase(Locale.ROOT);
         return value.startsWith("zh") || value.contains("chinese") || value.contains("中文");
     }
 
     static String consoleFileForLocale(String language, String country) {
+        return languageFileForLocale("console", language, country);
+    }
+
+    static String mapFileForLocale(String language, String country) {
+        return languageFileForLocale("map", language, country);
+    }
+
+    private static String languageFileForLocale(String prefix,
+                                                String language, String country) {
         String value = (language == null ? "" : language)
                 + "_" + (country == null ? "" : country);
         value = value.toLowerCase(Locale.ROOT);
@@ -311,33 +343,33 @@ public final class MessageService {
                     || value.contains("_mo")
                     || value.contains("traditional")
                     || value.contains("繁體")
-                    ? "console-zh-tw.yml" : "console-zh.yml";
+                    ? prefix + "-zh-tw.yml" : prefix + "-zh.yml";
         }
         if (value.startsWith("ja") || value.startsWith("jp")
                 || value.contains("japanese") || value.contains("日本語")) {
-            return "console-ja.yml";
+            return prefix + "-ja.yml";
         }
         if (value.startsWith("ko") || value.startsWith("kr")
                 || value.contains("korean") || value.contains("한국어")) {
-            return "console-ko.yml";
+            return prefix + "-ko.yml";
         }
         if (value.startsWith("de") || value.contains("german")
                 || value.contains("deutsch")) {
-            return "console-de.yml";
+            return prefix + "-de.yml";
         }
         if (value.startsWith("fr") || value.contains("french")
                 || value.contains("français")) {
-            return "console-fr.yml";
+            return prefix + "-fr.yml";
         }
         if (value.startsWith("es") || value.contains("spanish")
                 || value.contains("español")) {
-            return "console-es.yml";
+            return prefix + "-es.yml";
         }
         if (value.startsWith("ru") || value.contains("russian")
                 || value.contains("русский")) {
-            return "console-ru.yml";
+            return prefix + "-ru.yml";
         }
-        return "console-en.yml";
+        return prefix + "-en.yml";
     }
 
     static String resolveConsoleFile(String configured) {
@@ -352,6 +384,20 @@ public final class MessageService {
         }
         return SAFE_LANGUAGE_FILE.matcher(requested).matches()
                 ? requested : "console-en.yml";
+    }
+
+    static String resolveMapFile(String configured) {
+        String requested = configured == null ? "" : configured.trim();
+        if (requested.isEmpty() || "auto".equalsIgnoreCase(requested)) {
+            return mapFileForLocale(
+                    System.getProperty("user.language",
+                            Locale.getDefault().getLanguage()),
+                    System.getProperty("user.country",
+                            Locale.getDefault().getCountry())
+            );
+        }
+        return SAFE_LANGUAGE_FILE.matcher(requested).matches()
+                ? requested : "map-en.yml";
     }
 
     static String resolveGameFile(String configured) {

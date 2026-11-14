@@ -66,3 +66,9 @@ towny:
 economy:
   hook-failed: "无法连接 iConomy：{error}"
 
+admin:
+  reloaded-v2: "配置、等级数据和可重载集成已刷新。"
+  status-header: "BetaLands 状态"
+  status-counts: "领地={lands}，玩家={players}，领地外建造解锁={hours} 小时"
+  status-economy-scaled: "经济={economy}，默认等级={level}，等级数={levels}，创建费用={create}，圈地费用={claim}+{increment}*区块，子领地/方块={subBlock}"
+

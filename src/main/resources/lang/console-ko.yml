@@ -67,3 +67,9 @@ towny:
 
 economy:
   hook-failed: "iConomy에 연결하지 못했습니다: {error}"
+
+admin:
+  reloaded-v2: "설정, 토지 등급 및 다시 불러올 수 있는 연동을 새로 고쳤습니다."
+  status-header: "BetaLands 상태"
+  status-counts: "토지={lands}, 플레이어={players}, 외부 건설 해제={hours}시간"
+  status-economy-scaled: "경제={economy}, 기본 등급={level}, 등급 수={levels}, 생성={create}, 영역={claim}+{increment}*청크, 하위 영역/블록={subBlock}"

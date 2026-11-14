@@ -67,3 +67,9 @@ towny:
 
 economy:
   hook-failed: "iConomy に接続できませんでした：{error}"
+
+admin:
+  reloaded-v2: "設定、土地レベル、再読み込み可能な連携を更新しました。"
+  status-header: "BetaLands ステータス"
+  status-counts: "土地={lands}、プレイヤー={players}、外部建設解放={hours} 時間"
+  status-economy-scaled: "経済={economy}、既定レベル={level}、レベル数={levels}、作成={create}、保護申請={claim}+{increment}*チャンク、サブ領地/ブロック={subBlock}"

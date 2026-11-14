@@ -66,3 +66,9 @@ towny:
 economy:
   hook-failed: "Could not hook iConomy: {error}"
 
+admin:
+  reloaded-v2: "Configuration, level data and reloadable integrations refreshed."
+  status-header: "BetaLands status"
+  status-counts: "Lands={lands}, players={players}, outside unlock={hours} hours"
+  status-economy-scaled: "Economy={economy}, default level={level}, levels={levels}, create={create}, claim={claim}+{increment}*chunks, subclaim/block={subBlock}"
+

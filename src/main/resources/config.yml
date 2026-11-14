@@ -12,8 +12,9 @@ language:
   # Beta 1.7.3 客户端无法可靠显示中文，默认文件保持 ASCII 英文。 / Beta 1.7.3 clients cannot reliably render Chinese; the default file stays ASCII English.
   game: game.yml
 
-  # Dynmap/BlueMap 图层名和标记详情语言：auto、zh 或 en。 / Dynmap/BlueMap marker language: auto, zh, or en.
-  # auto 根据服务器 JVM 默认语言自动选择。 / auto follows the server JVM language.
+  # 地图语言：auto，或 lang/ 下的完整 .yml 文件名。 / Map language: auto or a complete .yml filename under lang/.
+  # 内置九种地图语言；自定义文件名不受前缀限制。 / Nine map languages are built in; custom filenames have no prefix requirement.
+  # auto 与控制台语言使用相同的 JVM 语言和地区规则。 / auto uses the same JVM language and country rules as the console.
   map: auto
 
 protection:
