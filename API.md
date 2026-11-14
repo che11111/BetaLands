@@ -6,7 +6,7 @@ BetaLands registers a read-only query API through Bukkit's `ServicesManager`:
 dev.che1s.betalands.api.BetaLandsApi
 ```
 
-The current API version is `5`. The API returns immutable snapshots and provides no write operations for creating, deleting, transferring, editing members, or modifying economic data.
+The current API version is `6`. The API returns immutable snapshots and provides no write operations for creating, deleting, transferring, editing members, or modifying economic data.
 
 ## 1. Integration
 
@@ -52,8 +52,8 @@ public final class MyPlugin extends JavaPlugin {
             getLogger().warning("BetaLands API is unavailable.");
             return;
         }
-        if (betaLandsApi.getApiVersion() < 5) {
-            getLogger().warning("BetaLands API 5 or newer is required.");
+        if (betaLandsApi.getApiVersion() < 6) {
+            getLogger().warning("BetaLands API 6 or newer is required.");
             betaLandsApi = null;
         }
     }
@@ -328,8 +328,8 @@ subclaim override > main-land override > global default
 | `getClaimChunkPrice()` | Base expansion price |
 | `getClaimChunkIncrement()` | Price increment per existing chunk |
 | `getSubclaimPerBlockPrice()` | Subclaim price per block |
-| `getMaintenancePerChunkPerDay()` | Daily maintenance per chunk |
-| `getMaintenancePerMemberPerDay()` | Daily maintenance per member |
+| `getMaintenancePerChunkPerCycle()` | Maintenance per chunk per billing cycle |
+| `getMaintenancePerMemberPerCycle()` | Maintenance per member per billing cycle |
 | `getMaintenanceIntervalDays()` | Maintenance charging interval |
 
 `LandInfo.getNextExpansionPrice()`:
@@ -347,7 +347,7 @@ The result is rounded to `0.01`. This method is meaningful only for expanding a 
 | `getBankBalance()` | Raw family bank balance; may be negative |
 | `getMaintenanceDebt()` | Non-negative debt amount; `0` when the balance is not negative |
 | `getMaintenancePrepaidBalance()` | Non-negative prepaid maintenance; `0` when the balance is not positive |
-| `getDailyMaintenance()` | Current family daily maintenance |
+| `getMaintenancePerCycle()` | Current family maintenance charge per billing cycle |
 | `isMaintenanceExempt()` | Whether maintenance is exempt |
 | `getLastMaintenanceAt()` | Last maintenance charge time |
 | `getNextMaintenanceAt()` | Next maintenance charge time |
@@ -415,7 +415,7 @@ The owner entry in `getMembers()` always contains all permissions. Other members
 | `getDailyRent()` | Daily rent charged to this player on this land; `0` when not a rent payer |
 | `getRentBalance()` | Player's server-wide shared rent-account balance |
 | `isRentInDebt()` | Whether the global rent account is in debt |
-| `getFamilyDailyMaintenance()` | Total daily maintenance for the land family |
+| `getFamilyMaintenancePerCycle()` | Total family maintenance charge per billing cycle |
 | `getMaintenancePrepaidBalance()` | Raw parent main-land bank balance; may be negative |
 | `getNextRentAt()` | Next rent processing time for this land |
 | `getNextMaintenanceAt()` | Next maintenance time for this land family |
@@ -434,7 +434,8 @@ BetaLands' land banks and rent accounts are internal plugin ledgers, not live mi
 
 - A main-land bank is the maintenance prepayment account.
 - A positive balance is prepaid maintenance; a negative balance is debt.
-- Daily maintenance is calculated from main-land chunk count and family member count.
+- Maintenance is calculated from main-land chunk count and family member count for each billing cycle.
+- Family member count is deduplicated across the main land and all direct subclaims. The main-land owner is excluded, and only players with effective `BUILD` permission in the main land or at least one subclaim are counted. Members without effective `BUILD` permission are not charged.
 - The land bank is charged when the configured level interval is reached.
 - Amounts successfully collected accumulate in BetaLands' server-maintenance bank.
 
@@ -534,15 +535,17 @@ public void inspectLand(BetaLandsApi api) {
 Current API version:
 
 ```java
-BetaLandsApi.API_VERSION == 5
+BetaLandsApi.API_VERSION == 6
 ```
 
 Consumers should check it during initialization:
 
 ```java
-if (api.getApiVersion() < 5) {
-    // This code depends on API 5.
+if (api.getApiVersion() < 6) {
+    // This code depends on API 6.
 }
 ```
+
+API 6 changes maintenance fields to represent one billing-cycle charge. The old `getDailyMaintenance()`, `getFamilyDailyMaintenance()`, and `getMaintenancePer*PerDay()` methods remain temporarily for compatibility, are deprecated, and now return the per-cycle amount.
 
 Use only public types from the `dev.che1s.betalands.api` package. Internal implementation may change between plugin versions and is not covered by compatibility guarantees.

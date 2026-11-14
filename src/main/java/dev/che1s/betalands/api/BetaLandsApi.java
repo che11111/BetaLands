@@ -7,7 +7,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
 public interface BetaLandsApi {
-    int API_VERSION = 5;
+    int API_VERSION = 6;
 
     static BetaLandsApi get() {
         RegisteredServiceProvider<BetaLandsApi> registration =

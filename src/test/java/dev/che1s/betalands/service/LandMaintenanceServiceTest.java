@@ -16,18 +16,18 @@ public class LandMaintenanceServiceTest {
     @Test
     public void calculatesMaintenanceAndRent() {
         LevelProfile profile = new LevelProfile("default", "默认", "", 0,
-                5, 100, 3, 8, 5, 300.0D, 20.0D, 5.0D, 0.01D, 0.30D, 0.50D);
-        assertEquals(18.0D,
+                5, 200, 3, 6, 6, 300.0D, 20.0D, 5.0D, 0.01D, 0.20D, 0.30D);
+        assertEquals(11.80D,
                 LandMaintenanceService.calculateMaintenanceFee(profile, 50, 6), 0.0001D);
         assertEquals(9.0D, LandMaintenanceService.calculateRent(3.0D, 3L), 0.0001D);
 
         LevelProfile vip = new LevelProfile("vip", "VIP", "", 10,
-                15, 200, 10, 15, 30, 250.0D, 20.0D, 4.0D, 0.008D, 0.25D, 0.40D);
+                15, 400, 20, 20, 30, 250.0D, 20.0D, 4.0D, 0.008D, 0.15D, 0.25D);
         LevelProfile svip = new LevelProfile("svip", "SVIP", "", 20,
-                30, 300, 50, 40, 100, 200.0D, 20.0D, 3.0D, 0.005D, 0.20D, 0.30D);
-        assertEquals(14.90D,
+                30, 1000, 100, 60, 100, 200.0D, 20.0D, 3.0D, 0.005D, 0.10D, 0.20D);
+        assertEquals(9.00D,
                 LandMaintenanceService.calculateMaintenanceFee(vip, 50, 6), 0.0001D);
-        assertEquals(11.80D,
+        assertEquals(6.20D,
                 LandMaintenanceService.calculateMaintenanceFee(svip, 50, 6), 0.0001D);
     }
 
@@ -67,7 +67,7 @@ public class LandMaintenanceServiceTest {
     }
 
     @Test
-    public void maintenanceAccrualChargesWholeCyclesOnly() {
+    public void maintenanceAccrualChargesOneCycleFeePerWholeInterval() {
         long day = LandMaintenanceService.DAY_MILLIS;
         long last = 10_000L;
 
@@ -80,15 +80,17 @@ public class LandMaintenanceServiceTest {
                 LandMaintenanceService.calculateMaintenanceAccrual(
                         last, last + 3L * day + day / 2L, 3, 4.0D);
         assertTrue(due.isDue());
+        assertEquals(1L, due.getIntervals());
         assertEquals(3L, due.getDays());
-        assertEquals(12.0D, due.getAmount(), 0.0D);
+        assertEquals(4.0D, due.getAmount(), 0.0D);
         assertEquals(last + 3L * day, due.getNextAt());
 
         LandMaintenanceService.MaintenanceAccrual catchUp =
                 LandMaintenanceService.calculateMaintenanceAccrual(
                         last, last + 10L * day, 3, 4.0D);
+        assertEquals(3L, catchUp.getIntervals());
         assertEquals(9L, catchUp.getDays());
-        assertEquals(36.0D, catchUp.getAmount(), 0.0D);
+        assertEquals(12.0D, catchUp.getAmount(), 0.0D);
         assertEquals(last + 9L * day, catchUp.getNextAt());
     }
 

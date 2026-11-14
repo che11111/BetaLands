@@ -134,7 +134,7 @@ public final class BetaLandsApiImpl implements BetaLandsApi {
                 land.isOwner(playerName), rentPayer, permissions,
                 rentPayer ? land.getRentAmount() : 0.0D,
                 account == null ? 0.0D : account.getBalance(),
-                maintenance == null ? 0.0D : maintenance.getDailyFee(land),
+                maintenance == null ? 0.0D : maintenance.getMaintenanceFee(land),
                 main == null ? 0.0D : main.getBankBalance(),
                 maintenance == null ? 0L : maintenance.getNextRentAt(land),
                 maintenance == null ? 0L : maintenance.getNextDueAt(land));
@@ -186,7 +186,7 @@ public final class BetaLandsApiImpl implements BetaLandsApi {
                 land.area(), land.volume(), manager.getOccupiedChunks(land),
                 level(profile), land.isSubclaim() && main != null
                         ? main.getBankBalance() : land.getBankBalance(),
-                maintenance == null ? 0.0D : maintenance.getDailyFee(land),
+                maintenance == null ? 0.0D : maintenance.getMaintenanceFee(land),
                 land.isSubclaim() && main != null
                         ? main.isMaintenanceExempt() : land.isMaintenanceExempt(),
                 land.isSubclaim() && main != null
@@ -263,8 +263,8 @@ public final class BetaLandsApiImpl implements BetaLandsApi {
                 profile.getMaxFamilyMembers(), profile.getMaxJoinedLands(),
                 profile.getCreateMainPrice(), profile.getClaimChunkPrice(),
                 profile.getClaimChunkIncrement(), profile.getSubclaimPerBlockPrice(),
-                profile.getMaintenancePerChunkPerDay(),
-                profile.getMaintenancePerMemberPerDay(),
+                profile.getMaintenancePerChunkPerCycle(),
+                profile.getMaintenancePerMemberPerCycle(),
                 profile.getMaintenanceIntervalDays());
     }
 

@@ -14,8 +14,8 @@ public final class LevelProfile {
     private final double claimChunkPrice;
     private final double claimChunkIncrement;
     private final double subclaimPerBlockPrice;
-    private final double maintenancePerChunkPerDay;
-    private final double maintenancePerMemberPerDay;
+    private final double maintenancePerChunkPerCycle;
+    private final double maintenancePerMemberPerCycle;
     private final int maintenanceIntervalDays;
 
     public LevelProfile(String id, String displayName, String permission, int priority,
@@ -55,8 +55,8 @@ public final class LevelProfile {
         this.claimChunkPrice = nonNegative(claimChunkPrice);
         this.claimChunkIncrement = nonNegative(claimChunkIncrement);
         this.subclaimPerBlockPrice = nonNegative(subclaimPerBlockPrice);
-        this.maintenancePerChunkPerDay = nonNegative(maintenancePerChunkPerDay);
-        this.maintenancePerMemberPerDay = nonNegative(maintenancePerMemberPerDay);
+        this.maintenancePerChunkPerCycle = nonNegative(maintenancePerChunkPerDay);
+        this.maintenancePerMemberPerCycle = nonNegative(maintenancePerMemberPerDay);
         this.maintenanceIntervalDays = Math.max(1, maintenanceIntervalDays);
     }
 
@@ -116,12 +116,34 @@ public final class LevelProfile {
         return subclaimPerBlockPrice;
     }
 
-    public double getMaintenancePerChunkPerDay() {
-        return maintenancePerChunkPerDay;
+    /**
+     * Amount charged per chunk during one configured maintenance interval.
+     */
+    public double getMaintenancePerChunkPerCycle() {
+        return maintenancePerChunkPerCycle;
     }
 
+    /**
+     * Amount charged per family member during one maintenance interval.
+     */
+    public double getMaintenancePerMemberPerCycle() {
+        return maintenancePerMemberPerCycle;
+    }
+
+    /**
+     * @deprecated Maintenance is charged per configured cycle, not per day.
+     */
+    @Deprecated
+    public double getMaintenancePerChunkPerDay() {
+        return maintenancePerChunkPerCycle;
+    }
+
+    /**
+     * @deprecated Maintenance is charged per configured cycle, not per day.
+     */
+    @Deprecated
     public double getMaintenancePerMemberPerDay() {
-        return maintenancePerMemberPerDay;
+        return maintenancePerMemberPerCycle;
     }
 
     public int getMaintenanceIntervalDays() {

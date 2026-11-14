@@ -18,6 +18,37 @@ public class MessageLanguageTest {
     }
 
     @Test
+    public void resolvesCustomLanguageFilenamesSafely() {
+        assertEquals("console-fr.yml",
+                MessageService.resolveConsoleFile("console-fr.yml"));
+        assertEquals("console-en.yml",
+                MessageService.resolveConsoleFile("fr"));
+        assertEquals("console-en.yml",
+                MessageService.resolveConsoleFile("zh_CN"));
+        assertEquals("console-en.yml",
+                MessageService.resolveConsoleFile("../../console-fr.yml"));
+        assertEquals("game.yml",
+                MessageService.resolveGameFile("game-de.yml"));
+        assertEquals("game.yml", MessageService.resolveGameFile("game.yml"));
+        assertEquals("console-zh.yml",
+                MessageService.consoleFileForLocale("zh", "CN"));
+        assertEquals("console-zh-tw.yml",
+                MessageService.consoleFileForLocale("zh", "TW"));
+        assertEquals("console-ja.yml",
+                MessageService.consoleFileForLocale("ja", "JP"));
+        assertEquals("console-ko.yml",
+                MessageService.consoleFileForLocale("ko", "KR"));
+        assertEquals("console-de.yml",
+                MessageService.consoleFileForLocale("de", "DE"));
+        assertEquals("console-fr.yml",
+                MessageService.consoleFileForLocale("fr", "FR"));
+        assertEquals("console-es.yml",
+                MessageService.consoleFileForLocale("es", "ES"));
+        assertEquals("console-ru.yml",
+                MessageService.consoleFileForLocale("ru", "RU"));
+    }
+
+    @Test
     public void formatsWhiteBodyWithTypedAccentColors() {
         assertEquals(ChatColor.WHITE.toString() + ChatColor.YELLOW + "Text "
                         + ChatColor.AQUA + "Alice" + ChatColor.YELLOW

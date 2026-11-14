@@ -26,7 +26,7 @@ public final class LandInfo {
     private final int occupiedChunks;
     private final LevelInfo level;
     private final double bankBalance;
-    private final double dailyMaintenance;
+    private final double maintenancePerCycle;
     private final boolean maintenanceExempt;
     private final long lastMaintenanceAt;
     private final long nextMaintenanceAt;
@@ -46,7 +46,7 @@ public final class LandInfo {
              String parentId, String parentName, boolean subclaim,
              boolean inheritsParentPermissions, long createdAt, String source,
              int minY, int maxY, long area, long volume, int occupiedChunks,
-             LevelInfo level, double bankBalance, double dailyMaintenance,
+             LevelInfo level, double bankBalance, double maintenancePerCycle,
              boolean maintenanceExempt, long lastMaintenanceAt,
              long nextMaintenanceAt, boolean rentEnabled,
              double rentAmount, long lastRentAt, long nextRentAt,
@@ -71,7 +71,7 @@ public final class LandInfo {
         this.occupiedChunks = occupiedChunks;
         this.level = level;
         this.bankBalance = bankBalance;
-        this.dailyMaintenance = dailyMaintenance;
+        this.maintenancePerCycle = maintenancePerCycle;
         this.maintenanceExempt = maintenanceExempt;
         this.lastMaintenanceAt = lastMaintenanceAt;
         this.nextMaintenanceAt = nextMaintenanceAt;
@@ -111,7 +111,14 @@ public final class LandInfo {
     public int getOccupiedChunks() { return occupiedChunks; }
     public LevelInfo getLevel() { return level; }
     public double getBankBalance() { return bankBalance; }
-    public double getDailyMaintenance() { return dailyMaintenance; }
+    public double getMaintenancePerCycle() { return maintenancePerCycle; }
+
+    /**
+     * @deprecated Maintenance is charged per configured cycle. This method now
+     * returns the per-cycle amount and will be removed in a future API version.
+     */
+    @Deprecated
+    public double getDailyMaintenance() { return maintenancePerCycle; }
     public boolean isMaintenanceExempt() { return maintenanceExempt; }
     public double getMaintenanceDebt() {
         return bankBalance < 0.0D ? -bankBalance : 0.0D;
@@ -195,8 +202,8 @@ public final class LandInfo {
         private final double claimChunkPrice;
         private final double claimChunkIncrement;
         private final double subclaimPerBlockPrice;
-        private final double maintenancePerChunkPerDay;
-        private final double maintenancePerMemberPerDay;
+        private final double maintenancePerChunkPerCycle;
+        private final double maintenancePerMemberPerCycle;
         private final int maintenanceIntervalDays;
 
         public LevelInfo(String id, String displayName, int maxMainLands,
@@ -232,8 +239,8 @@ public final class LandInfo {
             this.claimChunkPrice = claimChunkPrice;
             this.claimChunkIncrement = claimChunkIncrement;
             this.subclaimPerBlockPrice = subclaimPerBlockPrice;
-            this.maintenancePerChunkPerDay = maintenancePerChunkPerDay;
-            this.maintenancePerMemberPerDay = maintenancePerMemberPerDay;
+            this.maintenancePerChunkPerCycle = maintenancePerChunkPerDay;
+            this.maintenancePerMemberPerCycle = maintenancePerMemberPerDay;
             this.maintenanceIntervalDays = Math.max(1, maintenanceIntervalDays);
         }
 
@@ -248,8 +255,22 @@ public final class LandInfo {
         public double getClaimChunkPrice() { return claimChunkPrice; }
         public double getClaimChunkIncrement() { return claimChunkIncrement; }
         public double getSubclaimPerBlockPrice() { return subclaimPerBlockPrice; }
-        public double getMaintenancePerChunkPerDay() { return maintenancePerChunkPerDay; }
-        public double getMaintenancePerMemberPerDay() { return maintenancePerMemberPerDay; }
+        public double getMaintenancePerChunkPerCycle() {
+            return maintenancePerChunkPerCycle;
+        }
+        public double getMaintenancePerMemberPerCycle() {
+            return maintenancePerMemberPerCycle;
+        }
+        /** @deprecated Maintenance is charged per cycle. */
+        @Deprecated
+        public double getMaintenancePerChunkPerDay() {
+            return maintenancePerChunkPerCycle;
+        }
+        /** @deprecated Maintenance is charged per cycle. */
+        @Deprecated
+        public double getMaintenancePerMemberPerDay() {
+            return maintenancePerMemberPerCycle;
+        }
         public int getMaintenanceIntervalDays() { return maintenanceIntervalDays; }
     }
 

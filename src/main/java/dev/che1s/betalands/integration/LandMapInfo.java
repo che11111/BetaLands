@@ -34,7 +34,9 @@ final class LandMapInfo {
         double bankBalance = main == null ? 0.0D : main.getBankBalance();
         LevelProfile profile = plugin.getLevels().getProfile(main);
         LandMaintenanceService maintenance = plugin.getMaintenanceService();
-        double dailyMaintenance = maintenance == null ? 0.0D : maintenance.getDailyFee(land);
+        double maintenanceFee = maintenance == null
+                ? 0.0D : maintenance.getMaintenanceFee(land);
+        int maintenanceIntervalDays = profile.getMaintenanceIntervalDays();
         String rentAccounts = rentAccounts(plugin, land);
         String flags = flagStates(plugin, land);
 
@@ -87,8 +89,12 @@ final class LandMapInfo {
         appendLine(result, main != null && main.isMaintenanceExempt()
                 ? plugin.getMessages().map("description.maintenance-exempt",
                 "Maintenance: Exempt")
-                : plugin.getMessages().map("description.server-maintenance",
-                "Server upkeep: {value}/day", "value", formatAmount(dailyMaintenance)));
+                : plugin.getMessages().map("description.maintenance-interval",
+                plugin.getMessages().isMapChinese()
+                        ? "领地维护费：{value}/{days}天"
+                        : "Land maintenance: {value}/{days} days",
+                "value", formatAmount(maintenanceFee),
+                "days", Integer.toString(maintenanceIntervalDays)));
         if (main != null && main.getBankBalance() < 0.0D) {
             appendLine(result, plugin.getMessages().map("description.maintenance-debt",
                     "Land bank debt: {value}",

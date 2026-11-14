@@ -64,4 +64,5 @@ public class LandMapInfoTest {
         assertNull(LandMapInfo.chooseSharedGroup(
                 groups, LandPermission.defaultsForMember(false)));
     }
+
 }

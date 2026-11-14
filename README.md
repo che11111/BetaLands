@@ -233,23 +233,25 @@ Default limits:
 
 | Level | Permission | Main Lands | Chunks per Main Land | Subclaims per Main Land | Family Members | Joined Lands | Maintenance Interval |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Default | `betalands.level.default` | 5 | 100 | 3 | 8 | 5 | 3 days |
-| VIP | `betalands.level.vip` | 15 | 200 | 10 | 15 | 30 | 3 days |
-| SVIP | `betalands.level.svip` | 30 | 300 | 50 | 40 | 100 | 3 days |
+| Default | `betalands.level.default` | 5 | 200 | 3 | 6 | 6 | 3 days |
+| VIP | `betalands.level.vip` | 15 | 400 | 20 | 20 | 30 | 3 days |
+| SVIP | `betalands.level.svip` | 30 | 1000 | 100 | 60 | 100 | 3 days |
 
 Default prices:
 
-| Level | Create Land | Base Expansion | Expansion Increment per Chunk | Subclaim per Block | Upkeep per Chunk/Day | Upkeep per Member/Day |
+| Level | Create Land | Base Expansion | Expansion Increment per Chunk | Subclaim per Block | Upkeep per Chunk/Cycle | Upkeep per Member/Cycle |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Default | 300.00 | 20.00 | 5.00 | 0.01 | 0.30 | 0.50 |
-| VIP | 250.00 | 20.00 | 4.00 | 0.008 | 0.25 | 0.40 |
-| SVIP | 200.00 | 20.00 | 3.00 | 0.005 | 0.20 | 0.30 |
+| Default | 300.00 | 20.00 | 5.00 | 0.01 | 0.20 | 0.30 |
+| VIP | 250.00 | 20.00 | 4.00 | 0.008 | 0.15 | 0.25 |
+| SVIP | 200.00 | 20.00 | 3.00 | 0.005 | 0.10 | 0.20 |
 
 When a player has multiple level permissions, the level with the highest `priority` is used.
 
 The main-land count is checked when creating a land and when `/land setowner` transfers one. A target already at their level limit cannot receive another main land.
 
 `levels.yml` is not limited to these three examples. Add any level IDs under `levels` with `display-name`, `permission`, `priority`, limits, prices, and maintenance rates. `default-level` selects the level used when no configured permission matches.
+
+Maintenance rates use `maintenance-per-chunk-per-cycle` and `maintenance-per-member-per-cycle`, representing the charge for one billing cycle. Legacy `maintenance-per-chunk-per-day` and `maintenance-per-member-per-day` keys are still read and their values are now interpreted as per-cycle charges. Remove the legacy keys if you want to use the new names.
 
 ### 4.4 Persistent Timed Levels
 
@@ -265,9 +267,9 @@ The player table stores the player's level, whether it is managed by BetaLands, 
 Maintenance flow:
 
 ```text
-server rates per chunk/member
+server rate per chunk/member per maintenance cycle
 → owner deposits into the main-land bank
-→ the land bank is charged at the configured level interval
+→ one cycle fee is charged each time the configured interval is completed
 → successfully collected amounts accumulate in BetaLands' internal server-maintenance bank
 ```
 
@@ -281,7 +283,9 @@ The bank balance represents both prepaid maintenance and debt:
 
 A positive balance is prepaid maintenance; a negative balance is debt. Deposits clear debt first and leave the remainder as prepaid maintenance.
 
-Owners can use `/land bank-all info` to view every owned main-land bank and `/land bank-all deposit <amount>` to debit the personal iConomy account once and distribute the amount by each land's current daily upkeep share. Allocation is exact to `0.01`, and the sum equals the actual debit. Lands with zero upkeep have zero weight. If all owned lands have zero chargeable upkeep, the batch deposit is rejected. Batch withdrawal is not provided; use `/land bank withdraw` per land.
+The "per member/cycle" rate uses the number of unique effective family members, not the simple sum of main-land and subclaim member counts. BetaLands combines members and subclaim owners from the main land and all direct subclaims, excludes the main-land owner, and counts only players with effective `build` permission in the main land or at least one subclaim. A player with `build` permission in multiple family lands is counted once. Players with only `use`, `container`, or other permissions but no effective `build` permission are not counted for maintenance.
+
+Owners can use `/land bank-all info` to view every owned main-land bank and `/land bank-all deposit <amount>` to debit the personal iConomy account once and distribute the amount by each land's current per-cycle maintenance share. Allocation is exact to `0.01`, and the sum equals the actual debit. Lands with zero upkeep have zero weight. If all owned lands have zero chargeable upkeep, the batch deposit is rejected. Batch withdrawal is not provided; use `/land bank withdraw` per land.
 
 When `/land admin maintenance-exempt true [land]` exempts a main land with a negative bank balance, the negative balance is cleared. Disabling the exemption later does not restore the previous debt.
 
@@ -326,17 +330,17 @@ The remainder stays as global prepaid rent.
 
 ### 4.7 Debt Restrictions
 
-If the prepaid balance is below seven days of future charges but remains non-negative, BetaLands only sends a reminder and does not block actions.
+If the prepaid maintenance balance is below the next cycle charge but remains non-negative, BetaLands only sends a maintenance reminder and does not block actions. Rent accounts still use a seven-day rental balance threshold.
 
 | Area | Main-Land Bank Debt | Rent Account Debt |
 | --- | --- | --- |
-| Blocked actions | Expanding, creating subclaims, adding or removing members, adding `build` through `/land perm`, land teleport, and protected building, breaking, buckets, doors, buttons, containers, and similar interactions. Withdrawals are blocked. Maintenance continues to accrue and the negative balance can grow. | Withdrawing. Protected building, breaking, buckets, doors, buttons, containers, and similar interactions in the debt land. Teleporting to the debt land. If the debt belongs to a main land, its subclaims are also restricted. Rent charges pause while the account is negative; skipped later charges are not collected retroactively. |
+| Blocked actions | Expanding, creating subclaims, adding or removing members, adding `build` through `/land perm`, land teleport, and protected building, breaking, buckets, doors, buttons, containers, and similar interactions. Withdrawals are blocked. Each completed maintenance cycle continues to increase the debt. | Withdrawing. Protected building, breaking, buckets, doors, buttons, containers, and similar interactions in the debt land. Teleporting to the debt land. If the debt belongs to a main land, its subclaims are also restricted. Rent charges pause while the account is negative; later skipped charges are not collected retroactively. |
 | Allowed actions | `/land unclaim`, voluntarily leaving, viewing logs, and `/land bank deposit`. Debt must be cleared and deletion confirmed before deletion. Debt never auto-deletes a land or removes members. Deposits clear debt first and then become prepaid upkeep. | `/land rent deposit` and `/land rent info`. Other lands without debt are unrestricted. Rent debt alone does not block member changes or expansion, though main-land bank debt may. Deposits pay the debt owner first and leave the remainder as global prepaid rent. |
 
 ### 4.8 Fee Reminders
 
 - After joining, a player receives a summary of maintenance for owned main lands and rent they owe as a rent-paying member.
-- If an owned main-land bank covers fewer than seven days of upkeep, or a member's prepaid rent covers fewer than seven days, affected online players are reminded once per minute.
+- If an owned main-land bank cannot cover the next maintenance cycle, or a member's prepaid rent covers fewer than seven days, affected online players are reminded once per minute.
 - Outstanding debt uses the debt reminder. Lands without upkeep or rent do not generate duplicate warnings.
 
 Reminders inspect the land bank and rent account, not the player's personal iConomy total.
@@ -362,7 +366,7 @@ Templates are under `territory` in `plugins/BetaLands/lang/game.yml`.
 - Land details list each member's effective permissions. The default `build`, `break`, `use`, `container`, and `rent` set is not repeated for every member; additional or different permissions appear in parentheses.
 - Protection flags show only allow or deny, without inheritance-source labels.
 - Map details also show land ID, world, chunks, area, type, subclaim count, level limits, family size, bank balance, maintenance/rent timing, spawn, creation time, source, and parent-permission inheritance.
-- BlueMap refreshes after land changes. Dynmap refreshes daily and injects markers about five seconds after startup. Administrators can refresh immediately:
+- BlueMap refreshes after land changes. Dynmap refreshes daily by default. Dynmap startup injection is disabled by default; when `startup-refresh` is `true`, markers are injected about five seconds after startup. Administrators can also refresh immediately:
 
 ```text
 /land admin refresh-map
@@ -378,7 +382,7 @@ maps:
     startup-refresh: false
 ```
 
-When disabled, no markers are injected at startup, but the daily refresh remains enabled and `/land admin refresh-map dynmap` still works.
+With the default disabled value, no markers are injected at startup, but the daily refresh remains enabled. Prefer `/land admin refresh-map dynmap` for explicit synchronization. Dynmap refresh runs on the main thread and may cause temporary lag.
 
 BlueMap and Dynmap use independent schedules. BlueMap waits 15 seconds after land changes by default. Dynmap refreshes daily at server-local `01:00`:
 
@@ -511,16 +515,16 @@ logs:
 
 ### 6.3 Messages and Language
 
-In-game messages are English-only and live in `lang/game.yml`. They support `&` color codes and placeholders such as `{player}` and `{land}`.
+In-game messages use the fixed file `lang/game.yml`; `language.game` must remain `game.yml`. The game file stays English/ASCII because Beta 1.7.3 clients cannot reliably render other languages. Templates support `&` color codes and placeholders such as `{player}` and `{land}`.
 
 | Console Messages | Map Marker Messages |
 | --- | --- |
-| Files: `lang/console-zh.yml`, `lang/console-en.yml` | Files: `lang/map-zh.yml`, `lang/map-en.yml` |
-| Setting: `language.console: auto` | Setting: `language.map: auto` |
-| Values: `auto`, `zh`, `en` | Values: `auto`, `zh`, `en` |
+| Files: `console-en.yml`, `console-zh.yml`, `console-ja.yml`, `console-ko.yml`, `console-zh-tw.yml`, `console-de.yml`, `console-fr.yml`, `console-es.yml`, `console-ru.yml` under `lang/` | Files: `lang/map-zh.yml`, `lang/map-en.yml` |
+| Setting: `language.console` | Setting: `language.map: auto` |
+| Values: `auto` or a complete safe `.yml` console filename | Values: `auto`, `zh`, `en` |
 | Used for hooks, refreshes, errors, and other background output | Used for Dynmap/BlueMap layer names and land details |
 
-Run `/land admin reload` after editing. `auto` follows the server JVM language. In-game messages always use English `game.yml`.
+Run `/land admin reload` after editing. Console messages support English, Simplified Chinese, Japanese, Korean, Traditional Chinese, German, French, Spanish, and Russian. `auto` follows the server JVM language and country; Chinese `TW`, `HK`, and `MO` locales select Traditional Chinese, other Chinese locales select Simplified Chinese, and unsupported locales fall back to English. Bare language codes and custom game filenames are not supported. Custom console files fall back to `console-en.yml` when missing or incomplete.
 
 In-game messages follow these color rules:
 
@@ -545,7 +549,7 @@ Templates support `&0` through `&f` and `&k` through `&r`. Placeholder values re
 | `protection.allow-land-flag-editing` | Whether owners and managers may edit protection flags |
 | `limits.*` | Land area, subclaim volume, and name-length limits |
 | `maps.dynmap.enabled` / `maps.bluemap.enabled` | Enable Dynmap and BlueMap independently; both default to `true` |
-| `maps.dynmap.startup-refresh` | Inject Dynmap markers once after startup; default `true` |
+| `maps.dynmap.startup-refresh` | Inject Dynmap markers once after startup; default `false` |
 | `maps.show-subclaims` | Show subclaims on maps; currently affects BlueMap only |
 | `maps.dynmap.*` / `maps.bluemap.*` | Dynmap daily refresh time and BlueMap post-change delay |
 | `economy.*` | Economy enablement, administrator charging, maintenance exemption, and default rent |

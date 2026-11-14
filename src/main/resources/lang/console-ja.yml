@@ -1,0 +1,69 @@
+# BetaLands の日本語コンソールメッセージ。
+
+prefix: "[BetaLands]"
+
+language:
+  invalid-file: "言語ファイル名 '{file}' は無効です。{fallback} を使用します。"
+  file-fallback: "言語ファイル {file} が見つかりません。{fallback} を使用します。"
+
+config:
+  directory-create-failed: "プラグインのデータフォルダーを作成できませんでした：{path}"
+  config-create-failed: "config.yml を作成できませんでした：{error}"
+  levels-create-failed: "levels.yml を作成できませんでした：{error}"
+
+startup:
+  audit-ready: "監査ログデータベースの準備ができました：{path}"
+  audit-failed: "監査ログデータベースを初期化できませんでした：{error}"
+  levels-ready: "土地レベルを {count} 件読み込みました。"
+  economy-hook: "iConomy 経済システムに接続しました。"
+  economy-missing: "iConomy を利用できないため、課金操作は無効です。"
+  towny-hook: "Towny {version} を検出しました。Towny の移行データを利用できます。"
+  map-disabled: "config.yml で地図連携が無効になっています。"
+  dynmap-hook: "Dynmap に接続しました。マーカー API の準備状態を確認します。"
+  dynmap-failed: "Dynmap に接続できませんでした：{error}"
+  bluemap-hook: "BlueMap マーカー API に接続しました。"
+  bluemap-failed: "BlueMap に接続できませんでした：{error}"
+  dynmap-manual-sync: "Dynmap データは起動時に注入されません。/land admin refresh-map dynmap で同期してください。この更新はメインスレッドで実行され、一時的なラグが発生する場合があります。"
+  bstats-failed: "bStats を初期化できませんでした：{error}"
+  ready: "BetaLands {version} を有効化しました。土地数 {lands}、領地外建設の解放時間 {hours} 時間。"
+  command-missing: "plugin.yml に land コマンドがありません。"
+
+shutdown:
+  stopping: "BetaLands を無効化しています。"
+
+data:
+  load-failed: "BetaLands データを読み込めませんでした：{error}"
+  read-only: "既存ファイルを保護するため、BetaLands は読み取り専用モードで動作しています。"
+  save-failed: "BetaLands データを保存できませんでした：{error}"
+  save-blocked: "データ読み込みに失敗したため保存を停止しました。TSV ファイルを復元または修復してください。"
+  invalid-line: "{file} の {line} 行目が無効なためスキップしました：{error}"
+
+maps:
+  dynmap-refresh-failed: "Dynmap マーカーの更新に失敗しました：{error}"
+  bluemap-refresh-failed: "BlueMap マーカーの更新に失敗しました：{error}"
+  bluemap-synchronized: "BlueMap データを BlueMap に送信しました。"
+  refresh-slow: "地図マーカーの更新に {milliseconds} ミリ秒かかりました。"
+  dynmap-updated: "Dynmap の土地 {lands} 件を、マーカー {markers} 件で更新しました。"
+  dynmap-world-missing: "Dynmap で {count} 件の土地の Bukkit ワールドが見つからなかったため、保存されたワールド名を使用しました。"
+  dynmap-api-waiting: "Dynmap は導入されていますが、Marker API が初期化されていません。configuration.txt で org.dynmap.MarkersComponent を有効にしてください。BetaLands は確認を続けます。"
+  dynmap-plugin-unavailable: "Dynmap に接続できません（{state}）。BetaLands は確認を続けます。"
+  dynmap-marker-create-failed: "Dynmap が {count} 件の BetaLands エリアマーカーを拒否しました。Dynmap のバージョンと Marker API 設定を確認してください。"
+  dynmap-land-draw-failed: "BetaLands の土地 {count} 件を Dynmap に描画できませんでした。最初のエラー：{error}"
+
+audit:
+  land-write-failed: "土地監査ログを書き込めませんでした：{error}"
+  economy-write-failed: "経済監査ログを書き込めませんでした：{error}"
+
+towny:
+  migration-start: "Towny 移行を開始しました。移行元={source}"
+  migration-backup: "BetaLands データを {path} にバックアップしました。"
+  migration-converting: "Towny の町ブロックをバックグラウンドで読み込み、変換しています..."
+  migration-applying: "土地 {count} 件を変換しました。BetaLands に適用しています..."
+  migration-empty: "Towny 移行で町の土地が見つかりませんでした。既存データは変更されていません。"
+  migration-save-failed: "Towny データはメモリに読み込まれましたが、保存に失敗しました。"
+  migration-warning: "Towny 移行の警告：{warning}"
+  migration-complete: "Towny 移行完了。移行元={source}、町={towns}、ブロック={blocks}、サブ領地={subclaims}、追加={added}、更新={updated}、競合={conflicts}"
+  import-failed: "Towny のインポートに失敗しました：{error}"
+
+economy:
+  hook-failed: "iConomy に接続できませんでした：{error}"

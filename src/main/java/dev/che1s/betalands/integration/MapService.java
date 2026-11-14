@@ -14,6 +14,7 @@ public final class MapService {
     private BlueMapIntegration blueMap;
     private int dynmapUnavailableChecks;
     private boolean dynmapUnavailableReported;
+    private boolean logBlueMapStartupSync;
     private String dynmapHookState = "not-checked";
     private String blueMapHookState = "not-checked";
 
@@ -36,12 +37,15 @@ public final class MapService {
                 plugin.scheduleDynmapStartupRefresh();
             } else {
                 plugin.scheduleDynmapDailyRefresh();
+                plugin.getMessages().info("startup.dynmap-manual-sync",
+                        "Dynmap data is not injected at startup. Use /land admin refresh-map dynmap to synchronize it. This refresh runs on the server main thread and may cause temporary lag.");
             }
         } else {
             dynmapHookState = "disabled-in-config";
         }
         if (plugin.getSettings().isBluemapEnabled()) {
             ensureBlueMapHook();
+            logBlueMapStartupSync = true;
             plugin.scheduleBluemapRefresh();
         } else {
             blueMapHookState = "disabled-in-config";
@@ -89,6 +93,11 @@ public final class MapService {
         if (blueMap != null) {
             try {
                 blueMap.refresh();
+                if (logBlueMapStartupSync) {
+                    logBlueMapStartupSync = false;
+                    plugin.getMessages().info("maps.bluemap-synchronized",
+                            "BlueMap data has been sent to BlueMap.");
+                }
             } catch (RuntimeException exception) {
                 plugin.getMessages().warning("maps.bluemap-refresh-failed",
                         "BlueMap marker refresh failed: {error}", "error", exception.getMessage());
@@ -107,6 +116,7 @@ public final class MapService {
         blueMap = null;
         dynmapUnavailableChecks = 0;
         dynmapUnavailableReported = false;
+        logBlueMapStartupSync = false;
         dynmapHookState = "not-checked";
         blueMapHookState = "not-checked";
     }

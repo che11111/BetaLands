@@ -138,24 +138,26 @@ final class LandBankCommandHandler extends FinanceCommandSupport {
                     "&eYou do not own any main lands.");
             return;
         }
-        double totalDaily = 0.0D;
+        double totalMaintenance = 0.0D;
         double totalBalance = 0.0D;
         msg(sender, "bank-all.info-header",
                 "&fAll owned land banks ({count}):",
                 "count", Integer.toString(owned.size()));
         for (Land land : owned) {
-            double daily = plugin.getMaintenanceService().getDailyFee(land);
-            totalDaily += daily;
+            double maintenance =
+                    plugin.getMaintenanceService().getMaintenanceFee(land);
+            totalMaintenance += maintenance;
             totalBalance += land.getBankBalance();
             msg(sender, "bank-all.info-land",
-                    "&f{land}: daily upkeep={daily}, bank={balance}.",
+                    "&f{land}: maintenance={maintenance}, bank={balance}.",
                     "land", land.getDisplayName(),
-                    "daily", plugin.getEconomy().format(daily),
+                    "maintenance", plugin.getEconomy().format(maintenance),
                     "balance", plugin.getEconomy().format(land.getBankBalance()));
         }
         msg(sender, "bank-all.info-total",
-                "&fTotal daily upkeep={totalDaily}, total bank={totalBalance}.",
-                "totalDaily", plugin.getEconomy().format(totalDaily),
+                "&fTotal maintenance per cycle={totalMaintenance}, total bank={totalBalance}.",
+                "totalMaintenance",
+                plugin.getEconomy().format(totalMaintenance),
                 "totalBalance", plugin.getEconomy().format(totalBalance));
     }
 
@@ -184,9 +186,10 @@ final class LandBankCommandHandler extends FinanceCommandSupport {
         Map<String, Double> weights = new LinkedHashMap<String, Double>();
         double totalWeight = 0.0D;
         for (Land land : owned) {
-            double daily = plugin.getMaintenanceService().getDailyFee(land);
-            weights.put(land.getId(), Double.valueOf(daily));
-            totalWeight += daily;
+            double maintenance =
+                    plugin.getMaintenanceService().getMaintenanceFee(land);
+            weights.put(land.getId(), Double.valueOf(maintenance));
+            totalWeight += maintenance;
         }
         if (totalWeight <= 0.0D) {
             msg(player, "bank-all.no-maintenance",
@@ -255,10 +258,10 @@ final class LandBankCommandHandler extends FinanceCommandSupport {
         msg(sender, "bank.header", "&6{land} land bank",
                 "land", main.getDisplayName());
         msg(sender, "bank.balance-v5",
-                "&7Balance={balance} | Server upkeep={daily}/day | Charge every={days} days | Level={level}",
+                "&7Balance={balance} | Maintenance={maintenance}/{days} days | Level={level}",
                 "balance", plugin.getEconomy().format(main.getBankBalance()),
-                "daily", plugin.getEconomy().format(
-                        plugin.getMaintenanceService().getDailyFee(main)),
+                "maintenance", plugin.getEconomy().format(
+                        plugin.getMaintenanceService().getMaintenanceFee(main)),
                 "days", Integer.toString(profile.getMaintenanceIntervalDays()),
                 "level", profile.getDisplayName());
         msg(sender, "bank.next", "&7Next charge: {time}",
@@ -271,7 +274,7 @@ final class LandBankCommandHandler extends FinanceCommandSupport {
         }
         if (main.getBankBalance() < 0.0D) {
             msg(sender, "bank.debt-v2",
-                    "&cStatus: in debt. Server upkeep will continue to increase the debt until you deposit.");
+                    "&cStatus: in debt. Each maintenance cycle will increase the debt until you deposit.");
         } else {
             msg(sender, "bank.normal", "&aStatus: normal");
         }

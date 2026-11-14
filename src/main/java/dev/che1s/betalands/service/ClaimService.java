@@ -178,15 +178,18 @@ public final class ClaimService {
         if (!lands.landContainsChunk(land, chunkX, chunkZ)) {
             return "You must stand in a chunk owned by this main land.";
         }
+        Rect2i removed = ClaimGeometry.chunkBounds(chunkX << 4, chunkZ << 4);
         for (Land child : lands.getChildren(land.getId())) {
-            if (child.containsXZ(land.getWorld(), chunkX << 4, chunkZ << 4)) {
-                return "Remove the subclaim covering this chunk first.";
+            for (Rect2i childArea : child.getAreas()) {
+                if (childArea.intersects(removed)) {
+                    return "This chunk contains a subclaim. Delete all subclaims "
+                            + "in this chunk before using /land unclaim.";
+                }
             }
         }
         if (lands.getOccupiedChunks(land) <= 1) {
             return "A main land must keep at least one chunk. Delete the land instead.";
         }
-        Rect2i removed = ClaimGeometry.chunkBounds(chunkX << 4, chunkZ << 4);
         land.replaceAreas(ClaimGeometry.subtractChunk(land.getAreas(), removed));
         HomePoint home = land.getHome();
         if (home != null && !land.contains(land.getWorld(),

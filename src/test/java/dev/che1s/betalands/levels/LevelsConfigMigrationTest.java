@@ -21,15 +21,15 @@ public class LevelsConfigMigrationTest {
                 + "  default:\n"
                 + "    prices:\n"
                 + "      maintenance-interval-days: 3\n"
-                + "      maintenance-per-chunk-per-day: 0.30\n"
+                + "      maintenance-per-chunk-per-cycle: 0.30\n"
                 + "  vip:\n"
                 + "    prices:\n"
                 + "      maintenance-interval-days: 3\n"
-                + "      maintenance-per-chunk-per-day: 0.25\n"
+                + "      maintenance-per-chunk-per-cycle: 0.25\n"
                 + "  svip:\n"
                 + "    prices:\n"
                 + "      maintenance-interval-days: 3\n"
-                + "      maintenance-per-chunk-per-day: 0.20\n";
+                + "      maintenance-per-chunk-per-cycle: 0.20\n";
         String existing = ""
                 + "default-level: vip\n"
                 + "levels:\n"
@@ -60,8 +60,19 @@ public class LevelsConfigMigrationTest {
                     "levels.svip.prices.maintenance-interval-days", 0));
             assertEquals(8.0D, configuration.getDouble(
                     "levels.vip.prices.maintenance-per-chunk-per-day", 0.0D), 0.0D);
+            assertEquals(8.0D, LandServiceTestAccess.rate(
+                    configuration, true), 0.0D);
         } finally {
             file.delete();
+        }
+    }
+
+    private static final class LandServiceTestAccess {
+        private static double rate(Configuration configuration,
+                                   boolean perChunk) {
+            return LevelService.maintenanceRate(
+                    configuration.getNode("levels.vip.prices"),
+                    perChunk, 0.0D);
         }
     }
 }

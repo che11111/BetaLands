@@ -2,10 +2,15 @@
 # 修改可热更新项后执行 /land admin reload，其他项目需重启服务器。 / Run /land admin reload for hot-reloadable options; restart for the others.
 
 language:
-  # 控制台语言：auto、zh 或 en。 / Console language: auto, zh, or en.
-  # auto 根据服务器 JVM 默认语言选择中文或英文。 / auto selects Chinese or English from the server JVM language.
-  # 不影响游戏内消息；游戏内固定使用 lang/game.yml。 / Does not affect in-game messages; lang/game.yml is used for players.
+  # 控制台语言：auto，或 lang/ 下的完整 .yml 文件名。 / Console language: auto or a complete .yml filename under lang/.
+  # 内置英语、简体中文、日语、韩语、繁体中文、德语、法语、西班牙语和俄语。 / Built in: English, Simplified Chinese, Japanese, Korean, Traditional Chinese, German, French, Spanish and Russian.
+  # auto 根据 JVM 语言和地区选择对应文件。 / auto selects the matching file from the JVM language and country.
+  # 自定义时必须填写完整 .yml 文件名。 / Custom values must be a complete .yml filename.
   console: auto
+
+  # 玩家游戏内消息文件固定为 game.yml。 / In-game message file for players is fixed to game.yml.
+  # Beta 1.7.3 客户端无法可靠显示中文，默认文件保持 ASCII 英文。 / Beta 1.7.3 clients cannot reliably render Chinese; the default file stays ASCII English.
+  game: game.yml
 
   # Dynmap/BlueMap 图层名和标记详情语言：auto、zh 或 en。 / Dynmap/BlueMap marker language: auto, zh, or en.
   # auto 根据服务器 JVM 默认语言自动选择。 / auto follows the server JVM language.
@@ -90,9 +95,9 @@ maps:
     # 是否启用 Dynmap 领地标记。 / Enable Dynmap land markers.
     enabled: true
 
-    # 插件启动后是否立即注入一次 Dynmap 标记。 / Inject Dynmap markers once after plugin startup.
-    # 关闭后只按每日时间刷新；手动 /land admin refresh-map dynmap 仍然可用。 / When false, refresh daily; manual refresh still works.
-    startup-refresh: true
+    # 插件启动后是否立即注入一次 Dynmap 标记，默认 false。 / Inject Dynmap markers once after plugin startup; default false.
+    # 建议使用 /land admin refresh-map dynmap 手动同步；该操作在主线程执行，可能暂时卡顿。 / Prefer manual sync; it runs on the main thread and may lag.
+    startup-refresh: false
 
     # Dynmap 每天在服务器本地时间的该时刻刷新。 / Refresh Dynmap daily at this server-local time.
     # 已知限制：Dynmap 刷新占用主线程并可能导致卡顿，暂无法异步。 / Known issue: Dynmap refresh uses the main thread and may lag; async is unavailable.

@@ -1,0 +1,69 @@
+# Messages de console BetaLands en français.
+
+prefix: "[BetaLands]"
+
+language:
+  invalid-file: "Nom de fichier de langue '{file}' invalide ; utilisation de {fallback}."
+  file-fallback: "Fichier de langue {file} introuvable ; utilisation de {fallback}."
+
+config:
+  directory-create-failed: "Impossible de créer le dossier de données du plugin : {path}"
+  config-create-failed: "Impossible de créer config.yml : {error}"
+  levels-create-failed: "Impossible de créer levels.yml : {error}"
+
+startup:
+  audit-ready: "Base de données du journal d'audit prête : {path}"
+  audit-failed: "Impossible d'initialiser la base du journal d'audit : {error}"
+  levels-ready: "{count} niveaux de terrain chargés."
+  economy-hook: "Connecté à l'économie iConomy."
+  economy-missing: "iConomy est indisponible ; les opérations payantes sont désactivées."
+  towny-hook: "Towny {version} détecté ; les données Towny en direct sont disponibles pour la migration."
+  map-disabled: "Les intégrations cartographiques sont désactivées dans config.yml."
+  dynmap-hook: "Connecté à Dynmap ; la disponibilité de l'API des marqueurs sera vérifiée."
+  dynmap-failed: "Impossible de connecter Dynmap : {error}"
+  bluemap-hook: "Connecté à l'API des marqueurs BlueMap."
+  bluemap-failed: "Impossible de connecter BlueMap : {error}"
+  dynmap-manual-sync: "Les données Dynmap ne sont pas injectées au démarrage. Utilisez /land admin refresh-map dynmap pour les synchroniser. Cette actualisation s'exécute sur le thread principal et peut provoquer un ralentissement temporaire."
+  bstats-failed: "Impossible d'initialiser bStats : {error}"
+  ready: "BetaLands {version} activé avec {lands} terrains. Construction extérieure débloquée après {hours} heures."
+  command-missing: "La commande land est absente de plugin.yml."
+
+shutdown:
+  stopping: "Désactivation de BetaLands."
+
+data:
+  load-failed: "Impossible de charger les données BetaLands : {error}"
+  read-only: "BetaLands fonctionne en lecture seule pour protéger les fichiers existants."
+  save-failed: "Impossible d'enregistrer les données BetaLands : {error}"
+  save-blocked: "Enregistrement bloqué car le chargement a échoué. Restaurez ou réparez les fichiers TSV."
+  invalid-line: "Ligne {line} invalide dans {file} ignorée : {error}"
+
+maps:
+  dynmap-refresh-failed: "Échec de l'actualisation des marqueurs Dynmap : {error}"
+  bluemap-refresh-failed: "Échec de l'actualisation des marqueurs BlueMap : {error}"
+  bluemap-synchronized: "Les données BlueMap ont été envoyées à BlueMap."
+  refresh-slow: "L'actualisation des marqueurs a pris {milliseconds} ms."
+  dynmap-updated: "Dynmap a été mis à jour avec {lands} terrain(s) et {markers} marqueur(s)."
+  dynmap-world-missing: "Dynmap n'a pas trouvé le monde Bukkit de {count} terrain(s) ; les noms enregistrés ont été utilisés."
+  dynmap-api-waiting: "Dynmap est installé, mais son API de marqueurs n'est pas initialisée. Activez org.dynmap.MarkersComponent dans configuration.txt. BetaLands continuera de vérifier."
+  dynmap-plugin-unavailable: "Dynmap n'est pas disponible pour la connexion ({state}). BetaLands continuera de vérifier."
+  dynmap-marker-create-failed: "Dynmap a refusé {count} marqueur(s) de zone BetaLands. Vérifiez la version de Dynmap et la configuration de l'API."
+  dynmap-land-draw-failed: "Impossible de dessiner {count} terrain(s) BetaLands sur Dynmap. Première erreur : {error}"
+
+audit:
+  land-write-failed: "Impossible d'écrire un enregistrement d'audit de terrain : {error}"
+  economy-write-failed: "Impossible d'écrire un enregistrement d'audit économique : {error}"
+
+towny:
+  migration-start: "Migration Towny démarrée. Source={source}"
+  migration-backup: "Données BetaLands sauvegardées dans {path}"
+  migration-converting: "Lecture et conversion des blocs de villes Towny en arrière-plan..."
+  migration-applying: "{count} entrées de terrain converties. Application à BetaLands..."
+  migration-empty: "La migration Towny n'a trouvé aucun terrain de ville. Les données existantes n'ont pas été modifiées."
+  migration-save-failed: "Les données Towny ont été chargées en mémoire, mais l'enregistrement a échoué."
+  migration-warning: "Avertissement de migration Towny : {warning}"
+  migration-complete: "Migration Towny terminée. Source={source}, villes={towns}, blocs={blocks}, sous-terrains={subclaims}, ajoutés={added}, mis à jour={updated}, conflits={conflicts}"
+  import-failed: "Échec de l'import Towny : {error}"
+
+economy:
+  hook-failed: "Impossible de connecter iConomy : {error}"

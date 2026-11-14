@@ -12,14 +12,14 @@ public final class PlayerLandAccess {
     private final Set<LandPermission> permissions;
     private final double dailyRent;
     private final double rentBalance;
-    private final double familyDailyMaintenance;
+    private final double familyMaintenancePerCycle;
     private final double maintenancePrepaidBalance;
     private final long nextRentAt;
     private final long nextMaintenanceAt;
 
     PlayerLandAccess(String playerName, LandInfo land, boolean owner, boolean rentPayer,
                      Set<LandPermission> permissions, double dailyRent,
-                     double rentBalance, double familyDailyMaintenance,
+                     double rentBalance, double familyMaintenancePerCycle,
                      double maintenancePrepaidBalance,
                      long nextRentAt, long nextMaintenanceAt) {
         this.playerName = playerName;
@@ -31,7 +31,7 @@ public final class PlayerLandAccess {
                 : Collections.unmodifiableSet(EnumSet.copyOf(permissions));
         this.dailyRent = dailyRent;
         this.rentBalance = rentBalance;
-        this.familyDailyMaintenance = familyDailyMaintenance;
+        this.familyMaintenancePerCycle = familyMaintenancePerCycle;
         this.maintenancePrepaidBalance = maintenancePrepaidBalance;
         this.nextRentAt = nextRentAt;
         this.nextMaintenanceAt = nextMaintenanceAt;
@@ -48,7 +48,18 @@ public final class PlayerLandAccess {
     public double getDailyRent() { return dailyRent; }
     public double getRentBalance() { return rentBalance; }
     public boolean isRentInDebt() { return rentBalance < 0.0D; }
-    public double getFamilyDailyMaintenance() { return familyDailyMaintenance; }
+    public double getFamilyMaintenancePerCycle() {
+        return familyMaintenancePerCycle;
+    }
+
+    /**
+     * @deprecated Maintenance is charged per configured cycle. This method now
+     * returns the per-cycle amount.
+     */
+    @Deprecated
+    public double getFamilyDailyMaintenance() {
+        return familyMaintenancePerCycle;
+    }
     public double getMaintenancePrepaidBalance() { return maintenancePrepaidBalance; }
     public long getNextRentAt() { return nextRentAt; }
     public long getNextMaintenanceAt() { return nextMaintenanceAt; }

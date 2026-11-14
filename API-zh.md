@@ -6,7 +6,7 @@ BetaLands 通过 Bukkit `ServicesManager` 注册只读查询 API：
 dev.che1s.betalands.api.BetaLandsApi
 ```
 
-当前 API 版本为 `5`。API 返回不可变快照，不提供创建、删除、转移、修改成员或修改经济数据的写入接口。
+当前 API 版本为 `6`。API 返回不可变快照，不提供创建、删除、转移、修改成员或修改经济数据的写入接口。
 
 ## 1. 接入
 
@@ -52,8 +52,8 @@ public final class MyPlugin extends JavaPlugin {
             getLogger().warning("BetaLands API is unavailable.");
             return;
         }
-        if (betaLandsApi.getApiVersion() < 5) {
-            getLogger().warning("BetaLands API 5 or newer is required.");
+        if (betaLandsApi.getApiVersion() < 6) {
+            getLogger().warning("BetaLands API 6 or newer is required.");
             betaLandsApi = null;
         }
     }
@@ -328,8 +328,8 @@ List<PlayerLandAccess> buildable =
 | `getClaimChunkPrice()` | 扩展基础价格 |
 | `getClaimChunkIncrement()` | 按现有区块数递增的价格 |
 | `getSubclaimPerBlockPrice()` | 子领地每方块价格 |
-| `getMaintenancePerChunkPerDay()` | 每区块每日维护费 |
-| `getMaintenancePerMemberPerDay()` | 每成员每日维护费 |
+| `getMaintenancePerChunkPerCycle()` | 每区块每维护周期费用 |
+| `getMaintenancePerMemberPerCycle()` | 每成员每维护周期费用 |
 | `getMaintenanceIntervalDays()` | 维护费结算间隔天数 |
 
 `LandInfo.getNextExpansionPrice()`：
@@ -347,7 +347,7 @@ claimChunkPrice + claimChunkIncrement × occupiedChunks
 | `getBankBalance()` | 领地家庭银行原始余额，可为负数 |
 | `getMaintenanceDebt()` | 欠费金额，非负；余额不是负数时为 `0` |
 | `getMaintenancePrepaidBalance()` | 预缴维护余额，非负；余额不是正数时为 `0` |
-| `getDailyMaintenance()` | 当前家庭每日维护费 |
+| `getMaintenancePerCycle()` | 当前家庭每维护周期费用 |
 | `isMaintenanceExempt()` | 是否维护费豁免 |
 | `getLastMaintenanceAt()` | 上次维护结算时间 |
 | `getNextMaintenanceAt()` | 下次维护结算时间 |
@@ -415,7 +415,7 @@ claimChunkPrice + claimChunkIncrement × occupiedChunks
 | `getDailyRent()` | 当前玩家在该领地承担的每日租金；不是承担者时为 `0` |
 | `getRentBalance()` | 当前玩家全服共享租金账户余额 |
 | `isRentInDebt()` | 全局租金账户是否欠费 |
-| `getFamilyDailyMaintenance()` | 该领地家庭每日维护费总额 |
+| `getFamilyMaintenancePerCycle()` | 该领地家庭每维护周期费用总额 |
 | `getMaintenancePrepaidBalance()` | 所属主领地银行原始余额，可能为负数 |
 | `getNextRentAt()` | 当前领地下次租金处理时间 |
 | `getNextMaintenanceAt()` | 当前领地家庭下次维护结算时间 |
@@ -434,7 +434,8 @@ BetaLands 的领地银行和租金账户是插件内部账本，不是 iConomy �
 
 - 主领地银行是维护费预缴账户。
 - 正数是预缴余额，负数是欠费。
-- 每日维护费按主领地区块数和家庭成员数计算。
+- 每个维护周期的维护费按主领地区块数和家庭成员数计算。
+- 家庭成员数按主领地及全部直接子领地去重：排除主领地领地主，只统计在主领地或任一子领地中拥有有效 `BUILD` 权限的玩家；没有有效 `BUILD` 权限的成员不计费。
 - 达到等级配置的结算间隔后，从领地银行扣除。
 - 实际扣除成功的金额累计到 BetaLands 服务端维护银行。
 
@@ -534,15 +535,17 @@ public void inspectLand(BetaLandsApi api) {
 当前 API 版本：
 
 ```java
-BetaLandsApi.API_VERSION == 5
+BetaLandsApi.API_VERSION == 6
 ```
 
 调用方应在初始化时检查：
 
 ```java
-if (api.getApiVersion() < 5) {
-    // 当前代码依赖 API 5
+if (api.getApiVersion() < 6) {
+    // 当前代码依赖 API 6
 }
 ```
+
+API 6 将维护费字段改为“每周期金额”。旧的 `getDailyMaintenance()`、`getFamilyDailyMaintenance()` 和 `getMaintenancePer*PerDay()` 方法暂时保留，但已经标记为过时，并返回每周期金额。
 
 只使用 `dev.che1s.betalands.api` 包中的公开类型。内部实现可能随插件版本变化，不构成兼容承诺。

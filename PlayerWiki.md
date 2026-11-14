@@ -5,7 +5,7 @@
 > All values shown in this guide are the plugin defaults.
 
 <br><p align="center">
-  <img src="img/BetaLands.png" alt="BetaLands Logo" width="220">
+  <img src="https://raw.githubusercontent.com/che11111/BetaLands/main/img/BetaLands.png" alt="BetaLands Logo" width="220">
 </p><br>
 
 <h1>BetaLands Player Guide</h1>
@@ -35,17 +35,17 @@ Map details show the land ID, world, occupied chunks, area, type, number of subc
 <table>
   <tr>
     <td align="center" width="33%">
-      <img src="img/1.png" alt="Land boundaries in BlueMap" width="100%">
+      <img src="https://raw.githubusercontent.com/che11111/BetaLands/main/img/1.png" alt="Land boundaries in BlueMap" width="100%">
       <br>
       <sub>Refreshes 15 seconds after a land change</sub>
     </td>
     <td align="center" width="33%">
-      <img src="img/2.png" alt="Land boundaries in Dynmap" width="100%">
+      <img src="https://raw.githubusercontent.com/che11111/BetaLands/main/img/2.png" alt="Land boundaries in Dynmap" width="100%">
       <br>
       <sub>Refreshes daily at 01:00</sub>
     </td>
     <td align="center" width="33%">
-      <img src="img/3.png" alt="Land details on a web map" width="100%">
+      <img src="https://raw.githubusercontent.com/che11111/BetaLands/main/img/3.png" alt="Land details on a web map" width="100%">
       <br>
       <sub><b>Land detail card on the web map</b></sub>
     </td>
@@ -135,26 +135,28 @@ Limits:
 
 | Level | Permission | Main lands | Chunks per main land | Subclaims per main land | Family members | Joined lands | Maintenance interval |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Default | `betalands.level.default` | 5 | 100 | 3 | 8 | 5 | 3 days |
-| VIP | `betalands.level.vip` | 15 | 200 | 10 | 15 | 30 | 3 days |
-| SVIP | `betalands.level.svip` | 30 | 300 | 50 | 40 | 100 | 3 days |
+| Default | `betalands.level.default` | 5 | 200 | 3 | 6 | 6 | 3 days |
+| VIP | `betalands.level.vip` | 15 | 400 | 20 | 20 | 30 | 3 days |
+| SVIP | `betalands.level.svip` | 30 | 1000 | 100 | 60 | 100 | 3 days |
 
 Prices:
 
-| Level | Create land | Base expansion | Expansion increment per chunk | Subclaim per block | Upkeep per chunk/day | Upkeep per member/day |
+| Level | Create land | Base expansion | Expansion increment per chunk | Subclaim per block | Upkeep per chunk/cycle | Upkeep per member/cycle |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Default | 300.00 | 20.00 | 5.00 | 0.01 | 0.30 | 0.50 |
-| VIP | 250.00 | 20.00 | 4.00 | 0.008 | 0.25 | 0.40 |
-| SVIP | 200.00 | 20.00 | 3.00 | 0.005 | 0.20 | 0.30 |
+| Default | 300.00 | 20.00 | 5.00 | 0.01 | 0.20 | 0.30 |
+| VIP | 250.00 | 20.00 | 4.00 | 0.008 | 0.15 | 0.25 |
+| SVIP | 200.00 | 20.00 | 3.00 | 0.005 | 0.10 | 0.20 |
+
+Maintenance chunk and member rates are charged once per maintenance cycle, not per day. The cycle length comes from the level's `maintenance-interval-days`.
 
 ## 5 Land Maintenance
 
 Maintenance works as follows:
 
 ```text
-server rates per chunk/member
+server rate per chunk/member per maintenance cycle
 → main-land owner deposits into the land bank
-→ the land bank is charged at the configured interval
+→ one cycle fee is charged each time the configured interval is completed
 → successfully collected amounts accumulate in BetaLands' internal server maintenance bank
 ```
 
@@ -167,6 +169,8 @@ The land bank balance represents both maintenance prepayment and debt:
 ```
 
 A positive balance is prepaid maintenance. A negative balance is debt. Deposits clear debt first, and any remaining amount becomes prepaid maintenance.
+
+The "per member/cycle" rate uses unique effective members across the main land and all subclaims. The main-land owner is excluded, and only players with effective `build` permission in the main land or at least one subclaim are counted. A player with access in multiple family lands is counted once. Members without effective `build` permission are not charged as maintenance members.
 
 ## 6 Land Rent
 
@@ -198,17 +202,17 @@ Any remaining deposit stays as global prepaid rent.
 
 ## 7 Debt Restrictions
 
-If the prepaid balance is below seven days of future charges but is not negative, BetaLands only sends a reminder and does not block actions.
+If the prepaid maintenance balance is below the next cycle charge but is not negative, BetaLands only sends a maintenance reminder and does not block actions. The rent account still uses a seven-day rental balance threshold.
 
 | Area | Main-land bank debt | Rent account debt |
 | --- | --- | --- |
-| Blocked actions | Expanding a land, creating a subclaim, adding or removing members, adding `build` through `/land perm`, land teleport, and protected building, breaking, buckets, doors, buttons, containers, and similar interactions. Withdrawals are also blocked. Maintenance continues to accrue at the configured interval, so the negative bank balance can grow. | Withdrawing from the rent account. Protected building, breaking, buckets, doors, buttons, containers, and similar interactions in the land that owns the debt. Teleporting to that land. If the debt belongs to a main land, its subclaims receive the same restriction. Daily rent processing pauses while the account is negative; later charges skipped because of the negative balance are not retroactively collected. |
+| Blocked actions | Expanding a land, creating a subclaim, adding or removing members, adding `build` through `/land perm`, land teleport, and protected building, breaking, buckets, doors, buttons, containers, and similar interactions. Withdrawals are also blocked. Each completed maintenance cycle continues to increase the debt. | Withdrawing from the rent account. Protected building, breaking, buckets, doors, buttons, containers, and similar interactions in the land that owns the debt. Teleporting to that land. If the debt belongs to a main land, its subclaims receive the same restriction. Daily rent processing pauses while the account is negative; later charges skipped because of the negative balance are not retroactively collected. |
 | Allowed actions | `/land unclaim`, voluntarily leaving as a normal member, viewing logs, and `/land bank deposit` to clear debt. Debt must be cleared and deletion confirmed before deletion. Debt never automatically deletes a land or removes members. A deposit clears debt first, then becomes prepaid maintenance. | `/land rent deposit` to clear debt and `/land rent info`. Other lands without debt are not restricted. Rent debt by itself does not block member changes or land expansion, though main-land bank debt may still do so. A deposit pays the debt owner first, and the remainder becomes global prepaid rent. |
 
 ### 7.1 Fee Reminders
 
 - After joining, a player receives a fee summary covering maintenance for their owned main lands and rent they owe as a rent-paying member.
-- If an owned main-land bank covers fewer than seven days of upkeep, or a member's prepaid rent covers fewer than seven days, affected online players receive a reminder once per minute.
+- If an owned main-land bank cannot cover the next maintenance cycle, or a member's prepaid rent covers fewer than seven days, affected online players receive a reminder once per minute.
 - Outstanding debt uses the debt reminder. Lands without upkeep or rent do not generate duplicate warnings.
 
 Rent and maintenance reminders inspect the land bank and rent account, not the player's total personal balance.
@@ -218,5 +222,5 @@ Rent and maintenance reminders inspect the land bank and rent account, not the p
 <br><br><br>
 
 <p align="center">
-  <img src="img/BetaLands.png" alt="BetaLands Logo" width="220">
+  <img src="https://raw.githubusercontent.com/che11111/BetaLands/main/img/BetaLands.png" alt="BetaLands Logo" width="220">
 </p>

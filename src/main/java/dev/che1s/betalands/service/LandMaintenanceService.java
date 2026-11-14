@@ -49,20 +49,21 @@ public final class LandMaintenanceService {
             long elapsed = now - last;
             LevelProfile profile = plugin.getLevels().getProfile(land);
             int intervalDays = profile.getMaintenanceIntervalDays();
-            double dailyFee = getDailyFee(land);
+            double maintenanceFee = getMaintenanceFee(land);
             MaintenanceAccrual accrual = calculateMaintenanceAccrual(
-                    last, now, intervalDays, dailyFee);
+                    last, now, intervalDays, maintenanceFee);
             if (!accrual.isDue()) {
                 continue;
             }
             long days = accrual.getDays();
+            long intervals = accrual.getIntervals();
             long next = accrual.getNextAt();
             if (land.isMaintenanceExempt()) {
                 land.setLastMaintenanceAt(next);
                 changed = true;
                 continue;
             }
-            if (dailyFee <= 0.0D) {
+            if (maintenanceFee <= 0.0D) {
                 land.setLastMaintenanceAt(next);
                 changed = true;
                 continue;
@@ -76,18 +77,19 @@ public final class LandMaintenanceService {
                 plugin.getAuditLog().logEconomy("SERVER_MAINTENANCE_CHARGE",
                         "SYSTEM", land, collected,
                         plugin.getLandManager().getServerMaintenanceBank(),
-                        "Server upkeep from land bank for " + days
+                        "Land maintenance from land bank for " + intervals
+                                + " interval(s), " + days
                                 + " day(s), owner=" + land.getOwner(), true);
             }
             if (land.getBankBalance() < 0.0D) {
                 plugin.getAuditLog().logEconomy("SERVER_MAINTENANCE_DEBT",
                         "SYSTEM", land, due, land.getBankBalance(),
-                        "Land bank cannot cover server upkeep, owner="
+                        "Land bank cannot cover the maintenance cycle, owner="
                                 + land.getOwner(), true);
             }
             land.setLastMaintenanceAt(next);
             changed = true;
-            notifyOwner(land, collected, days);
+            notifyOwner(land, collected, intervals, days);
         }
         return changed;
     }
@@ -171,7 +173,10 @@ public final class LandMaintenanceService {
         return changed;
     }
 
-    public double getDailyFee(Land land) {
+    /**
+     * Amount charged for one complete maintenance interval.
+     */
+    public double getMaintenanceFee(Land land) {
         if (!plugin.getSettings().isEconomyEnabled()
                 || (!plugin.getEconomy().isAvailable()
                 && !plugin.getSettings().isEconomyRequired())) {
@@ -189,8 +194,9 @@ public final class LandMaintenanceService {
 
     static double calculateMaintenanceFee(LevelProfile profile, int chunks, int members) {
         return EconomyService.round(
-                Math.max(0, chunks) * profile.getMaintenancePerChunkPerDay()
-                        + Math.max(0, members) * profile.getMaintenancePerMemberPerDay())
+                Math.max(0, chunks) * profile.getMaintenancePerChunkPerCycle()
+                        + Math.max(0, members)
+                        * profile.getMaintenancePerMemberPerCycle())
                 .doubleValue();
     }
 
@@ -200,15 +206,16 @@ public final class LandMaintenanceService {
     }
 
     static MaintenanceAccrual calculateMaintenanceAccrual(
-            long last, long now, int intervalDays, double dailyFee) {
+            long last, long now, int intervalDays, double maintenanceFee) {
         int safeInterval = Math.max(1, intervalDays);
         long completed = completedMaintenanceIntervals(
                 now - last, safeInterval);
         long days = completed * safeInterval;
-        return new MaintenanceAccrual(completed > 0L, days,
+        return new MaintenanceAccrual(completed > 0L, completed, days,
                 last + days * DAY_MILLIS,
                 EconomyService.round(
-                        Math.max(0.0D, dailyFee) * days).doubleValue());
+                        Math.max(0.0D, maintenanceFee) * completed)
+                        .doubleValue());
     }
 
     public Land getBankLand(Land land) {
@@ -303,22 +310,32 @@ public final class LandMaintenanceService {
         return debtPaid;
     }
 
-    private void notifyOwner(Land land, double amount, long days) {
+    /**
+     * @deprecated Maintenance is charged per interval, not per day.
+     */
+    @Deprecated
+    public double getDailyFee(Land land) {
+        return getMaintenanceFee(land);
+    }
+
+    private void notifyOwner(Land land, double amount, long intervals,
+                             long days) {
         Player owner = plugin.getServer().getPlayerExact(land.getOwner());
         if (owner == null) {
             return;
         }
         if (amount > 0.0D) {
             plugin.getMessages().send(owner, "maintenance.server-charged-v2",
-                    "&7Server upkeep charged from {land} bank: {amount} ({days} days). Land bank={balance}.",
+                    "&7Land maintenance charged from {land} bank: {amount} ({intervals} cycle(s), {days} days). Land bank={balance}.",
                     "land", land.getDisplayName(),
                     "amount", plugin.getEconomy().format(amount),
+                    "intervals", Long.toString(intervals),
                     "days", Long.toString(days),
                     "balance", plugin.getEconomy().format(land.getBankBalance()));
         }
         if (land.getBankBalance() < 0.0D) {
             plugin.getMessages().send(owner, "maintenance.debt-v2",
-                    "&cThe {land} land bank cannot cover server upkeep. Balance={balance}. Deposit with /land bank deposit <amount> {land}.",
+                    "&cThe {land} land bank cannot cover the maintenance cycle. Balance={balance}. Deposit with /land bank deposit <amount> {land}.",
                     "land", land.getDisplayName(),
                     "balance", plugin.getEconomy().format(land.getBankBalance()));
         }
@@ -363,13 +380,15 @@ public final class LandMaintenanceService {
 
     static final class MaintenanceAccrual {
         private final boolean due;
+        private final long intervals;
         private final long days;
         private final long nextAt;
         private final double amount;
 
-        private MaintenanceAccrual(boolean due, long days,
+        private MaintenanceAccrual(boolean due, long intervals, long days,
                                    long nextAt, double amount) {
             this.due = due;
+            this.intervals = intervals;
             this.days = days;
             this.nextAt = nextAt;
             this.amount = amount;
@@ -381,6 +400,10 @@ public final class LandMaintenanceService {
 
         long getDays() {
             return days;
+        }
+
+        long getIntervals() {
+            return intervals;
         }
 
         long getNextAt() {

@@ -29,7 +29,7 @@ BetaLands is a land-protection and land-management plugin designed for Minecraft
 - Separate protection flags control explosions, fire, fluid crossing, PVP, public teleport, mob spawning, and trampling.
 - Level-based limits and prices can be configured through Bukkit permissions and `levels.yml`.
 - Persistent temporary levels are stored in the database and revert automatically when they expire.
-- Land banks prepay maintenance and can enter debt. Debt blocks protected actions and selected management operations until paid.
+- Land banks prepay maintenance and can enter debt. Maintenance member counts are deduplicated across main lands and subclaims and include only players with effective `build` permission, excluding the main-land owner.
 - Each player has one global rent account. Rent can be configured per main land or subclaim.
 - BlueMap and Dynmap integrations display land outlines, holes, subclaim heights, member permissions, financial state, and other details.
 - Towny towns and resident plots can be migrated to main lands and 3D subclaims.

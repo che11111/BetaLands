@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -16,9 +17,25 @@ import org.bukkit.util.config.Configuration;
 import dev.che1s.betalands.BetaLandsPlugin;
 
 public final class MessageService {
+    private static final String[] CONSOLE_LANGUAGE_FILES = {
+            "console-en.yml",
+            "console-zh.yml",
+            "console-ja.yml",
+            "console-ko.yml",
+            "console-zh-tw.yml",
+            "console-de.yml",
+            "console-fr.yml",
+            "console-es.yml",
+            "console-ru.yml"
+    };
+    private static final Pattern SAFE_LANGUAGE_FILE =
+            Pattern.compile("^[A-Za-z0-9][A-Za-z0-9._-]*\\.yml$");
+
     private final BetaLandsPlugin plugin;
     private Configuration game;
+    private Configuration gameFallback;
     private Configuration console;
+    private Configuration consoleFallback;
     private Configuration mapLanguage;
     private String gamePrefix;
     private String consolePrefix;
@@ -35,33 +52,69 @@ public final class MessageService {
                     "[BetaLands] Could not create lang directory: " + folder.getAbsolutePath());
         }
         File gameFile = ensureFile(folder, "game.yml");
-        File consoleZh = ensureFile(folder, "console-zh.yml");
         File consoleEn = ensureFile(folder, "console-en.yml");
+        for (String filename : CONSOLE_LANGUAGE_FILES) {
+            ensureFile(folder, filename);
+        }
         File mapZh = ensureFile(folder, "map-zh.yml");
         File mapEn = ensureFile(folder, "map-en.yml");
-        String consoleLanguage = resolvedLanguage(plugin.getSettings().getConsoleLanguage());
-        File consoleFile = isChinese(consoleLanguage) ? consoleZh : consoleEn;
+        String consoleFilename = resolveConsoleFile(
+                plugin.getSettings().getConsoleLanguage());
+        String gameFilename = resolveGameFile(
+                plugin.getSettings().getGameLanguage());
+        File requestedConsole = new File(folder, consoleFilename);
+        File requestedGame = new File(folder, gameFilename);
         String selectedMapLanguage = resolvedLanguage(plugin.getSettings().getMapLanguage());
         mapChinese = isChinese(selectedMapLanguage);
         File mapFile = isChinese(selectedMapLanguage) ? mapZh : mapEn;
 
-        game = new Configuration(gameFile);
-        game.load();
-        console = new Configuration(consoleFile);
-        console.load();
+        consoleFallback = new Configuration(consoleEn);
+        consoleFallback.load();
+        console = requestedConsole.isFile()
+                ? load(requestedConsole) : consoleFallback;
+        gameFallback = new Configuration(gameFile);
+        gameFallback.load();
+        game = requestedGame.isFile() ? load(requestedGame) : gameFallback;
         mapLanguage = new Configuration(mapFile);
         mapLanguage.load();
-        gamePrefix = ChatColor.YELLOW + "[BetaLands] ";
-        consolePrefix = console.getString("prefix", "[BetaLands]");
+        gamePrefix = fallbackValue(game, gameFallback,
+                "prefix", ChatColor.YELLOW + "[BetaLands] ");
+        consolePrefix = fallbackValue(console, consoleFallback,
+                "prefix", "[BetaLands]");
+
+        if (isInvalidLanguageValue(plugin.getSettings().getConsoleLanguage(),
+                consoleFilename)) {
+            warning("language.invalid-file",
+                    "Invalid language filename '{file}'; using {fallback}.",
+                    "file", plugin.getSettings().getConsoleLanguage(),
+                    "fallback", "console-en.yml");
+        } else if (!requestedConsole.isFile()) {
+            warning("language.file-fallback",
+                    "Language file {file} was not found; using {fallback}.",
+                    "file", consoleFilename,
+                    "fallback", "console-en.yml");
+        }
+        if (isInvalidLanguageValue(plugin.getSettings().getGameLanguage(),
+                gameFilename)) {
+            warning("language.invalid-file",
+                    "Invalid language filename '{file}'; using {fallback}.",
+                    "file", plugin.getSettings().getGameLanguage(),
+                    "fallback", "game.yml");
+        } else if (!requestedGame.isFile()) {
+            warning("language.file-fallback",
+                    "Language file {file} was not found; using {fallback}.",
+                    "file", gameFilename,
+                    "fallback", "game.yml");
+        }
     }
 
     public String game(String key, String fallback, String... replacements) {
-        String value = game == null ? fallback : game.getString(key, fallback);
+        String value = fallbackValue(game, gameFallback, key, fallback);
         return gamePrefix + formatBody(value, replacements);
     }
 
     public String gameRaw(String key, String fallback, String... replacements) {
-        String value = game == null ? fallback : game.getString(key, fallback);
+        String value = fallbackValue(game, gameFallback, key, fallback);
         return formatBody(value, replacements);
     }
 
@@ -79,7 +132,7 @@ public final class MessageService {
     }
 
     public String console(String key, String fallback, String... replacements) {
-        String value = console == null ? fallback : console.getString(key, fallback);
+        String value = fallbackValue(console, consoleFallback, key, fallback);
         return consolePrefix + " " + replace(value, replacements);
     }
 
@@ -233,7 +286,7 @@ public final class MessageService {
                 .replace("&r", "");
     }
 
-    private String resolvedLanguage(String configured) {
+    static String resolvedLanguage(String configured) {
         if (configured == null || "auto".equalsIgnoreCase(configured)) {
             String systemLanguage = System.getProperty("user.language",
                     Locale.getDefault().getLanguage());
@@ -245,6 +298,92 @@ public final class MessageService {
     static boolean isChinese(String language) {
         String value = language == null ? "zh" : language.toLowerCase(Locale.ROOT);
         return value.startsWith("zh") || value.contains("chinese") || value.contains("中文");
+    }
+
+    static String consoleFileForLocale(String language, String country) {
+        String value = (language == null ? "" : language)
+                + "_" + (country == null ? "" : country);
+        value = value.toLowerCase(Locale.ROOT);
+        if (value.startsWith("zh")) {
+            return value.contains("hant")
+                    || value.contains("_tw")
+                    || value.contains("_hk")
+                    || value.contains("_mo")
+                    || value.contains("traditional")
+                    || value.contains("繁體")
+                    ? "console-zh-tw.yml" : "console-zh.yml";
+        }
+        if (value.startsWith("ja") || value.startsWith("jp")
+                || value.contains("japanese") || value.contains("日本語")) {
+            return "console-ja.yml";
+        }
+        if (value.startsWith("ko") || value.startsWith("kr")
+                || value.contains("korean") || value.contains("한국어")) {
+            return "console-ko.yml";
+        }
+        if (value.startsWith("de") || value.contains("german")
+                || value.contains("deutsch")) {
+            return "console-de.yml";
+        }
+        if (value.startsWith("fr") || value.contains("french")
+                || value.contains("français")) {
+            return "console-fr.yml";
+        }
+        if (value.startsWith("es") || value.contains("spanish")
+                || value.contains("español")) {
+            return "console-es.yml";
+        }
+        if (value.startsWith("ru") || value.contains("russian")
+                || value.contains("русский")) {
+            return "console-ru.yml";
+        }
+        return "console-en.yml";
+    }
+
+    static String resolveConsoleFile(String configured) {
+        String requested = configured == null ? "" : configured.trim();
+        if (requested.isEmpty() || "auto".equalsIgnoreCase(requested)) {
+            return consoleFileForLocale(
+                    System.getProperty("user.language",
+                            Locale.getDefault().getLanguage()),
+                    System.getProperty("user.country",
+                            Locale.getDefault().getCountry())
+            );
+        }
+        return SAFE_LANGUAGE_FILE.matcher(requested).matches()
+                ? requested : "console-en.yml";
+    }
+
+    static String resolveGameFile(String configured) {
+        String requested = configured == null ? "" : configured.trim();
+        if (requested.isEmpty()) {
+            return "game.yml";
+        }
+        return "game.yml".equals(requested) ? "game.yml" : "game.yml";
+    }
+
+    private static boolean isInvalidLanguageValue(String configured,
+                                                   String resolved) {
+        String requested = configured == null ? "" : configured.trim();
+        if (requested.isEmpty() || "auto".equalsIgnoreCase(requested)) {
+            return false;
+        }
+        return !requested.equals(resolved);
+    }
+
+    private Configuration load(File file) {
+        Configuration configuration = new Configuration(file);
+        configuration.load();
+        return configuration;
+    }
+
+    private String fallbackValue(Configuration primary, Configuration fallback,
+                                 String key, String defaultValue) {
+        String value = primary == null ? null : primary.getString(key, null);
+        if (value == null && fallback != null && fallback != primary) {
+            value = fallback.getString(key, null);
+        }
+        return value == null ? defaultValue : value;
     }
 
     private File ensureFile(File folder, String name) {

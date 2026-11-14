@@ -152,11 +152,11 @@ playtime:
 
 bank:
   header: "&6{land} land bank"
-  balance-v5: "&7Balance={balance} | Server upkeep={daily}/day | Charge every={days} days | Level={level}"
+  balance-v5: "&7Balance={balance} | Maintenance={maintenance}/{days} days | Level={level}"
   next: "&7Next charge: {time}"
   maintenance-exempt: "&aMaintenance: exempt"
   normal: "&aStatus: normal"
-  debt-v2: "&cStatus: in debt. Server upkeep will continue to increase the debt until you deposit."
+  debt-v2: "&cStatus: in debt. Each maintenance cycle will increase the debt until you deposit."
   deposit-success-v2: "&aDeposited {amount} into {land}. Bank balance={balance}."
   withdraw-success-v2: "&aWithdrew {amount} from {land}. Bank balance={balance}."
   insufficient: "&cThe land bank does not have enough money."
@@ -171,8 +171,8 @@ bank-all:
   no-lands: "&eYou do not own any main lands."
   no-maintenance: "&eYour owned lands have no chargeable maintenance fees, so proportional distribution is unavailable."
   info-header: "&fAll owned land banks ({count}):"
-  info-land: "&f{land}: daily upkeep={daily}, bank={balance}."
-  info-total: "&fTotal daily upkeep={totalDaily}, total bank={totalBalance}."
+  info-land: "&f{land}: maintenance={maintenance}, bank={balance}."
+  info-total: "&fTotal maintenance per cycle={totalMaintenance}, total bank={totalBalance}."
   deposit-success: "&fDeposited {amount} across {count} lands: {breakdown}."
 
 rent:
@@ -209,8 +209,8 @@ level:
   limits-v2: "&7Main lands={main}, chunks per main={chunks}, subclaims per main={sub}, family members={members}, joined lands={joined}"
   prices: "&7Create={create}, claim={claim}+{increment}*existing-chunks, subclaim/block={subBlock}"
   prices-scaled: "&7Create={create}, claim={claim}+{increment}*existing-chunks, subclaim/block={subBlock}"
-  upkeep: "&7Upkeep: main={mainUpkeep}/day, subclaim={subUpkeep}/day"
-  upkeep-v3: "&7Server upkeep: {chunkRate}/chunk/day + {memberRate}/member/day; charged every {days} days."
+  upkeep: "&7Maintenance: main={mainUpkeep}/cycle, subclaim={subUpkeep}/cycle"
+  upkeep-v3: "&7Maintenance: {chunkRate}/chunk/cycle + {memberRate}/member/cycle; charged every {days} days."
   self-usage: "&eUsage: /land level"
 
 logs:
@@ -277,18 +277,18 @@ admin-land:
   unknown: "&cUnknown admin-land command. Use /land admin-land for usage."
 
 maintenance:
-  server-charged-v2: "&7Server upkeep charged from {land} bank: {amount} ({days} days). Land bank={balance}."
-  debt-v2: "&cThe {land} land bank cannot cover server upkeep. Balance={balance}. Deposit with /land bank deposit <amount> {land}."
+  server-charged-v2: "&7Land maintenance charged from {land} bank: {amount} ({intervals} cycle(s), {days} days). Land bank={balance}."
+  debt-v2: "&cThe {land} land bank cannot cover the maintenance cycle. Balance={balance}. Deposit with /land bank deposit <amount> {land}."
 
 fees:
   header: "&6[Land fees]"
-  maintenance-free: "&7{land}: no daily upkeep."
-  maintenance-exempt: "&7{land}: daily upkeep is exempt."
-  maintenance-status-v3: "&7{land}: land bank={balance}, server upkeep={daily}/day, covers {days} days."
-  maintenance-low-v3: "&e{land}: land bank={balance}, server upkeep={daily}/day, only {days} days remain. Deposit with /land bank deposit <amount> {land}."
-  maintenance-debt-v3: "&c{land}: land bank is in debt at {balance}. Server upkeep={daily}/day. Deposit with /land bank deposit <amount> {land}."
-  maintenance-low-warning-v3: "&e[Land fees] {land}: land bank={balance}; 7 days of server upkeep costs {required}. Deposit with /land bank deposit <amount> {land}."
-  maintenance-debt-warning-v3: "&c[Land fees] {land}: land bank is in debt at {balance}; server upkeep is {daily}/day. Deposit with /land bank deposit <amount> {land}."
+  maintenance-free: "&7{land}: no maintenance charge."
+  maintenance-exempt: "&7{land}: land maintenance is exempt."
+  maintenance-status-v3: "&7{land}: land bank={balance}, maintenance={maintenance}/{days} days, covers {cycles} cycles."
+  maintenance-low-v3: "&e{land}: land bank={balance}, next charge={maintenance}/{days} days; covered cycles={cycles}. Deposit with /land bank deposit <amount> {land}."
+  maintenance-debt-v3: "&c{land}: land bank is in debt at {balance}. Maintenance={maintenance}/{days} days. Deposit with /land bank deposit <amount> {land}."
+  maintenance-low-warning-v3: "&e[Land fees] {land}: land bank={balance}; the next maintenance charge is {required}/{days} days. Deposit with /land bank deposit <amount> {land}."
+  maintenance-debt-warning-v3: "&c[Land fees] {land}: land bank is in debt at {balance}; maintenance is {maintenance}/{days} days. Deposit with /land bank deposit <amount> {land}."
   rent-status-v3: "&7Global rent account={balance}, total rent={daily}/day across {lands} lands, covers {days} days."
   rent-low-v3: "&eGlobal rent account={balance}, total rent={daily}/day across {lands} lands, only {days} days remain."
   rent-debt-v3: "&cGlobal rent account is overdue at {balance}. Unpaid rent belongs to {land}. Deposit with /land rent deposit <amount>."

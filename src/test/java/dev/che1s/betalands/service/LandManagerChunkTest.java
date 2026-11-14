@@ -200,6 +200,31 @@ public class LandManagerChunkTest {
     }
 
     @Test
+    public void blocksUnclaimWhenSubclaimOverlapsChunkWithoutCoveringCorner() {
+        LandManager manager = new LandManager(null);
+        List<Rect2i> mainAreas = new ArrayList<Rect2i>();
+        mainAreas.add(new Rect2i(0, 0, 31, 15));
+        Land main = new Land("main-unclaim", "Alice", "AAA", "world", null,
+                mainAreas, 0, 127, true, 0L, "manual", null);
+        List<Rect2i> subAreas = new ArrayList<Rect2i>();
+        subAreas.add(new Rect2i(5, 5, 10, 10));
+        Land subclaim = new Land("sub-unclaim", "Alice", "shop", "world",
+                main.getId(), subAreas, 10, 20, true, 0L, "manual", null);
+        manager.addLoadedLand(main);
+        manager.addLoadedLand(subclaim);
+        ClaimService claims = new ClaimService(
+                null, manager, new PermissionService(null, manager));
+        Player owner = playerAt("Alice",
+                new Location(world("world"), 8, 64, 8));
+
+        assertEquals("This chunk contains a subclaim. Delete all subclaims "
+                        + "in this chunk before using /land unclaim.",
+                claims.unclaimChunk(owner, main));
+        assertEquals(2, manager.getOccupiedChunks(main));
+        assertEquals(subclaim, manager.getById(subclaim.getId()));
+    }
+
+    @Test
     public void forcedMemberAddBypassesFamilyQuota() {
         LandManager manager = new LandManager(null);
         Land main = land("force-main", "Alice", "AAA", null);
@@ -337,6 +362,32 @@ public class LandManagerChunkTest {
                     }
                     if ("toString".equals(method.getName())) {
                         return "Admin";
+                    }
+                    return null;
+                });
+    }
+
+    private Player playerAt(final String name, final Location location) {
+        return (Player) Proxy.newProxyInstance(
+                Player.class.getClassLoader(), new Class<?>[]{Player.class},
+                (proxy, method, args) -> {
+                    if ("getName".equals(method.getName())) {
+                        return name;
+                    }
+                    if ("isOp".equals(method.getName())) {
+                        return false;
+                    }
+                    if ("hasPermission".equals(method.getName())) {
+                        return false;
+                    }
+                    if ("getWorld".equals(method.getName())) {
+                        return location.getWorld();
+                    }
+                    if ("getLocation".equals(method.getName())) {
+                        return location;
+                    }
+                    if ("toString".equals(method.getName())) {
+                        return name;
                     }
                     return null;
                 });

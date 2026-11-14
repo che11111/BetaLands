@@ -1,5 +1,9 @@
 prefix: "[BetaLands]"
 
+language:
+  invalid-file: "语言文件名 '{file}' 无效，已改用 {fallback}。"
+  file-fallback: "未找到语言文件 {file}，已改用 {fallback}。"
+
 config:
   directory-create-failed: "无法创建插件数据目录：{path}"
   config-create-failed: "无法创建 config.yml：{error}"
@@ -17,6 +21,7 @@ startup:
   dynmap-failed: "无法连接 Dynmap：{error}"
   bluemap-hook: "已连接 BlueMap 标记 API。"
   bluemap-failed: "无法连接 BlueMap：{error}"
+  dynmap-manual-sync: "Dynmap 数据不会在启动时自动注入，请使用 /land admin refresh-map dynmap 同步。该刷新在服务器主线程执行，可能造成暂时卡顿。"
   bstats-failed: "无法初始化 bStats：{error}"
   ready: "BetaLands {version} 已启用，当前领地数 {lands}，领地外建造解锁时间 {hours} 小时。"
   command-missing: "plugin.yml 中缺少 land 指令。"
@@ -34,6 +39,7 @@ data:
 maps:
   dynmap-refresh-failed: "刷新 Dynmap 标记失败：{error}"
   bluemap-refresh-failed: "刷新 BlueMap 标记失败：{error}"
+  bluemap-synchronized: "BlueMap 数据已发送至 BlueMap。"
   refresh-slow: "地图标记刷新耗时 {milliseconds} 毫秒。"
   dynmap-updated: "Dynmap 已更新 {lands} 个领地，共 {markers} 个标记。"
   dynmap-world-missing: "Dynmap 无法在 Bukkit 中找到 {count} 个领地的世界，已改用保存的世界名称。"

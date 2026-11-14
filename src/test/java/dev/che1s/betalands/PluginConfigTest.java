@@ -17,6 +17,7 @@ public class PluginConfigTest {
         List<String> defaults = Arrays.asList(
                 "language:",
                 "  console: auto",
+                "  game: game.yml",
                 "  map: auto",
                 "storage:",
                 "  type: sqlite",
@@ -52,6 +53,7 @@ public class PluginConfigTest {
             Configuration configuration = new Configuration(file);
             configuration.load();
             assertEquals("en", configuration.getString("language.console"));
+            assertEquals("game.yml", configuration.getString("language.game"));
             assertEquals("auto", configuration.getString("language.map"));
             assertEquals("mysql", configuration.getString("storage.type"));
             assertEquals("betalands.db", configuration.getString("storage.sqlite.file"));

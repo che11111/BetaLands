@@ -1,6 +1,6 @@
 name: BetaLands
 main: dev.che1s.betalands.BetaLandsPlugin
-version: 1.1.7
+version: 1.1.9
 description: Beta 1.7.3 lands with 2D claims, 3D subclaims, permissions and map markers
 authors: [che1s]
 softdepend: [iConomy, Towny, dynmap, BlueMap]

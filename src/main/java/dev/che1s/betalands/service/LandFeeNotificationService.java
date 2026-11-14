@@ -14,7 +14,7 @@ import dev.che1s.betalands.model.RentAccount;
 import dev.che1s.betalands.util.Text;
 
 public final class LandFeeNotificationService {
-    static final int WARNING_DAYS = 7;
+    static final int RENT_WARNING_DAYS = 7;
 
     private final BetaLandsPlugin plugin;
     private final LandManager lands;
@@ -62,41 +62,48 @@ public final class LandFeeNotificationService {
         if (land.isMaintenanceExempt()) {
             lines.add(plugin.getMessages().gameRaw(
                     "fees.maintenance-exempt",
-                    "&7{land}: daily upkeep is exempt.",
+                    "&7{land}: land maintenance is exempt.",
                     "land", land.getDisplayName()));
             return;
         }
-        double daily = plugin.getMaintenanceService().getDailyFee(land);
+        double maintenance = plugin.getMaintenanceService().getMaintenanceFee(land);
+        int intervalDays = plugin.getLevels().getProfile(land)
+                .getMaintenanceIntervalDays();
         double balance = land.getBankBalance();
-        FeeState state = evaluate(balance, daily);
+        FeeState state = evaluateMaintenance(balance, maintenance);
         if (state == FeeState.FREE) {
             lines.add(plugin.getMessages().gameRaw(
                     "fees.maintenance-free",
-                    "&7{land}: no daily upkeep.",
+                    "&7{land}: no maintenance charge.",
                     "land", land.getDisplayName()));
         } else if (state == FeeState.DEBT) {
             lines.add(plugin.getMessages().gameRaw(
                     "fees.maintenance-debt-v3",
-                    "&c{land}: land bank is in debt at {balance}. Server upkeep={daily}/day. Deposit with /land bank deposit <amount> {land}.",
+                    "&c{land}: land bank is in debt at {balance}. Maintenance={maintenance}/{days} days. Deposit with /land bank deposit <amount> {land}.",
                     "land", land.getDisplayName(),
                     "balance", plugin.getEconomy().format(balance),
-                    "daily", plugin.getEconomy().format(daily)));
+                    "maintenance", plugin.getEconomy().format(maintenance),
+                    "days", Integer.toString(intervalDays)));
         } else if (state == FeeState.LOW) {
             lines.add(plugin.getMessages().gameRaw(
                     "fees.maintenance-low-v3",
-                    "&e{land}: land bank={balance}, server upkeep={daily}/day, only {days} days remain. Deposit with /land bank deposit <amount> {land}.",
+                    "&e{land}: land bank={balance}, next charge={maintenance}/{days} days; covered cycles={cycles}. Deposit with /land bank deposit <amount> {land}.",
                     "land", land.getDisplayName(),
                     "balance", plugin.getEconomy().format(balance),
-                    "daily", plugin.getEconomy().format(daily),
-                    "days", coveredDays(balance, daily)));
+                    "maintenance", plugin.getEconomy().format(maintenance),
+                    "days", Integer.toString(intervalDays),
+                    "cycles", coveredMaintenanceCycles(
+                            balance, maintenance)));
         } else {
             lines.add(plugin.getMessages().gameRaw(
                     "fees.maintenance-status-v3",
-                    "&7{land}: land bank={balance}, server upkeep={daily}/day, covers {days} days.",
+                    "&7{land}: land bank={balance}, maintenance={maintenance}/{days} days, covers {cycles} cycles.",
                     "land", land.getDisplayName(),
                     "balance", plugin.getEconomy().format(balance),
-                    "daily", plugin.getEconomy().format(daily),
-                    "days", coveredDays(balance, daily)));
+                    "maintenance", plugin.getEconomy().format(maintenance),
+                    "days", Integer.toString(intervalDays),
+                    "cycles", coveredMaintenanceCycles(
+                            balance, maintenance)));
         }
     }
 
@@ -179,25 +186,29 @@ public final class LandFeeNotificationService {
         if (owner == null) {
             return;
         }
-        double daily = plugin.getMaintenanceService().getDailyFee(land);
+        double maintenance = plugin.getMaintenanceService().getMaintenanceFee(land);
+        int intervalDays = plugin.getLevels().getProfile(land)
+                .getMaintenanceIntervalDays();
         double balance = land.getBankBalance();
-        FeeState state = evaluate(balance, daily);
+        FeeState state = evaluateMaintenance(balance, maintenance);
         if (state != FeeState.DEBT && state != FeeState.LOW) {
             return;
         }
         String message = state == FeeState.DEBT
                 ? plugin.getMessages().gameRaw(
                 "fees.maintenance-debt-warning-v3",
-                "&c[Land fees] {land}: land bank is in debt at {balance}; server upkeep is {daily}/day. Deposit with /land bank deposit <amount> {land}.",
+                "&c[Land fees] {land}: land bank is in debt at {balance}; maintenance is {maintenance}/{days} days. Deposit with /land bank deposit <amount> {land}.",
                 "land", land.getDisplayName(),
                 "balance", plugin.getEconomy().format(balance),
-                "daily", plugin.getEconomy().format(daily))
+                "maintenance", plugin.getEconomy().format(maintenance),
+                "days", Integer.toString(intervalDays))
                 : plugin.getMessages().gameRaw(
                 "fees.maintenance-low-warning-v3",
-                "&e[Land fees] {land}: land bank={balance}; 7 days of server upkeep costs {required}. Deposit with /land bank deposit <amount> {land}.",
+                "&e[Land fees] {land}: land bank={balance}; the next maintenance charge is {required}/{days} days. Deposit with /land bank deposit <amount> {land}.",
                 "land", land.getDisplayName(),
                 "balance", plugin.getEconomy().format(balance),
-                "required", plugin.getEconomy().format(daily * WARNING_DAYS));
+                "required", plugin.getEconomy().format(maintenance),
+                "days", Integer.toString(intervalDays));
         addNotice(notices, Text.key(owner.getName()), message);
     }
 
@@ -228,7 +239,8 @@ public final class LandFeeNotificationService {
                     "fees.rent-low-warning-v3",
                     "&e[Land fees] Global rent account={balance}; 7 days of total rent costs {required}. Deposit with /land rent deposit <amount>.",
                     "balance", plugin.getEconomy().format(balance),
-                    "required", plugin.getEconomy().format(totalDaily * WARNING_DAYS));
+                    "required", plugin.getEconomy().format(
+                            totalDaily * RENT_WARNING_DAYS));
             addNotice(notices, playerKey, message);
         }
     }
@@ -254,10 +266,20 @@ public final class LandFeeNotificationService {
         if (balance < 0.0D) {
             return FeeState.DEBT;
         }
-        if (balance < dailyFee * WARNING_DAYS) {
+        if (balance < dailyFee * RENT_WARNING_DAYS) {
             return FeeState.LOW;
         }
         return FeeState.OK;
+    }
+
+    static FeeState evaluateMaintenance(double balance, double maintenanceFee) {
+        if (maintenanceFee <= 0.0D) {
+            return FeeState.FREE;
+        }
+        if (balance < 0.0D) {
+            return FeeState.DEBT;
+        }
+        return balance < maintenanceFee ? FeeState.LOW : FeeState.OK;
     }
 
     static String coveredDays(double balance, double dailyFee) {
@@ -266,6 +288,15 @@ public final class LandFeeNotificationService {
         }
         return String.format(Locale.ROOT, "%.1f",
                 Math.max(0.0D, balance) / dailyFee);
+    }
+
+    static String coveredMaintenanceCycles(double balance,
+                                           double maintenanceFee) {
+        if (maintenanceFee <= 0.0D) {
+            return "-";
+        }
+        return String.format(Locale.ROOT, "%.1f",
+                Math.max(0.0D, balance) / maintenanceFee);
     }
 
     private void addNotice(Map<String, List<String>> notices, String playerKey,

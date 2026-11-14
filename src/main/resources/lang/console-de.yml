@@ -1,0 +1,69 @@
+# Deutsche Konsolenmeldungen für BetaLands.
+
+prefix: "[BetaLands]"
+
+language:
+  invalid-file: "Ungültiger Sprachdateiname '{file}'; {fallback} wird verwendet."
+  file-fallback: "Sprachdatei {file} wurde nicht gefunden; {fallback} wird verwendet."
+
+config:
+  directory-create-failed: "Der Plugin-Datenordner konnte nicht erstellt werden: {path}"
+  config-create-failed: "config.yml konnte nicht erstellt werden: {error}"
+  levels-create-failed: "levels.yml konnte nicht erstellt werden: {error}"
+
+startup:
+  audit-ready: "Audit-Log-Datenbank bereit: {path}"
+  audit-failed: "Audit-Log-Datenbank konnte nicht initialisiert werden: {error}"
+  levels-ready: "{count} Land-Stufen geladen."
+  economy-hook: "Mit der iConomy-Wirtschaft verbunden."
+  economy-missing: "iConomy ist nicht verfügbar; kostenpflichtige Aktionen sind deaktiviert."
+  towny-hook: "Towny {version} erkannt; Live-Towny-Migrationsdaten sind verfügbar."
+  map-disabled: "Kartenintegrationen sind in config.yml deaktiviert."
+  dynmap-hook: "Mit Dynmap verbunden; die Bereitschaft der Marker-API wird geprüft."
+  dynmap-failed: "Dynmap konnte nicht verbunden werden: {error}"
+  bluemap-hook: "Mit der BlueMap-Marker-API verbunden."
+  bluemap-failed: "BlueMap konnte nicht verbunden werden: {error}"
+  dynmap-manual-sync: "Dynmap-Daten werden beim Start nicht eingefügt. Synchronisiere mit /land admin refresh-map dynmap. Die Aktualisierung läuft im Hauptthread und kann kurzzeitig Lag verursachen."
+  bstats-failed: "bStats konnte nicht initialisiert werden: {error}"
+  ready: "BetaLands {version} mit {lands} Ländern aktiviert. Freischaltung für Bauen außerhalb={hours} Stunden."
+  command-missing: "Der Befehl land fehlt in plugin.yml."
+
+shutdown:
+  stopping: "BetaLands wird deaktiviert."
+
+data:
+  load-failed: "BetaLands-Daten konnten nicht geladen werden: {error}"
+  read-only: "BetaLands läuft im schreibgeschützten Modus, um vorhandene Dateien zu schützen."
+  save-failed: "BetaLands-Daten konnten nicht gespeichert werden: {error}"
+  save-blocked: "Speichern blockiert, da das Laden fehlgeschlagen ist. Stelle die TSV-Dateien wieder her oder repariere sie."
+  invalid-line: "Ungültige Zeile {line} in {file} übersprungen: {error}"
+
+maps:
+  dynmap-refresh-failed: "Dynmap-Marker-Aktualisierung fehlgeschlagen: {error}"
+  bluemap-refresh-failed: "BlueMap-Marker-Aktualisierung fehlgeschlagen: {error}"
+  bluemap-synchronized: "BlueMap-Daten wurden an BlueMap gesendet."
+  refresh-slow: "Die Marker-Aktualisierung dauerte {milliseconds} ms."
+  dynmap-updated: "Dynmap wurde mit {lands} Ländern und {markers} Markern aktualisiert."
+  dynmap-world-missing: "Dynmap konnte die Bukkit-Welt für {count} Länder nicht finden; gespeicherte Weltnamen wurden verwendet."
+  dynmap-api-waiting: "Dynmap ist installiert, aber die Marker-API ist nicht initialisiert. Aktiviere org.dynmap.MarkersComponent in configuration.txt. BetaLands prüft weiter."
+  dynmap-plugin-unavailable: "Dynmap ist nicht zum Verbinden verfügbar ({state}). BetaLands prüft weiter."
+  dynmap-marker-create-failed: "Dynmap hat {count} BetaLands-Bereichsmarker abgelehnt. Prüfe Dynmap-Version und Marker-API-Konfiguration."
+  dynmap-land-draw-failed: "{count} BetaLands-Länder konnten nicht auf Dynmap gezeichnet werden. Erster Fehler: {error}"
+
+audit:
+  land-write-failed: "Ein Land-Auditdatensatz konnte nicht geschrieben werden: {error}"
+  economy-write-failed: "Ein Wirtschafts-Auditdatensatz konnte nicht geschrieben werden: {error}"
+
+towny:
+  migration-start: "Towny-Migration gestartet. Quelle={source}"
+  migration-backup: "BetaLands-Daten nach {path} gesichert."
+  migration-converting: "Towny-Stadtblöcke werden im Hintergrund gelesen und konvertiert..."
+  migration-applying: "{count} Landeinträge konvertiert. Sie werden auf BetaLands angewendet..."
+  migration-empty: "Die Towny-Migration fand keine Stadtländer. Vorhandene Daten wurden nicht geändert."
+  migration-save-failed: "Towny-Daten wurden in den Speicher übernommen, aber das Speichern ist fehlgeschlagen."
+  migration-warning: "Towny-Migrationswarnung: {warning}"
+  migration-complete: "Towny-Migration abgeschlossen. Quelle={source}, Städte={towns}, Blöcke={blocks}, Untergebiete={subclaims}, Hinzugefügt={added}, Aktualisiert={updated}, Konflikte={conflicts}"
+  import-failed: "Towny-Import fehlgeschlagen: {error}"
+
+economy:
+  hook-failed: "iConomy konnte nicht verbunden werden: {error}"

@@ -1,0 +1,69 @@
+# BetaLands 繁體中文控制台訊息。
+
+prefix: "[BetaLands]"
+
+language:
+  invalid-file: "語言檔名 '{file}' 無效，已改用 {fallback}。"
+  file-fallback: "找不到語言檔案 {file}，已改用 {fallback}。"
+
+config:
+  directory-create-failed: "無法建立外掛資料目錄：{path}"
+  config-create-failed: "無法建立 config.yml：{error}"
+  levels-create-failed: "無法建立 levels.yml：{error}"
+
+startup:
+  audit-ready: "稽核記錄資料庫已就緒：{path}"
+  audit-failed: "無法初始化稽核記錄資料庫：{error}"
+  levels-ready: "已載入 {count} 個領地等級。"
+  economy-hook: "已連接 iConomy 經濟系統。"
+  economy-missing: "找不到可用的 iConomy，收費操作目前停用。"
+  towny-hook: "偵測到 Towny {version}，可讀取線上 Towny 資料進行遷移。"
+  map-disabled: "config.yml 已停用地圖整合。"
+  dynmap-hook: "已連接 Dynmap，稍後會檢查標記 API 是否就緒。"
+  dynmap-failed: "無法連接 Dynmap：{error}"
+  bluemap-hook: "已連接 BlueMap 標記 API。"
+  bluemap-failed: "無法連接 BlueMap：{error}"
+  dynmap-manual-sync: "Dynmap 資料不會在啟動時自動注入，請使用 /land admin refresh-map dynmap 同步。此重新整理會在伺服器主執行緒執行，可能造成暫時卡頓。"
+  bstats-failed: "無法初始化 bStats：{error}"
+  ready: "BetaLands {version} 已啟用，目前領地數 {lands}，領地外建造解鎖時間 {hours} 小時。"
+  command-missing: "plugin.yml 中缺少 land 指令。"
+
+shutdown:
+  stopping: "BetaLands 正在關閉。"
+
+data:
+  load-failed: "無法載入 BetaLands 資料：{error}"
+  read-only: "BetaLands 已進入唯讀模式，以保護現有檔案。"
+  save-failed: "無法儲存 BetaLands 資料：{error}"
+  save-blocked: "資料載入失敗，已阻止儲存。請恢復或修復 TSV 檔案。"
+  invalid-line: "已略過無效的 {file} 第 {line} 行：{error}"
+
+maps:
+  dynmap-refresh-failed: "重新整理 Dynmap 標記失敗：{error}"
+  bluemap-refresh-failed: "重新整理 BlueMap 標記失敗：{error}"
+  bluemap-synchronized: "BlueMap 資料已傳送至 BlueMap。"
+  refresh-slow: "地圖標記重新整理耗時 {milliseconds} 毫秒。"
+  dynmap-updated: "Dynmap 已更新 {lands} 個領地，共 {markers} 個標記。"
+  dynmap-world-missing: "Dynmap 無法在 Bukkit 中找到 {count} 個領地的世界，已改用儲存的世界名稱。"
+  dynmap-api-waiting: "Dynmap 已安裝，但標記 API 尚未初始化。請在 configuration.txt 中啟用 org.dynmap.MarkersComponent；BetaLands 會繼續檢查。"
+  dynmap-plugin-unavailable: "暫時無法連接 Dynmap（{state}）；BetaLands 會繼續檢查。"
+  dynmap-marker-create-failed: "Dynmap 拒絕了 {count} 個 BetaLands 區域標記，請檢查 Dynmap 版本與 Marker API 設定。"
+  dynmap-land-draw-failed: "有 {count} 個 BetaLands 領地無法繪製到 Dynmap，首個錯誤：{error}"
+
+audit:
+  land-write-failed: "寫入領地稽核記錄失敗：{error}"
+  economy-write-failed: "寫入經濟稽核記錄失敗：{error}"
+
+towny:
+  migration-start: "Towny 遷移開始，來源：{source}"
+  migration-backup: "BetaLands 資料已備份到：{path}"
+  migration-converting: "正在背景讀取並轉換 Towny 城鎮區塊..."
+  migration-applying: "已轉換 {count} 筆領地資料，正在套用到 BetaLands..."
+  migration-empty: "Towny 遷移未找到城鎮領地，現有資料保持不變。"
+  migration-save-failed: "Towny 資料已寫入記憶體，但儲存失敗。"
+  migration-warning: "Towny 遷移警告：{warning}"
+  migration-complete: "Towny 遷移完成。來源={source}，城鎮={towns}，方塊={blocks}，子領地={subclaims}，新增={added}，更新={updated}，衝突={conflicts}"
+  import-failed: "Towny 資料匯入失敗：{error}"
+
+economy:
+  hook-failed: "無法連接 iConomy：{error}"

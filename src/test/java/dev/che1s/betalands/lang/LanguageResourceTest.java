@@ -1,12 +1,17 @@
 package dev.che1s.betalands.lang;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.io.File;
+import java.net.URL;
+import java.util.HashSet;
 
+import org.bukkit.util.config.Configuration;
 import org.junit.Test;
 
 public class LanguageResourceTest {
@@ -66,8 +71,26 @@ public class LanguageResourceTest {
 
     @Test
     public void consoleLanguageFilesExist() throws Exception {
-        assertNotNull(readResource("/lang/console-zh.yml"));
-        assertNotNull(readResource("/lang/console-en.yml"));
+        String[] files = {
+            "console-en.yml", "console-zh.yml", "console-ja.yml",
+            "console-ko.yml", "console-zh-tw.yml", "console-de.yml",
+            "console-fr.yml", "console-es.yml", "console-ru.yml"
+        };
+        Configuration english = loadConfiguration("/lang/console-en.yml");
+        for (String file : files) {
+            Configuration config = loadConfiguration("/lang/" + file);
+            assertEquals("Key mismatch in " + file,
+                new HashSet<String>(english.getAll().keySet()),
+                new HashSet<String>(config.getAll().keySet()));
+        }
+    }
+
+    private Configuration loadConfiguration(String path) throws Exception {
+        URL resource = getClass().getResource(path);
+        assertNotNull("Missing resource " + path, resource);
+        Configuration configuration = new Configuration(new File(resource.toURI()));
+        configuration.load();
+        return configuration;
     }
 
     private String readResource(String path) throws Exception {

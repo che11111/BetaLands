@@ -220,11 +220,11 @@ final class InfoCommandHandler extends CommandSupport {
                 "subBlock", plugin.getEconomy().format(
                         profile.getSubclaimPerBlockPrice()));
         msg(sender, "level.upkeep-v3",
-                "&7Server upkeep: {chunkRate}/chunk/day + {memberRate}/member/day; charged every {days} days.",
+                "&7Maintenance: {chunkRate}/chunk/cycle + {memberRate}/member/cycle; charged every {days} days.",
                 "chunkRate", plugin.getEconomy().format(
-                        profile.getMaintenancePerChunkPerDay()),
+                        profile.getMaintenancePerChunkPerCycle()),
                 "memberRate", plugin.getEconomy().format(
-                        profile.getMaintenancePerMemberPerDay()),
+                        profile.getMaintenancePerMemberPerCycle()),
                 "days", Integer.toString(profile.getMaintenanceIntervalDays()));
     }
 

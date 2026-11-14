@@ -73,9 +73,9 @@ public final class LevelService {
                         prices.getDouble("claim-chunk-increment",
                                 defaultClaimIncrement(levelId)),
                         prices.getDouble("subclaim-per-block", 0.01D),
-                        prices.getDouble("maintenance-per-chunk-per-day",
+                        maintenanceRate(prices, true,
                                 defaultMaintenancePerChunk(levelId)),
-                        prices.getDouble("maintenance-per-member-per-day",
+                        maintenanceRate(prices, false,
                                 defaultMaintenancePerMember(levelId)),
                         prices.getInt("maintenance-interval-days", 3)
                 );
@@ -237,7 +237,7 @@ public final class LevelService {
         if ("svip".equalsIgnoreCase(levelId)) {
             return 100;
         }
-        return 5;
+        return 6;
     }
 
     private int defaultMainLands(String levelId) {
@@ -252,25 +252,35 @@ public final class LevelService {
 
     private int defaultSubclaimsPerMain(String levelId) {
         if ("vip".equalsIgnoreCase(levelId)) {
-            return 10;
+            return 20;
         }
         if ("svip".equalsIgnoreCase(levelId)) {
-            return 50;
+            return 100;
         }
         return 3;
     }
 
     private int defaultFamilyMembers(String levelId) {
         if ("vip".equalsIgnoreCase(levelId)) {
-            return 15;
+            return 20;
         }
         if ("svip".equalsIgnoreCase(levelId)) {
-            return 40;
+            return 60;
         }
-        return 8;
+        return 6;
     }
 
     private double defaultMaintenancePerChunk(String levelId) {
+        if ("vip".equalsIgnoreCase(levelId)) {
+            return 0.15D;
+        }
+        if ("svip".equalsIgnoreCase(levelId)) {
+            return 0.10D;
+        }
+        return 0.20D;
+    }
+
+    private double defaultMaintenancePerMember(String levelId) {
         if ("vip".equalsIgnoreCase(levelId)) {
             return 0.25D;
         }
@@ -278,16 +288,6 @@ public final class LevelService {
             return 0.20D;
         }
         return 0.30D;
-    }
-
-    private double defaultMaintenancePerMember(String levelId) {
-        if ("vip".equalsIgnoreCase(levelId)) {
-            return 0.40D;
-        }
-        if ("svip".equalsIgnoreCase(levelId)) {
-            return 0.30D;
-        }
-        return 0.50D;
     }
 
     private double defaultClaimIncrement(String levelId) {
@@ -302,12 +302,26 @@ public final class LevelService {
 
     private int defaultMainChunks(String levelId) {
         if ("vip".equalsIgnoreCase(levelId)) {
-            return 200;
+            return 400;
         }
         if ("svip".equalsIgnoreCase(levelId)) {
-            return 300;
+            return 1000;
         }
-        return 100;
+        return 200;
+    }
+
+    static double maintenanceRate(ConfigurationNode prices, boolean perChunk,
+                                  double fallback) {
+        String cycleKey = perChunk
+                ? "maintenance-per-chunk-per-cycle"
+                : "maintenance-per-member-per-cycle";
+        String legacyKey = perChunk
+                ? "maintenance-per-chunk-per-day"
+                : "maintenance-per-member-per-day";
+        if (prices.getProperty(legacyKey) != null) {
+            return prices.getDouble(legacyKey, fallback);
+        }
+        return prices.getDouble(cycleKey, fallback);
     }
 
     private void close(java.io.Closeable closeable) {
@@ -322,11 +336,11 @@ public final class LevelService {
     static List<LevelProfile> createDefaultProfiles() {
         List<LevelProfile> profiles = new ArrayList<LevelProfile>();
         profiles.add(new LevelProfile("default", "Default", "betalands.level.default", 0,
-                5, 100, 3, 8, 5, 300.0D, 20.0D, 5.0D, 0.01D, 0.30D, 0.50D, 3));
+                5, 200, 3, 6, 6, 300.0D, 20.0D, 5.0D, 0.01D, 0.20D, 0.30D, 3));
         profiles.add(new LevelProfile("vip", "VIP", "betalands.level.vip", 10,
-                15, 200, 10, 15, 30, 250.0D, 20.0D, 4.0D, 0.008D, 0.25D, 0.40D, 3));
+                15, 400, 20, 20, 30, 250.0D, 20.0D, 4.0D, 0.008D, 0.15D, 0.25D, 3));
         profiles.add(new LevelProfile("svip", "SVIP", "betalands.level.svip", 20,
-                30, 300, 50, 40, 100, 200.0D, 20.0D, 3.0D, 0.005D, 0.20D, 0.30D, 3));
+                30, 1000, 100, 60, 100, 200.0D, 20.0D, 3.0D, 0.005D, 0.10D, 0.20D, 3));
         return profiles;
     }
 }

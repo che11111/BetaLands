@@ -60,6 +60,7 @@ public final class PluginConfig {
     private double defaultSubclaimRent;
     private double defaultMainRent;
     private String consoleLanguage;
+    private String gameLanguage;
     private String mapLanguage;
     private boolean hideAdminLogsFromPlayers;
     private int logRetentionDays;
@@ -115,7 +116,7 @@ public final class PluginConfig {
         dynmapDailyRefreshMinute = boundedInt(configuration,
                 "maps.dynmap.daily-refresh-minute", 0, 0, 59);
         dynmapStartupRefresh = bool(configuration,
-                "maps.dynmap.startup-refresh", true);
+                "maps.dynmap.startup-refresh", false);
         dynmapMainColor = configuration.getString("maps.colors.dynmap.main", "auto");
         dynmapSubclaimColor = configuration.getString("maps.colors.dynmap.subclaim", "auto");
         bluemapMainColor = configuration.getString("maps.colors.bluemap.main", "auto");
@@ -137,6 +138,7 @@ public final class PluginConfig {
         defaultMainRent = Math.max(0.0D,
                 configuration.getDouble("economy.default-main-rent", 0.00D));
         consoleLanguage = configuration.getString("language.console", "auto");
+        gameLanguage = configuration.getString("language.game", "game.yml");
         mapLanguage = configuration.getString("language.map", "auto");
         hideAdminLogsFromPlayers = bool(configuration,
                 "logs.hide-admin-actions-from-players", true);
@@ -397,6 +399,10 @@ public final class PluginConfig {
 
     public String getConsoleLanguage() {
         return consoleLanguage;
+    }
+
+    public String getGameLanguage() {
+        return gameLanguage;
     }
 
     public String getMapLanguage() {

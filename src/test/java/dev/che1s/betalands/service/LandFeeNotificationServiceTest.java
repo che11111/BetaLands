@@ -21,9 +21,10 @@ public class LandFeeNotificationServiceTest {
     }
 
     @Test
-    public void ignoresLandsWithoutDailyFees() {
+    public void ignoresLandsWithoutMaintenanceFees() {
         assertEquals(LandFeeNotificationService.FeeState.FREE,
-                LandFeeNotificationService.evaluate(-100.0D, 0.0D));
+                LandFeeNotificationService.evaluateMaintenance(
+                        -100.0D, 0.0D));
         assertEquals("-", LandFeeNotificationService.coveredDays(100.0D, 0.0D));
     }
 
@@ -41,6 +42,19 @@ public class LandFeeNotificationServiceTest {
         main.setBankBalance(23.50D);
         assertEquals(23.50D, main.getBankBalance(), 0.0D);
         assertEquals(LandFeeNotificationService.FeeState.OK,
-                LandFeeNotificationService.evaluate(main.getBankBalance(), 3.0D));
+                LandFeeNotificationService.evaluateMaintenance(
+                        main.getBankBalance(), 3.0D));
+    }
+
+    @Test
+    public void maintenanceWarnsWhenBalanceCannotCoverNextCycle() {
+        assertEquals(LandFeeNotificationService.FeeState.LOW,
+                LandFeeNotificationService.evaluateMaintenance(
+                        2.99D, 3.0D));
+        assertEquals(LandFeeNotificationService.FeeState.OK,
+                LandFeeNotificationService.evaluateMaintenance(
+                        3.0D, 3.0D));
+        assertEquals("2.0", LandFeeNotificationService
+                .coveredMaintenanceCycles(6.0D, 3.0D));
     }
 }

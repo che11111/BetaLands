@@ -1,0 +1,69 @@
+# Сообщения консоли BetaLands на русском языке.
+
+prefix: "[BetaLands]"
+
+language:
+  invalid-file: "Недопустимое имя языкового файла '{file}'; используется {fallback}."
+  file-fallback: "Языковой файл {file} не найден; используется {fallback}."
+
+config:
+  directory-create-failed: "Не удалось создать папку данных плагина: {path}"
+  config-create-failed: "Не удалось создать config.yml: {error}"
+  levels-create-failed: "Не удалось создать levels.yml: {error}"
+
+startup:
+  audit-ready: "База журнала аудита готова: {path}"
+  audit-failed: "Не удалось инициализировать базу журнала аудита: {error}"
+  levels-ready: "Загружено уровней земли: {count}."
+  economy-hook: "Подключено к экономике iConomy."
+  economy-missing: "iConomy недоступна; платные операции отключены."
+  towny-hook: "Обнаружен Towny {version}; доступны текущие данные для миграции Towny."
+  map-disabled: "Интеграции карт отключены в config.yml."
+  dynmap-hook: "Подключено к Dynmap; готовность API маркеров будет проверяться."
+  dynmap-failed: "Не удалось подключиться к Dynmap: {error}"
+  bluemap-hook: "Подключено к API маркеров BlueMap."
+  bluemap-failed: "Не удалось подключиться к BlueMap: {error}"
+  dynmap-manual-sync: "Данные Dynmap не загружаются при запуске. Используйте /land admin refresh-map dynmap для синхронизации. Обновление выполняется в основном потоке и может временно вызвать лаги."
+  bstats-failed: "Не удалось инициализировать bStats: {error}"
+  ready: "BetaLands {version} включён с землями: {lands}. Внешнее строительство открывается через {hours} ч."
+  command-missing: "Команда land отсутствует в plugin.yml."
+
+shutdown:
+  stopping: "BetaLands отключается."
+
+data:
+  load-failed: "Не удалось загрузить данные BetaLands: {error}"
+  read-only: "BetaLands работает в режиме только для чтения для защиты существующих файлов."
+  save-failed: "Не удалось сохранить данные BetaLands: {error}"
+  save-blocked: "Сохранение заблокировано из-за ошибки загрузки. Восстановите или исправьте TSV-файлы."
+  invalid-line: "Пропущена недопустимая строка {line} в {file}: {error}"
+
+maps:
+  dynmap-refresh-failed: "Не удалось обновить маркеры Dynmap: {error}"
+  bluemap-refresh-failed: "Не удалось обновить маркеры BlueMap: {error}"
+  bluemap-synchronized: "Данные BlueMap отправлены в BlueMap."
+  refresh-slow: "Обновление маркеров заняло {milliseconds} мс."
+  dynmap-updated: "Dynmap обновлён: земель — {lands}, маркеров — {markers}."
+  dynmap-world-missing: "Dynmap не нашёл мир Bukkit для земель: {count}; использованы сохранённые названия миров."
+  dynmap-api-waiting: "Dynmap установлен, но его API маркеров не инициализирован. Включите org.dynmap.MarkersComponent в configuration.txt. BetaLands продолжит проверки."
+  dynmap-plugin-unavailable: "Dynmap недоступен для подключения ({state}). BetaLands продолжит проверки."
+  dynmap-marker-create-failed: "Dynmap отклонил маркеры областей BetaLands: {count}. Проверьте версию Dynmap и настройки API маркеров."
+  dynmap-land-draw-failed: "Не удалось отрисовать земли BetaLands на Dynmap: {count}. Первая ошибка: {error}"
+
+audit:
+  land-write-failed: "Не удалось записать аудит земли: {error}"
+  economy-write-failed: "Не удалось записать экономический аудит: {error}"
+
+towny:
+  migration-start: "Миграция Towny запущена. Источник={source}"
+  migration-backup: "Данные BetaLands сохранены в резервную копию: {path}"
+  migration-converting: "Чтение и преобразование блоков городов Towny в фоне..."
+  migration-applying: "Преобразовано записей земли: {count}. Применение к BetaLands..."
+  migration-empty: "Миграция Towny не нашла городских земель. Существующие данные не изменены."
+  migration-save-failed: "Данные Towny загружены в память, но сохранить их не удалось."
+  migration-warning: "Предупреждение миграции Towny: {warning}"
+  migration-complete: "Миграция Towny завершена. источник={source}, города={towns}, блоки={blocks}, подобласти={subclaims}, добавлено={added}, обновлено={updated}, конфликты={conflicts}"
+  import-failed: "Не удалось импортировать Towny: {error}"
+
+economy:
+  hook-failed: "Не удалось подключиться к iConomy: {error}"

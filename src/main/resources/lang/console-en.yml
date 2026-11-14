@@ -1,5 +1,9 @@
 prefix: "[BetaLands]"
 
+language:
+  invalid-file: "Invalid language filename '{file}'; using {fallback}."
+  file-fallback: "Language file {file} was not found; using {fallback}."
+
 config:
   directory-create-failed: "Could not create the plugin data directory: {path}"
   config-create-failed: "Could not create config.yml: {error}"
@@ -17,6 +21,7 @@ startup:
   dynmap-failed: "Could not hook Dynmap: {error}"
   bluemap-hook: "Hooked BlueMap marker API."
   bluemap-failed: "Could not hook BlueMap: {error}"
+  dynmap-manual-sync: "Dynmap data is not injected at startup. Use /land admin refresh-map dynmap to synchronize it. This refresh runs on the server main thread and may cause temporary lag."
   bstats-failed: "Could not initialize bStats: {error}"
   ready: "BetaLands {version} enabled with {lands} lands. Outside-build-hours={hours}."
   command-missing: "Command land is missing from plugin.yml."
@@ -34,6 +39,7 @@ data:
 maps:
   dynmap-refresh-failed: "Dynmap marker refresh failed: {error}"
   bluemap-refresh-failed: "BlueMap marker refresh failed: {error}"
+  bluemap-synchronized: "BlueMap data has been sent to BlueMap."
   refresh-slow: "Map marker refresh took {milliseconds} ms."
   dynmap-updated: "Dynmap updated {lands} land(s) with {markers} marker(s)."
   dynmap-world-missing: "Dynmap could not find the Bukkit world for {count} land(s); stored world names were used."

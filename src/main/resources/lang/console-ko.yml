@@ -1,0 +1,69 @@
+# BetaLands 한국어 콘솔 메시지.
+
+prefix: "[BetaLands]"
+
+language:
+  invalid-file: "언어 파일 이름 '{file}'이(가) 유효하지 않습니다. {fallback}을(를) 사용합니다."
+  file-fallback: "언어 파일 {file}을(를) 찾을 수 없습니다. {fallback}을(를) 사용합니다."
+
+config:
+  directory-create-failed: "플러그인 데이터 폴더를 만들지 못했습니다: {path}"
+  config-create-failed: "config.yml을 만들지 못했습니다: {error}"
+  levels-create-failed: "levels.yml을 만들지 못했습니다: {error}"
+
+startup:
+  audit-ready: "감사 로그 데이터베이스 준비 완료: {path}"
+  audit-failed: "감사 로그 데이터베이스를 초기화하지 못했습니다: {error}"
+  levels-ready: "토지 등급 {count}개를 불러왔습니다."
+  economy-hook: "iConomy 경제 시스템에 연결했습니다."
+  economy-missing: "iConomy를 사용할 수 없어 유료 작업이 비활성화되었습니다."
+  towny-hook: "Towny {version}을(를) 감지했습니다. Towny 마이그레이션 데이터를 사용할 수 있습니다."
+  map-disabled: "config.yml에서 지도 연동이 비활성화되었습니다."
+  dynmap-hook: "Dynmap에 연결했습니다. 마커 API 준비 상태를 확인합니다."
+  dynmap-failed: "Dynmap에 연결하지 못했습니다: {error}"
+  bluemap-hook: "BlueMap 마커 API에 연결했습니다."
+  bluemap-failed: "BlueMap에 연결하지 못했습니다: {error}"
+  dynmap-manual-sync: "Dynmap 데이터는 시작 시 자동으로 주입되지 않습니다. /land admin refresh-map dynmap으로 동기화하세요. 이 작업은 메인 스레드에서 실행되어 일시적인 지연이 발생할 수 있습니다."
+  bstats-failed: "bStats를 초기화하지 못했습니다: {error}"
+  ready: "BetaLands {version}이(가) 활성화되었습니다. 토지 {lands}개, 외부 건설 해제 시간 {hours}시간."
+  command-missing: "plugin.yml에 land 명령이 없습니다."
+
+shutdown:
+  stopping: "BetaLands을(를) 비활성화하는 중입니다."
+
+data:
+  load-failed: "BetaLands 데이터를 불러오지 못했습니다: {error}"
+  read-only: "기존 파일을 보호하기 위해 BetaLands이 읽기 전용 모드로 실행 중입니다."
+  save-failed: "BetaLands 데이터를 저장하지 못했습니다: {error}"
+  save-blocked: "데이터 로드에 실패하여 저장을 차단했습니다. TSV 파일을 복원하거나 복구하세요."
+  invalid-line: "{file}의 {line}번째 줄이 유효하지 않아 건너뛰었습니다: {error}"
+
+maps:
+  dynmap-refresh-failed: "Dynmap 마커 새로 고침에 실패했습니다: {error}"
+  bluemap-refresh-failed: "BlueMap 마커 새로 고침에 실패했습니다: {error}"
+  bluemap-synchronized: "BlueMap 데이터를 BlueMap으로 전송했습니다."
+  refresh-slow: "지도 마커 새로 고침에 {milliseconds}ms가 걸렸습니다."
+  dynmap-updated: "Dynmap의 토지 {lands}개를 마커 {markers}개로 업데이트했습니다."
+  dynmap-world-missing: "Dynmap에서 {count}개 토지의 Bukkit 월드를 찾지 못해 저장된 월드 이름을 사용했습니다."
+  dynmap-api-waiting: "Dynmap이 설치되어 있지만 Marker API가 초기화되지 않았습니다. configuration.txt에서 org.dynmap.MarkersComponent를 활성화하세요. BetaLands이 계속 확인합니다."
+  dynmap-plugin-unavailable: "Dynmap에 연결할 수 없습니다({state}). BetaLands이 계속 확인합니다."
+  dynmap-marker-create-failed: "Dynmap이 BetaLands 영역 마커 {count}개를 거부했습니다. Dynmap 버전과 Marker API 설정을 확인하세요."
+  dynmap-land-draw-failed: "BetaLands 토지 {count}개를 Dynmap에 그리지 못했습니다. 첫 번째 오류: {error}"
+
+audit:
+  land-write-failed: "토지 감사 기록을 쓰지 못했습니다: {error}"
+  economy-write-failed: "경제 감사 기록을 쓰지 못했습니다: {error}"
+
+towny:
+  migration-start: "Towny 마이그레이션을 시작했습니다. 원본={source}"
+  migration-backup: "BetaLands 데이터를 {path}에 백업했습니다."
+  migration-converting: "백그라운드에서 Towny 마을 블록을 읽고 변환하는 중입니다..."
+  migration-applying: "토지 {count}개를 변환했습니다. BetaLands에 적용하는 중입니다..."
+  migration-empty: "Towny 마이그레이션에서 마을 토지를 찾지 못했습니다. 기존 데이터는 변경되지 않았습니다."
+  migration-save-failed: "Towny 데이터는 메모리에 도달했지만 저장에 실패했습니다."
+  migration-warning: "Towny 마이그레이션 경고: {warning}"
+  migration-complete: "Towny 마이그레이션 완료. 원본={source}, 마을={towns}, 블록={blocks}, 하위 영역={subclaims}, 추가={added}, 업데이트={updated}, 충돌={conflicts}"
+  import-failed: "Towny 가져오기에 실패했습니다: {error}"
+
+economy:
+  hook-failed: "iConomy에 연결하지 못했습니다: {error}"
