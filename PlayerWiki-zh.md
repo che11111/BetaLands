@@ -20,7 +20,7 @@
 | 3、创建子领地 | （如果有子领地需求）在 `AAA` 内用木锄左键/右键选点，或使用 `/land pos1`、`/land pos2`；然后执行 `/land subcreate bb`。 |
 | 4、领地添加玩家 | 站在目标领地内执行 `/land add steve`，自动授予基础权限。（`build、break、use、container、rent`）。目标玩家需在线且执行 `/land accept <领地>` 同意加入领地  |
 | 5、踢出或退出 | 领地主在领地内执行 `/land kick steve`；玩家在领地内执行 `/land leave`。 |
-| 6、领地传送 | 站在领地内执行 `/land setspawn`；使用 `/land spawn` 或 `/land tp` 传送。 |
+| 6、领地传送 | 站在领地内执行 `/land setspawn`；使用 `/land spawn [领地]` 或 `/land tp [领地]` 传送。只有一个可传送领地时可以省略领地名，否则必须指定。 |
 | 7、领地银行 | 查看：`/land bank info`；存款：`/land bank deposit 100`；取款：`/land bank withdraw 50` |
 | 8、领地租金 | 设置：`/land rent set 5`；预缴：`/land rent deposit 30`；查看：`/land rent info` |
 | 9、领地日志 | `/land list`、`/land info`、`/land logs 100` |

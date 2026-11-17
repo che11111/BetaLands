@@ -9,11 +9,17 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.File;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.bukkit.util.config.Configuration;
 import org.junit.Test;
+
+import dev.che1s.betalands.ConfigFileMerger;
 
 public class LanguageResourceTest {
     @Test
@@ -97,6 +103,33 @@ public class LanguageResourceTest {
         for (String file : files) {
             assertEquals("Key mismatch in " + file,
                 englishKeys, mapKeys(readResource("/lang/" + file)));
+        }
+    }
+
+    @Test
+    public void addsMissingLanguageKeysWithoutOverwritingExistingValues() throws Exception {
+        List<String> defaults = Arrays.asList(
+                "spawn:",
+                "  usage: \"default usage\"",
+                "  teleport: \"default teleport\"",
+                "  land-required: \"specify a land\"");
+        List<String> current = Arrays.asList(
+                "spawn:",
+                "  usage: \"custom usage\"");
+
+        List<String> merged = ConfigFileMerger.mergeMissingKeys(defaults, current);
+        File file = File.createTempFile("betalands-language-", ".yml");
+        try {
+            Files.write(file.toPath(), merged, StandardCharsets.UTF_8);
+            Configuration configuration = new Configuration(file);
+            configuration.load();
+            assertEquals("custom usage", configuration.getString("spawn.usage"));
+            assertEquals("default teleport",
+                    configuration.getString("spawn.teleport"));
+            assertEquals("specify a land",
+                    configuration.getString("spawn.land-required"));
+        } finally {
+            file.delete();
         }
     }
 

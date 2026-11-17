@@ -62,7 +62,7 @@
 | 3、创建子领地 | （如果有子领地需求）在 `AAA` 内用木锄左键/右键选点，或使用 `/land pos1`、`/land pos2`；然后执行 `/land subcreate bb`。 |
 | 4、领地添加玩家 | 站在目标领地内执行 `/land add steve`，自动授予基础权限。（`build、break、use、container、rent`）。目标玩家需在线且执行 `/land accept <领地>` 同意加入领地  |
 | 5、踢出或退出 | 领地主在领地内执行 `/land kick steve`；玩家在领地内执行 `/land leave`。 |
-| 6、领地传送 | 站在领地内执行 `/land setspawn`；使用 `/land spawn` 或 `/land tp` 传送。 |
+| 6、领地传送 | 站在领地内执行 `/land setspawn`；使用 `/land spawn [领地]` 或 `/land tp [领地]` 传送。只有 1 个可传送领地时可以省略领地名，多个领地时必须指定。 |
 | 7、领地银行 | 查看：`/land bank info`；存款：`/land bank deposit 100`；取款：`/land bank withdraw 50` |
 | 8、领地租金 | 设置：`/land rent set 5`；预缴：`/land rent deposit 30`；查看：`/land rent info` |
 | 9、领地日志 | `/land list`、`/land info`、`/land logs 100` |
@@ -85,14 +85,16 @@
 | `/land leave [领地]` | 退出领地 | `/land logs [数量] [领地]` | 查询领地日志 |
 | `/land rename <新名称> [领地]` | 修改领地名称 | `/land setowner <在线玩家> [领地]` | 转移主领地主人 |
 | `/land perm <玩家> <权限> <allow\|deny> [领地]` | 修改成员权限 | `/land setspawn [领地]` | 设置领地传送点 |
-| `/land spawn [领地]` / `/land tp [领地]` | 领地传送 | `/land delete confirm <领地>` | 二次确认并删除领地 |
+| `/land spawn [领地]` / `/land tp [领地]` | 领地传送；只有唯一候选领地时可省略名称 | `/land delete confirm <领地>` | 二次确认并删除领地 |
 | `/land bank info [领地]` | 查看领地银行和维护费 | `/land bank deposit <金额> [领地]` | 存入领地银行 |
 | `/land bank-all info` | 查看自己全部主领地银行和维护费 | `/land bank-all deposit <金额>` | 按维护费比例批量存入全部主领地 |
 | `/land bank withdraw <金额> [领地]` | 从领地银行取款 | `/land rent set <金额> [领地]` | 设置每日租金 |
 | `/land rent deposit <金额>` | 向全局租金账户预缴租金 | `/land rent withdraw <金额>` | 从全局租金账户取款 |
 | `/land rent info [领地]` | 查看租金和预缴账户 | `/land rent set 0 [领地]` | 关闭每日租金 |
 
-地名统一放在指令末尾。省略地名时优先使用玩家当前站立且有权管理的领地；否则仅当玩家恰好拥有一个主领地时自动选择它。
+地名统一放在指令末尾。其他支持省略领地名的指令，在省略领地名时，会默认使用玩家脚下所在的领地。
+
+`/land spawn` 与 `/land tp` 功能相同，是例外：它们不会根据玩家脚下所在的领地选择目标。省略领地名时，只有玩家仅有 1 个拥有的主领地，或仅有 1 个已加入/受信任领地时才会直接传送；存在多个领地时必须指定领地名。拥有 1 个并加入 1 个也属于多个候选。
 
 删除领地分两步：先执行 `/land delete [领地]`，再执行 `/land delete confirm <领地>` 才会删除。删除前主领地银行必须为 `0`：欠费时会提示使用 `/land bank deposit <金额> [领地]` 补缴欠款；有预缴余额时会提示使用 `/land bank withdraw <金额> [领地]` 取走余额。
 
@@ -519,7 +521,7 @@ logs:
 | 用于 Hook、刷新和错误等后台消息 | 用于 Dynmap/BlueMap 图层名称和领地详情 |
 
 
-修改后执行 `/land admin reload`。控制台和地图都支持英语、简体中文、日语、韩语、繁体中文、德语、法语、西班牙语和俄语；两者的 `auto` 使用同一套服务器 JVM 语言和地区规则，中文 `TW`、`HK`、`MO` 地区使用繁体中文，其他中文地区使用简体中文，不支持的地区回退到英语。裸语言值（例如 `zh`、`en`）不是有效配置；自定义控制台文件不存在或缺少键时回退到 `console-en.yml`，自定义地图文件不存在、无效或缺少键时回退到 `map-en.yml`。
+修改后执行 `/land admin reload`。语言文件缺少新键时，会从已安装 JAR 中对应语言文件的默认值自动补齐，并保留服务器现有的键值。控制台和地图都支持英语、简体中文、日语、韩语、繁体中文、德语、法语、西班牙语和俄语；两者的 `auto` 使用同一套服务器 JVM 语言和地区规则，中文 `TW`、`HK`、`MO` 地区使用繁体中文，其他中文地区使用简体中文，不支持的地区回退到英语。裸语言值（例如 `zh`、`en`）不是有效配置；自定义控制台文件不存在或缺少键时回退到 `console-en.yml`，自定义地图文件不存在、无效或缺少键时回退到 `map-en.yml`。
 
 游戏内消息统一使用以下颜色规则：
 

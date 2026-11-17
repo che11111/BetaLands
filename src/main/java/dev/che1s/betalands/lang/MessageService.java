@@ -16,6 +16,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.config.Configuration;
 
 import dev.che1s.betalands.BetaLandsPlugin;
+import dev.che1s.betalands.ConfigFileMerger;
 
 public final class MessageService {
     private static final String[] CONSOLE_LANGUAGE_FILES = {
@@ -434,27 +435,30 @@ public final class MessageService {
 
     private File ensureFile(File folder, String name) {
         File target = new File(folder, name);
-        if (target.isFile()) {
-            return target;
-        }
-        InputStream input = null;
-        OutputStream output = null;
-        try {
-            input = plugin.getClass().getResourceAsStream("/lang/" + name);
-            if (input != null) {
-                output = new FileOutputStream(target);
-                byte[] buffer = new byte[8192];
-                int read;
-                while ((read = input.read(buffer)) >= 0) {
-                    output.write(buffer, 0, read);
+        if (!target.isFile()) {
+            InputStream input = null;
+            OutputStream output = null;
+            try {
+                input = plugin.getClass().getResourceAsStream("/lang/" + name);
+                if (input != null) {
+                    output = new FileOutputStream(target);
+                    byte[] buffer = new byte[8192];
+                    int read;
+                    while ((read = input.read(buffer)) >= 0) {
+                        output.write(buffer, 0, read);
+                    }
                 }
+            } catch (IOException exception) {
+                plugin.getServer().getLogger().warning(
+                        "[BetaLands] Could not create lang/" + name + ": " + exception.getMessage());
+            } finally {
+                close(input);
+                close(output);
             }
-        } catch (IOException exception) {
-            plugin.getServer().getLogger().warning(
-                    "[BetaLands] Could not create lang/" + name + ": " + exception.getMessage());
-        } finally {
-            close(input);
-            close(output);
+        }
+        if (target.isFile()) {
+            ConfigFileMerger.ensureMissingKeys(plugin.getClass(), target,
+                    "/lang/" + name, plugin.getServer().getLogger());
         }
         return target;
     }

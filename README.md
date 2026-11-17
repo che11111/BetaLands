@@ -64,7 +64,7 @@ Other plugins can query land data through Bukkit's `ServicesManager`: [API.md](A
 | 3. Create a subclaim | If needed, select two corners inside `AAA` with a wooden hoe, or use `/land pos1` and `/land pos2`. Then run `/land subcreate bb`. |
 | 4. Add a player | Stand inside the target land and run `/land add steve`. The player receives the default permissions `build`, `break`, `use`, `container`, and `rent`. The target must be online and run `/land accept <land>` to join. |
 | 5. Kick or leave | The owner can stand inside the land and run `/land kick steve`. A joined player can run `/land leave` while inside the land. |
-| 6. Land teleport | Stand inside the land and run `/land setspawn`. Teleport with `/land spawn` or `/land tp`. |
+| 6. Land teleport | Stand inside the land and run `/land setspawn`. Teleport with `/land spawn [land]` or `/land tp [land]`. Omit the land name only when exactly one teleportable land is available; otherwise, specify it. |
 | 7. Land bank | View: `/land bank info`; deposit: `/land bank deposit 100`; withdraw: `/land bank withdraw 50`. |
 | 8. Land rent | Set: `/land rent set 5`; prepay: `/land rent deposit 30`; view: `/land rent info`. |
 | 9. Land logs | `/land list`, `/land info`, and `/land logs 100`. |
@@ -87,14 +87,16 @@ Other plugins can query land data through Bukkit's `ServicesManager`: [API.md](A
 | `/land leave [land]` | Leave a land | `/land logs [count] [land]` | View land logs |
 | `/land rename <new-name> [land]` | Rename a land | `/land setowner <online-player> [land]` | Transfer main-land ownership |
 | `/land perm <player> <permission> <allow\|deny> [land]` | Change a member permission | `/land setspawn [land]` | Set the land spawn |
-| `/land spawn [land]` / `/land tp [land]` | Teleport to a land | `/land delete confirm <land>` | Confirm and delete a land |
+| `/land spawn [land]` / `/land tp [land]` | Teleport to a land; the name is optional only for one candidate | `/land delete confirm <land>` | Confirm and delete a land |
 | `/land bank info [land]` | View the land bank and upkeep | `/land bank deposit <amount> [land]` | Deposit into the land bank |
 | `/land bank-all info` | View all owned main-land banks and upkeep | `/land bank-all deposit <amount>` | Deposit into all main-land banks by upkeep share |
 | `/land bank withdraw <amount> [land]` | Withdraw from a land bank | `/land rent set <amount> [land]` | Set daily rent |
 | `/land rent deposit <amount>` | Prepay into the global rent account | `/land rent withdraw <amount>` | Withdraw from the global rent account |
 | `/land rent info [land]` | View rent and prepaid-account information | `/land rent set 0 [land]` | Disable daily rent |
 
-Land names belong at the end of commands. If omitted, BetaLands first uses the current land you are allowed to manage; otherwise it selects your main land only when you own exactly one.
+Land names belong at the end of commands. For other commands that accept an optional land name, omitting the name defaults to the land under the player's feet.
+
+`/land spawn` and `/land tp` are aliases and are the exception: they do not select a target from the land under the player's feet. Without a land name, they teleport only when exactly one owned main land or one joined/trusted land is available. If multiple lands are available, including one owned and one joined land, the player must specify the land name.
 
 Land deletion takes two steps: run `/land delete [land]`, then run `/land delete confirm <land>`. The confirmation must include the land name. The main-land bank must be exactly `0`. If it is in debt, the plugin shows a `/land bank deposit <amount> [land]` command to clear it. If a prepaid balance remains, the plugin shows a `/land bank withdraw <amount> [land]` command first.
 
@@ -524,7 +526,7 @@ In-game messages use the fixed file `lang/game.yml`; `language.game` must remain
 | Values: `auto` or a complete safe `.yml` filename | Values: `auto` or a complete safe `.yml` filename |
 | Used for hooks, refreshes, errors, and other background output | Used for Dynmap/BlueMap layer names and land details |
 
-Run `/land admin reload` after editing. Console and map messages support English, Simplified Chinese, Japanese, Korean, Traditional Chinese, German, French, Spanish, and Russian. Both `auto` values use the same server JVM language and country rules; Chinese `TW`, `HK`, and `MO` locales select Traditional Chinese, other Chinese locales select Simplified Chinese, and unsupported locales fall back to English. Bare language values such as `zh` and `en` are not valid configuration. Custom game filenames are not supported. Custom console files fall back to `console-en.yml` when missing or incomplete; custom or invalid map files fall back to `map-en.yml` when missing or incomplete.
+Run `/land admin reload` after editing. Missing keys are added from the matching language file bundled in the installed JAR while existing values are preserved. Console and map messages support English, Simplified Chinese, Japanese, Korean, Traditional Chinese, German, French, Spanish, and Russian. Both `auto` values use the same server JVM language and country rules; Chinese `TW`, `HK`, and `MO` locales select Traditional Chinese, other Chinese locales select Simplified Chinese, and unsupported locales fall back to English. Bare language values such as `zh` and `en` are not valid configuration. Custom game filenames are not supported. Custom console files fall back to `console-en.yml` when missing or incomplete; custom or invalid map files fall back to `map-en.yml` when missing or incomplete.
 
 In-game messages follow these color rules:
 

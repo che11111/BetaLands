@@ -1,5 +1,8 @@
 package dev.che1s.betalands.command;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -24,7 +27,7 @@ final class TeleportCommandHandler extends CommandSupport {
             return setSpawn(sender, args);
         }
         if ("spawn".equals(subcommand) || "tp".equals(subcommand)) {
-            return teleport(sender, args);
+            return teleport(sender, args, subcommand);
         }
         return false;
     }
@@ -56,7 +59,8 @@ final class TeleportCommandHandler extends CommandSupport {
         return true;
     }
 
-    private boolean teleport(CommandSender sender, String[] args) {
+    private boolean teleport(CommandSender sender, String[] args,
+                             String subcommand) {
         Player player = requirePlayer(sender);
         if (player == null) {
             return true;
@@ -69,19 +73,21 @@ final class TeleportCommandHandler extends CommandSupport {
         if (args.length >= 2) {
             land = resolve(sender, args[1]);
         } else {
-            Land current =
-                    plugin.getLandManager().findLandAt(player.getLocation());
-            boolean currentAccess = current != null
-                    && (current.isOwner(player.getName())
-                    || current.hasMember(player.getName())
-                    || plugin.getLandManager().isAdmin(player)
-                    || plugin.getLandManager().getEffectiveLandFlag(
-                    current, LandFlag.TP));
-            land = currentAccess ? current : resolveSingleOwnedMain(player);
+            List<Land> candidates = teleportLandCandidates(
+                    player.getName(),
+                    plugin.getLandManager().getOwnedMainLands(player.getName()),
+                    plugin.getLandManager().getAccessibleLands(player.getName()));
+            if (candidates.size() > 1) {
+                msg(sender, "spawn.land-required",
+                        "&cYou have access to multiple lands. Specify a land name: /land {command} <land>.",
+                        "command", subcommand);
+                return true;
+            }
+            land = candidates.isEmpty() ? null : candidates.get(0);
         }
         if (land == null) {
-            msg(sender, "common.land-context-required",
-                    "&cCould not choose a land. Stand inside a land you can use or specify the land name.");
+            msg(sender, "spawn.not-found",
+                    "&cNo teleportable land found.");
             return true;
         }
         boolean owner = land.isOwner(player.getName());
@@ -132,5 +138,27 @@ final class TeleportCommandHandler extends CommandSupport {
     static boolean appliesFeeRestrictions(boolean owner, boolean member,
                                           boolean admin) {
         return !admin && (owner || member);
+    }
+
+    static List<Land> teleportLandCandidates(String playerName,
+                                             List<Land> ownedMainLands,
+                                             List<Land> accessibleLands) {
+        List<Land> candidates = new ArrayList<Land>();
+        if (ownedMainLands != null) {
+            for (Land land : ownedMainLands) {
+                if (land != null && !candidates.contains(land)) {
+                    candidates.add(land);
+                }
+            }
+        }
+        if (accessibleLands != null) {
+            for (Land land : accessibleLands) {
+                if (land != null && !land.isOwner(playerName)
+                        && !candidates.contains(land)) {
+                    candidates.add(land);
+                }
+            }
+        }
+        return candidates;
     }
 }

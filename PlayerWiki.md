@@ -23,7 +23,7 @@
 | 3. Create a subclaim | If needed, select two corners inside `AAA` with a wooden hoe, or use `/land pos1` and `/land pos2`. Then run `/land subcreate bb`. |
 | 4. Add a player | Stand inside the target land and run `/land add steve`. The player receives the default permissions: `build`, `break`, `use`, `container`, and `rent`. The target must be online and must run `/land accept <land>` before joining. |
 | 5. Kick or leave | The land owner can stand inside the land and run `/land kick steve`. A joined player can run `/land leave` while inside the land. |
-| 6. Set the land spawn | Stand inside the land and run `/land setspawn`. Teleport to the land with `/land spawn` or `/land tp`. |
+| 6. Set the land spawn | Stand inside the land and run `/land setspawn`. Teleport with `/land spawn [land]` or `/land tp [land]`. The land name may be omitted only when exactly one teleportable land is available. |
 | 7. Land bank | View: `/land bank info`; deposit: `/land bank deposit 100`; withdraw: `/land bank withdraw 50`. |
 | 8. Land rent | Set: `/land rent set 5`; prepay: `/land rent deposit 30`; view: `/land rent info`. |
 | 9. Land logs | Use `/land list`, `/land info`, and `/land logs 100`. |

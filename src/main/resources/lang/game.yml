@@ -111,6 +111,7 @@ spawn:
   usage: "&eUsage: /land setspawn [land]"
   set: "&aSet the spawn for {land}."
   teleport: "&aTeleported to {land}."
+  land-required: "&cYou have access to multiple lands. Specify a land name: /land {command} <land>."
   not-found: "&cNo teleportable land found."
   no-access: "&cYou are not a member of this land."
   debt: "&cTeleporting to this land is disabled while its family bank is in debt."
