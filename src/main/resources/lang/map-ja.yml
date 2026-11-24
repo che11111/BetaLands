@@ -19,6 +19,7 @@ description:
   subclaim-list: "サブ領地名：{value}"
   level: "レベル：{value}"
   level-limits: "上限：主要領地={main}、主要領地ごとのチャンク={chunks}、主要領地ごとのサブ領地={sub}、ファミリー={family}、参加={joined}"
+  prices: "領地価格：主要領地作成={create}、次回チャンク={next}、サブ領地={sub}/ブロック"
   family-count: "ファミリーメンバー：{value}/{limit}"
   bank: "領地銀行：{value}"
   maintenance: "維持費：{value}/周期"

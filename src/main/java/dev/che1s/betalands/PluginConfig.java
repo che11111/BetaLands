@@ -25,6 +25,7 @@ public final class PluginConfig {
     private boolean allowPublicTeleportByDefault;
     private long maxMainArea;
     private long maxSubVolume;
+    private int mainLandGapChunks;
     private int minNameLength;
     private int maxNameLength;
     private int saveIntervalSeconds;
@@ -89,6 +90,8 @@ public final class PluginConfig {
                 "protection.public-teleport", true);
         maxMainArea = positiveLong(configuration, "limits.max-main-area", 1000000L);
         maxSubVolume = positiveLong(configuration, "limits.max-sub-volume", 1000000L);
+        mainLandGapChunks = positiveInt(configuration,
+                "limits.main-land-gap-chunks", 0);
         minNameLength = positiveInt(configuration, "limits.min-name-length", 2);
         maxNameLength = positiveInt(configuration, "limits.max-name-length", 24);
         saveIntervalSeconds = positiveInt(configuration, "storage.save-interval-seconds", 300);
@@ -259,6 +262,10 @@ public final class PluginConfig {
 
     public long getMaxSubVolume() {
         return maxSubVolume;
+    }
+
+    public int getMainLandGapChunks() {
+        return mainLandGapChunks;
     }
 
     public int getMinNameLength() {

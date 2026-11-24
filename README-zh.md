@@ -359,7 +359,7 @@ territory-messages:
 - BlueMap：显示连通的领地轮廓、内洞和子领地 Y 轴范围。
 - 地图详情会列出每个成员在当前领地的有效权限。默认的 `build`、`break`、`use`、`container`、`rent` 权限不逐个标注，其他权限在玩家名后的括号中注明。
 - “保护开关”只显示允许或禁止，不再显示该开关继承自哪里。
-- 地图详情同时显示领地 ID、世界、区块数、面积、类型、子领地数量、等级额度、家庭成员数、银行余额、维护和租金时间、出生点、创建时间、来源以及是否继承父领地权限。
+- 地图详情中，“创建时间”显示在“领地 ID”下面，“所有者”名称后显示该玩家的个人 iConomy 余额。详情同时显示世界、区块数、面积、类型、子领地数量、等级额度、创建主领地价格、下次圈地价格、子领地每方块价格、家庭成员数、领地银行余额、维护和租金时间、出生点、来源以及是否继承父领地权限。
 - BlueMap 在领地变化后自动刷新；Dynmap 默认每天凌晨定时刷新。Dynmap 启动注入默认关闭；将 `startup-refresh` 设为 `true` 时，插件会在启动约 5 秒后注入一次标记。管理员也可立即刷新：
 
 ```text
@@ -544,7 +544,8 @@ logs:
 | `protection.op-bypass` | OP 是否自动绕过保护；`betalands.bypass` 可单独授权绕过 |
 | `protection.public-teleport` | `tp` 保护开关的全局默认值，默认 `true`；只控制非成员公众传送 |
 | `protection.allow-land-flag-editing` | 是否允许领地所有者或管理员编辑保护开关 |
-| `limits.*` | 领地面积、子领地体积和名称长度限制 |
+| `limits.*` | 领地面积、子领地体积、名称长度和主领地间距限制 |
+| `limits.main-land-gap-chunks` | 不同主领地之间必须保留的空区块数量，默认 `0`，即允许不同主领地的区块直接相邻 |
 | `maps.dynmap.enabled` / `maps.bluemap.enabled` | 分别启用 Dynmap 和 BlueMap，默认均为 `true` |
 | `maps.dynmap.startup-refresh` | 是否在插件启动后立即注入一次 Dynmap 标记，默认 `false` |
 | `maps.show-subclaims` | 是否在地图中显示子领地；当前只影响 BlueMap |

@@ -19,6 +19,7 @@ description:
   subclaim-list: "Namen der Untergebiete: {value}"
   level: "Stufe: {value}"
   level-limits: "Limits: Hauptgebiet={main}, Chunks={chunks}, Untergebiete/Hauptgebiet={sub}, Familie={family}, Beitritte={joined}"
+  prices: "Gebietspreise: Hauptgebiet erstellen={create}, nächster Chunk={next}, Untergebiet/Block={sub}"
   family-count: "Familienmitglieder: {value}/{limit}"
   bank: "Gebietsbank: {value}"
   maintenance: "Unterhalt: {value}/Zyklus"

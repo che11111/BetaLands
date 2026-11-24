@@ -74,6 +74,11 @@ public final class ClaimService {
             return CreateResult.error(
                     "This chunk already belongs to " + overlapping.getDisplayName() + ".");
         }
+        Land tooClose = findMainWithinGap(worldName, area, null,
+                plugin.getSettings().getMainLandGapChunks());
+        if (!force && tooClose != null) {
+            return tooCloseError(tooClose, plugin.getSettings().getMainLandGapChunks());
+        }
         List<Rect2i> areas = new ArrayList<Rect2i>();
         areas.add(area);
         boolean admin = permissions.isAdmin(owner);
@@ -135,6 +140,11 @@ public final class ClaimService {
         if (overlapping != null) {
             return CreateResult.error(
                     "This chunk already belongs to " + overlapping.getDisplayName() + ".");
+        }
+        Land tooClose = findMainWithinGap(land.getWorld(), chunk, land,
+                plugin.getSettings().getMainLandGapChunks());
+        if (!force && tooClose != null) {
+            return tooCloseError(tooClose, plugin.getSettings().getMainLandGapChunks());
         }
         if (!force && land.area() + chunk.area()
                 > plugin.getSettings().getMaxMainArea()) {
@@ -398,6 +408,28 @@ public final class ClaimService {
             }
         }
         return null;
+    }
+
+    private Land findMainWithinGap(String worldName, Rect2i area,
+                                   Land ignored, int gapChunks) {
+        for (Land existing : lands.getLands()) {
+            if (existing.isSubclaim() || existing == ignored
+                    || !existing.getWorld().equalsIgnoreCase(worldName)) {
+                continue;
+            }
+            for (Rect2i other : existing.getAreas()) {
+                if (ClaimGeometry.isWithinChunkGap(other, area, gapChunks)) {
+                    return existing;
+                }
+            }
+        }
+        return null;
+    }
+
+    private CreateResult tooCloseError(Land other, int gapChunks) {
+        return CreateResult.error("Too close to " + other.getDisplayName()
+                + ". Keep at least " + gapChunks
+                + " empty chunk(s) between different main lands.");
     }
 
     public static Rect2i chunkBounds(int blockX, int blockZ) {

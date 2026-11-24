@@ -59,6 +59,10 @@ limits:
   # 单个 3D 子领地允许的最大体积，单位为方块。 / Maximum volume per 3D subclaim, in blocks.
   max-sub-volume: 1000000
 
+  # 不同主领地之间必须保留的空区块数量。 / Empty chunks required between different main lands.
+  # 0 表示允许不同主领地的区块直接相邻。 / 0 allows chunks from different main lands to touch.
+  main-land-gap-chunks: 0
+
   # 领地名称允许的最小字符数。 / Minimum land-name length.
   min-name-length: 2
 

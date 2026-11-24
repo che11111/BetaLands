@@ -19,6 +19,7 @@ description:
   subclaim-list: "Noms des sous-territoires : {value}"
   level: "Niveau : {value}"
   level-limits: "Limites : principal={main}, chunks={chunks}, sous-territoires/principal={sub}, famille={family}, rejoindre={joined}"
+  prices: "Prix du territoire : créer={create}, prochain chunk={next}, sous-territoire/bloc={sub}"
   family-count: "Membres de la famille : {value}/{limit}"
   bank: "Banque du territoire : {value}"
   maintenance: "Entretien : {value}/cycle"

@@ -19,6 +19,7 @@ description:
   subclaim-list: "Subclaim names: {value}"
   level: "Level: {value}"
   level-limits: "Limits: main={main}, chunks={chunks}, subclaims/main={sub}, family={family}, joined={joined}"
+  prices: "Land prices: create={create}, next chunk={next}, subclaim/block={sub}"
   family-count: "Family members: {value}/{limit}"
   bank: "Land bank: {value}"
   maintenance: "Maintenance: {value}/cycle"

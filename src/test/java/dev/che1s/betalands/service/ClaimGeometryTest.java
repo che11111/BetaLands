@@ -38,6 +38,27 @@ public class ClaimGeometryTest {
                 parent, new Rect2i(0, 0, 999999, 0)));
     }
 
+    @Test
+    public void zeroGapAllowsDifferentMainLandsToTouch() {
+        Rect2i existing = new Rect2i(0, 0, 15, 15);
+        Rect2i adjacent = new Rect2i(16, 0, 31, 15);
+        Rect2i overlapping = new Rect2i(15, 0, 30, 15);
+
+        assertFalse(ClaimGeometry.isWithinChunkGap(existing, adjacent, 0));
+        assertTrue(ClaimGeometry.isWithinChunkGap(existing, overlapping, 0));
+    }
+
+    @Test
+    public void configuredGapRequiresEmptyChunksBetweenMainLands() {
+        Rect2i existing = new Rect2i(0, 0, 15, 15);
+        Rect2i adjacent = new Rect2i(16, 0, 31, 15);
+        Rect2i oneChunkApart = new Rect2i(32, 0, 47, 15);
+
+        assertTrue(ClaimGeometry.isWithinChunkGap(existing, adjacent, 1));
+        assertFalse(ClaimGeometry.isWithinChunkGap(
+                existing, oneChunkApart, 1));
+    }
+
     private Land land(Rect2i... areas) {
         List<Rect2i> values = new ArrayList<Rect2i>();
         for (Rect2i area : areas) {

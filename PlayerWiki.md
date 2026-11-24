@@ -30,7 +30,7 @@
 
 ## 2 Map Markers
 
-Map details show the land ID, world, occupied chunks, area, type, number of subclaims, level limits, family member count, bank balance, maintenance and rent timing, spawn point, creation time, source, and whether the land inherits parent permissions.
+Map details show creation time directly below the land ID and the owner's personal iConomy balance after the owner name. They also show the world, occupied chunks, area, type, number of subclaims, level limits, creation and next-chunk prices, subclaim price per block, family member count, land-bank balance, maintenance and rent timing, spawn point, source, and whether the land inherits parent permissions.
 
 <table>
   <tr>

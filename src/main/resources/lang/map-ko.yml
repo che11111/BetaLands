@@ -19,6 +19,7 @@ description:
   subclaim-list: "하위 영지 이름: {value}"
   level: "레벨: {value}"
   level-limits: "한도: 주요 영지={main}, 영지당 청크={chunks}, 주요 영지당 하위 영지={sub}, 가족={family}, 참여={joined}"
+  prices: "영지 가격: 주요 영지 생성={create}, 다음 청크={next}, 하위 영지={sub}/블록"
   family-count: "가족 구성원: {value}/{limit}"
   bank: "영지 은행: {value}"
   maintenance: "유지비: {value}/주기"

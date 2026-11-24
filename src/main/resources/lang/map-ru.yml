@@ -19,6 +19,7 @@ description:
   subclaim-list: "Названия подтерриторий: {value}"
   level: "Уровень: {value}"
   level-limits: "Лимиты: основные={main}, чанки={chunks}, подтерритории/основную={sub}, семья={family}, присоединения={joined}"
+  prices: "Цены территории: создание={create}, следующий чанк={next}, подтерритория/блок={sub}"
   family-count: "Члены семьи: {value}/{limit}"
   bank: "Банк территории: {value}"
   maintenance: "Содержание: {value}/цикл"

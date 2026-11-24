@@ -26,6 +26,8 @@ import dev.che1s.betalands.service.LandMaintenanceService;
 import dev.che1s.betalands.service.LandManager;
 
 final class LandMapInfo {
+    private static final String COIN_SYMBOL = "\uD83D\uDCB0";
+
     private LandMapInfo() {
     }
 
@@ -37,6 +39,10 @@ final class LandMapInfo {
         double maintenanceFee = maintenance == null
                 ? 0.0D : maintenance.getMaintenanceFee(land);
         int maintenanceIntervalDays = profile.getMaintenanceIntervalDays();
+        int mainChunks = plugin.getLandManager().getOccupiedChunks(
+                main == null ? land : main);
+        double nextClaimPrice = LandManager.calculateClaimPrice(
+                profile, mainChunks);
         String rentAccounts = rentAccounts(plugin, land);
         String flags = flagStates(plugin, land);
 
@@ -44,8 +50,10 @@ final class LandMapInfo {
         result.append("<b>").append(escape(land.getDisplayName())).append("</b><br>");
         appendLine(result, plugin.getMessages().map("description.id",
                 "Land ID: {value}", "value", escape(land.getId())));
+        appendLine(result, plugin.getMessages().map("description.created",
+                "Created: {value}", "value", formatDate(land.getCreatedAt())));
         appendLine(result, plugin.getMessages().map("description.owner",
-                "Owner: {value}", "value", escape(land.getOwner())));
+                "Owner: {value}", "value", ownerWithBalance(plugin, land.getOwner())));
         appendLine(result, plugin.getMessages().map("description.world",
                 "World: {value}", "value", escape(land.getWorld())));
         appendLine(result, plugin.getMessages().map("description.chunks",
@@ -80,6 +88,11 @@ final class LandMapInfo {
                 "sub", Integer.toString(profile.getMaxSubclaimsPerMain()),
                 "family", Integer.toString(profile.getMaxFamilyMembers()),
                 "joined", Integer.toString(profile.getMaxJoinedLands())));
+        appendLine(result, plugin.getMessages().map("description.prices",
+                "Land prices: create={create}, next chunk={next}, subclaim/block={sub}",
+                "create", formatAmount(profile.getCreateMainPrice()),
+                "next", formatAmount(nextClaimPrice),
+                "sub", formatAmount(profile.getSubclaimPerBlockPrice())));
         appendLine(result, plugin.getMessages().map("description.family-count",
                 "Family members: {value}/{limit}",
                 "value", Integer.toString(plugin.getLandManager().getFamilyMemberCount(land)),
@@ -126,8 +139,6 @@ final class LandMapInfo {
                 "Protection flags: {value}", "value", flags));
         appendLine(result, plugin.getMessages().map("description.home",
                 "Spawn: {value}", "value", home(plugin, land.getHome())));
-        appendLine(result, plugin.getMessages().map("description.created",
-                "Created: {value}", "value", formatDate(land.getCreatedAt())));
         appendLine(result, plugin.getMessages().map("description.source",
                 "Source: {value}", "value", escape(land.getSource())));
         appendLine(result, plugin.getMessages().map("description.inherit",
@@ -353,6 +364,18 @@ final class LandMapInfo {
 
     private static String formatAmount(double amount) {
         return String.format(Locale.ROOT, "%.2f", amount);
+    }
+
+    private static String ownerWithBalance(BetaLandsPlugin plugin, String owner) {
+        boolean available = plugin.getEconomy() != null
+                && plugin.getEconomy().isAvailable();
+        String balance = available
+                ? formatAmount(plugin.getEconomy().getAccountBalance(owner))
+                : "N/A";
+        String suffix = plugin.getMessages().isMapChinese()
+                ? "\uFF08" + COIN_SYMBOL + balance + "\uFF09"
+                : " (" + COIN_SYMBOL + balance + ")";
+        return escape(owner) + suffix;
     }
 
     private static void appendLine(StringBuilder result, String line) {

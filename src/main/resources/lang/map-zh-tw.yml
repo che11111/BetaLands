@@ -19,6 +19,7 @@ description:
   subclaim-list: "子領地名稱：{value}"
   level: "等級：{value}"
   level-limits: "額度：主領地={main}，每主領地區塊={chunks}，每主領地子領地={sub}，家庭成員={family}，可加入={joined}"
+  prices: "領地價格：建立主領地={create}，下次圈地={next}，子領地={sub}/方塊"
   family-count: "家庭成員：{value}/{limit}"
   bank: "領地銀行：{value}"
   maintenance: "維護費：{value}/週期"

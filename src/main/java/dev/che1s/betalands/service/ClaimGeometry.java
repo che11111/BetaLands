@@ -54,6 +54,15 @@ final class ClaimGeometry {
         return profile == null || currentChunks >= profile.getMaxMainChunks();
     }
 
+    static boolean isWithinChunkGap(Rect2i first, Rect2i second,
+                                    int gapChunks) {
+        long gapBlocks = (long) Math.max(0, gapChunks) * 16L;
+        return (long) first.getMinX() <= (long) second.getMaxX() + gapBlocks
+                && (long) second.getMinX() <= (long) first.getMaxX() + gapBlocks
+                && (long) first.getMinZ() <= (long) second.getMaxZ() + gapBlocks
+                && (long) second.getMinZ() <= (long) first.getMaxZ() + gapBlocks;
+    }
+
     /**
      * Checks rectangle coverage with an X sweep line. The cost depends on the
      * number of parent rectangles, not on the selection width in blocks.

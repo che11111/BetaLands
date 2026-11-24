@@ -367,7 +367,7 @@ Templates are under `territory` in `plugins/BetaLands/lang/game.yml`.
 - BlueMap shows connected land outlines, holes, and subclaim Y ranges.
 - Land details list each member's effective permissions. The default `build`, `break`, `use`, `container`, and `rent` set is not repeated for every member; additional or different permissions appear in parentheses.
 - Protection flags show only allow or deny, without inheritance-source labels.
-- Map details also show land ID, world, chunks, area, type, subclaim count, level limits, family size, bank balance, maintenance/rent timing, spawn, creation time, source, and parent-permission inheritance.
+- Map details show creation time directly below the land ID and the owner's personal iConomy balance after the owner name. They also show world, chunks, area, type, subclaim count, level limits, creation and next-chunk prices, subclaim price per block, family size, land-bank balance, maintenance/rent timing, spawn, source, and parent-permission inheritance.
 - BlueMap refreshes after land changes. Dynmap refreshes daily by default. Dynmap startup injection is disabled by default; when `startup-refresh` is `true`, markers are injected about five seconds after startup. Administrators can also refresh immediately:
 
 ```text
@@ -549,7 +549,8 @@ Templates support `&0` through `&f` and `&k` through `&r`. Placeholder values re
 | `protection.op-bypass` | Whether OPs bypass protection automatically; `betalands.bypass` grants bypass separately |
 | `protection.public-teleport` | Global default for the `tp` flag, default `true`; controls non-member public teleport |
 | `protection.allow-land-flag-editing` | Whether owners and managers may edit protection flags |
-| `limits.*` | Land area, subclaim volume, and name-length limits |
+| `limits.*` | Land area, subclaim volume, name-length, and main-land gap limits |
+| `limits.main-land-gap-chunks` | Empty chunks required between different main lands; default `0`, which allows their chunks to touch |
 | `maps.dynmap.enabled` / `maps.bluemap.enabled` | Enable Dynmap and BlueMap independently; both default to `true` |
 | `maps.dynmap.startup-refresh` | Inject Dynmap markers once after startup; default `false` |
 | `maps.show-subclaims` | Show subclaims on maps; currently affects BlueMap only |
