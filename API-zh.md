@@ -6,7 +6,7 @@ BetaLands 通过 Bukkit `ServicesManager` 注册只读查询 API：
 dev.che1s.betalands.api.BetaLandsApi
 ```
 
-当前 API 版本为 `6`。API 返回不可变快照，不提供创建、删除、转移、修改成员或修改经济数据的写入接口。
+当前 API 版本为 `7`。API 返回不可变快照，不提供创建、删除、转移、修改成员或修改经济数据的写入接口。
 
 ## 1. 接入
 
@@ -52,8 +52,8 @@ public final class MyPlugin extends JavaPlugin {
             getLogger().warning("BetaLands API is unavailable.");
             return;
         }
-        if (betaLandsApi.getApiVersion() < 6) {
-            getLogger().warning("BetaLands API 6 or newer is required.");
+        if (betaLandsApi.getApiVersion() < 7) {
+            getLogger().warning("BetaLands API 7 or newer is required.");
             betaLandsApi = null;
         }
     }
@@ -127,6 +127,8 @@ API 只返回活动领地。使用软删除删除的领地不会出现在：
 `AreaInfo.getMaxX()` 和 `getMaxZ()` 是包含边界的最大值。
 
 ## 3. 查询方法
+
+本节列出普通领地和维护费查询。[区域保护查询接口](AdminRegionProtection-zh.md#只读-api)见区域保护指南。
 
 ```java
 public interface BetaLandsApi {
@@ -535,16 +537,18 @@ public void inspectLand(BetaLandsApi api) {
 当前 API 版本：
 
 ```java
-BetaLandsApi.API_VERSION == 6
+BetaLandsApi.API_VERSION == 7
 ```
 
 调用方应在初始化时检查：
 
 ```java
-if (api.getApiVersion() < 6) {
-    // 当前代码依赖 API 6
+if (api.getApiVersion() < 7) {
+    // 当前代码依赖 API 7
 }
 ```
+
+API 7 在普通领地和维护费查询的基础上新增了区域保护只读查询。
 
 API 6 将维护费字段改为“每周期金额”。旧的 `getDailyMaintenance()`、`getFamilyDailyMaintenance()` 和 `getMaintenancePer*PerDay()` 方法暂时保留，但已经标记为过时，并返回每周期金额。
 

@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.Set;
 
 import dev.che1s.betalands.model.Land;
+import dev.che1s.betalands.model.AdminProtectedRegion;
+import dev.che1s.betalands.model.AdminRegionPermission;
 import dev.che1s.betalands.model.LandPermission;
 import dev.che1s.betalands.model.PlayerData;
 import dev.che1s.betalands.model.Rect2i;
@@ -144,8 +146,103 @@ final class SqlDataWriter {
 
         clearMetadata(connection);
         saveMetadata(connection, snapshot);
+        saveAdminRegions(connection, snapshot.getAdminRegions());
         connection.commit();
         rememberSnapshot(snapshot);
+    }
+
+    private void saveAdminRegions(Connection connection,
+                                  List<AdminProtectedRegion> regions)
+            throws SQLException {
+        executeUpdate(connection,
+                "DELETE FROM " + schema.table("admin_protected_region_whitelist"));
+        executeUpdate(connection,
+                "DELETE FROM " + schema.table("admin_protected_region_areas"));
+        executeUpdate(connection,
+                "DELETE FROM " + schema.table("admin_protected_regions"));
+
+        PreparedStatement regionStatement = connection.prepareStatement(
+                "INSERT INTO " + schema.table("admin_protected_regions")
+                        + " (id, name, name_key, world, three_dimensional,"
+                        + " min_y, max_y, created_by, created_at, flags)"
+                        + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        PreparedStatement areaStatement = connection.prepareStatement(
+                "INSERT INTO " + schema.table("admin_protected_region_areas")
+                        + " (region_id, ordinal, min_x, max_x, min_z, max_z)"
+                        + " VALUES (?, ?, ?, ?, ?, ?)");
+        PreparedStatement memberStatement = connection.prepareStatement(
+                "INSERT INTO " + schema.table("admin_protected_region_whitelist")
+                        + " (region_id, player_key, permissions)"
+                        + " VALUES (?, ?, ?)");
+        try {
+            for (AdminProtectedRegion region : regions) {
+                int index = 1;
+                regionStatement.setString(index++, region.getId());
+                regionStatement.setString(index++, region.getName());
+                regionStatement.setString(index++, Text.key(region.getName()));
+                regionStatement.setString(index++, region.getWorld());
+                regionStatement.setInt(index++,
+                        region.isThreeDimensional() ? 1 : 0);
+                regionStatement.setInt(index++, region.getMinY());
+                regionStatement.setInt(index++, region.getMaxY());
+                regionStatement.setString(index++, region.getCreatedBy());
+                regionStatement.setLong(index++, region.getCreatedAt());
+                regionStatement.setString(index, adminFlags(region));
+                regionStatement.addBatch();
+
+                int ordinal = 0;
+                for (Rect2i area : region.getAreas()) {
+                    index = 1;
+                    areaStatement.setString(index++, region.getId());
+                    areaStatement.setInt(index++, ordinal++);
+                    areaStatement.setInt(index++, area.getMinX());
+                    areaStatement.setInt(index++, area.getMaxX());
+                    areaStatement.setInt(index++, area.getMinZ());
+                    areaStatement.setInt(index, area.getMaxZ());
+                    areaStatement.addBatch();
+                }
+                for (Map.Entry<String, EnumSet<AdminRegionPermission>> entry
+                        : region.getWhitelist().entrySet()) {
+                    index = 1;
+                    memberStatement.setString(index++, region.getId());
+                    memberStatement.setString(index++, entry.getKey());
+                    memberStatement.setString(index,
+                            StorageCodec.adminPermissions(entry.getValue()));
+                    memberStatement.addBatch();
+                }
+            }
+            regionStatement.executeBatch();
+            areaStatement.executeBatch();
+            memberStatement.executeBatch();
+        } finally {
+            close(regionStatement);
+            close(areaStatement);
+            close(memberStatement);
+        }
+    }
+
+    private String adminFlags(AdminProtectedRegion region) {
+        StringBuilder result = new StringBuilder();
+        for (Map.Entry<dev.che1s.betalands.model.LandFlag, Boolean> entry
+                : region.getFlagOverrides().entrySet()) {
+            if (result.length() > 0) {
+                result.append(';');
+            }
+            result.append(entry.getKey().getId()).append('=')
+                    .append(entry.getValue().booleanValue()
+                            ? "allow" : "deny");
+        }
+        return result.length() == 0 ? "-" : result.toString();
+    }
+
+    private void executeUpdate(Connection connection, String sql)
+            throws SQLException {
+        Statement statement = connection.createStatement();
+        try {
+            statement.executeUpdate(sql);
+        } finally {
+            close(statement);
+        }
     }
 
     private void rememberSnapshot(LandDataSnapshot snapshot) {

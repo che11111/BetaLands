@@ -13,6 +13,7 @@ import java.util.Map;
 import dev.che1s.betalands.BetaLandsPlugin;
 import dev.che1s.betalands.model.PlayerData;
 import dev.che1s.betalands.service.LandManager;
+import dev.che1s.betalands.service.AdminRegionManager;
 import dev.che1s.betalands.util.Text;
 
 /**
@@ -76,13 +77,15 @@ public final class SqlDataStore implements LandDataStore {
     }
 
     @Override
-    public void load(LandManager manager, Map<String, PlayerData> players)
+    public void load(LandManager manager, AdminRegionManager adminRegions,
+                     Map<String, PlayerData> players)
             throws IOException {
         Connection connection = null;
         try {
             connection = connections.open();
             schema.createTables(connection);
-            int loadErrors = loader.load(connection, manager, players);
+            int loadErrors = loader.load(connection, manager, adminRegions,
+                    players);
             if (loadErrors > 0) {
                 throw new IOException("Found " + loadErrors
                         + " invalid database row(s); saving is disabled.");
@@ -97,10 +100,11 @@ public final class SqlDataStore implements LandDataStore {
     }
 
     @Override
-    public void save(LandManager manager, Map<String, PlayerData> players)
+    public void save(LandManager manager, AdminRegionManager adminRegions,
+                     Map<String, PlayerData> players)
             throws IOException {
         saveSnapshot(LandDataSnapshot.capture(
-                manager, System.currentTimeMillis()));
+                manager, adminRegions, System.currentTimeMillis()));
     }
 
     @Override

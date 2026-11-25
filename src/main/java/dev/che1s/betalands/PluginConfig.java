@@ -42,14 +42,17 @@ public final class PluginConfig {
     private boolean dynmapEnabled;
     private boolean bluemapEnabled;
     private boolean showSubclaims;
+    private boolean showAdminRegions;
     private int bluemapRefreshDelaySeconds;
     private int dynmapDailyRefreshHour;
     private int dynmapDailyRefreshMinute;
     private boolean dynmapStartupRefresh;
     private String dynmapMainColor;
     private String dynmapSubclaimColor;
+    private String dynmapAdminRegionColor;
     private String bluemapMainColor;
     private String bluemapSubclaimColor;
+    private String bluemapAdminRegionColor;
     private boolean territoryMessagesEnabled;
     private boolean showWildernessMessage;
     private boolean importResidentPlots;
@@ -110,6 +113,8 @@ public final class PluginConfig {
         dynmapEnabled = bool(configuration, "maps.dynmap.enabled", true);
         bluemapEnabled = bool(configuration, "maps.bluemap.enabled", true);
         showSubclaims = bool(configuration, "maps.show-subclaims", true);
+        showAdminRegions = bool(configuration,
+                "maps.show-admin-regions", true);
         int legacyMapRefreshDelay = positiveInt(configuration,
                 "maps.refresh-delay-seconds", 15);
         bluemapRefreshDelaySeconds = positiveInt(configuration,
@@ -122,8 +127,12 @@ public final class PluginConfig {
                 "maps.dynmap.startup-refresh", false);
         dynmapMainColor = configuration.getString("maps.colors.dynmap.main", "auto");
         dynmapSubclaimColor = configuration.getString("maps.colors.dynmap.subclaim", "auto");
+        dynmapAdminRegionColor = configuration.getString(
+                "maps.colors.dynmap.admin-region", "#8F82A8");
         bluemapMainColor = configuration.getString("maps.colors.bluemap.main", "auto");
         bluemapSubclaimColor = configuration.getString("maps.colors.bluemap.subclaim", "auto");
+        bluemapAdminRegionColor = configuration.getString(
+                "maps.colors.bluemap.admin-region", "#8F82A8");
         territoryMessagesEnabled = bool(configuration,
                 "territory-messages.enabled", true);
         showWildernessMessage = bool(configuration,
@@ -332,6 +341,10 @@ public final class PluginConfig {
         return showSubclaims;
     }
 
+    public boolean shouldShowAdminRegions() {
+        return showAdminRegions;
+    }
+
     public int getBluemapRefreshDelaySeconds() {
         return bluemapRefreshDelaySeconds;
     }
@@ -356,12 +369,20 @@ public final class PluginConfig {
         return dynmapSubclaimColor;
     }
 
+    public String getDynmapAdminRegionColor() {
+        return dynmapAdminRegionColor;
+    }
+
     public String getBluemapMainColor() {
         return bluemapMainColor;
     }
 
     public String getBluemapSubclaimColor() {
         return bluemapSubclaimColor;
+    }
+
+    public String getBluemapAdminRegionColor() {
+        return bluemapAdminRegionColor;
     }
 
     public boolean areTerritoryMessagesEnabled() {

@@ -99,7 +99,7 @@ final class PlayerCommandHandler extends CommandSupport {
         }
         if (sender.isOp() || sender.hasPermission(PermissionNodes.ADMIN)) {
             msg(sender, "help.admin-v5",
-                    "&d/land admin tp <x> <y> <z> [world] &7| level &7| refresh-map &7| setlevel &7| reload|save|status|logs");
+                    "&d/land admin protect ... &7| tp <x> <y> <z> [world] &7| level &7| refresh-map &7| setlevel &7| reload|save|status|logs");
             msg(sender, "help.admin-land-v1",
                     "&d/land admin-land <command> ... &7| /land admin-land-force add <player> <land>");
         }

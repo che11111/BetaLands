@@ -26,7 +26,10 @@ final class SqlBackupWriter {
             writer.write("-- BetaLands " + backend + " backup");
             writer.newLine();
             for (String table : new String[]{"lands", "areas", "members",
-                    "rent_accounts", "players", "metadata"}) {
+                    "rent_accounts", "players", "metadata",
+                    "admin_protected_regions",
+                    "admin_protected_region_areas",
+                    "admin_protected_region_whitelist"}) {
                 writeTable(connection, schema, writer, table);
             }
         } catch (SQLException exception) {

@@ -6,11 +6,24 @@ import java.util.Map;
 
 import dev.che1s.betalands.model.PlayerData;
 import dev.che1s.betalands.service.LandManager;
+import dev.che1s.betalands.service.AdminRegionManager;
 
 public interface LandDataStore {
-    void load(LandManager manager, Map<String, PlayerData> players) throws IOException;
+    default void load(LandManager manager, Map<String, PlayerData> players)
+            throws IOException {
+        load(manager, new AdminRegionManager(), players);
+    }
 
-    void save(LandManager manager, Map<String, PlayerData> players) throws IOException;
+    default void save(LandManager manager, Map<String, PlayerData> players)
+            throws IOException {
+        save(manager, new AdminRegionManager(), players);
+    }
+
+    void load(LandManager manager, AdminRegionManager adminRegions,
+              Map<String, PlayerData> players) throws IOException;
+
+    void save(LandManager manager, AdminRegionManager adminRegions,
+              Map<String, PlayerData> players) throws IOException;
 
     void saveSnapshot(LandDataSnapshot snapshot) throws IOException;
 

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import dev.che1s.betalands.model.Land;
+import dev.che1s.betalands.model.AdminRegionPermission;
 import dev.che1s.betalands.model.LandFlag;
 import dev.che1s.betalands.model.LandPermission;
 import dev.che1s.betalands.model.Rect2i;
@@ -64,6 +65,36 @@ final class StorageCodec {
         }
         for (String token : value.split(",")) {
             LandPermission permission = LandPermission.parse(token);
+            if (permission != null) {
+                result.add(permission);
+            }
+        }
+        return result;
+    }
+
+    static String adminPermissions(EnumSet<AdminRegionPermission> values) {
+        if (values == null || values.isEmpty()) {
+            return "-";
+        }
+        StringBuilder result = new StringBuilder();
+        for (AdminRegionPermission permission : values) {
+            if (result.length() > 0) {
+                result.append(',');
+            }
+            result.append(permission.getId());
+        }
+        return result.toString();
+    }
+
+    static EnumSet<AdminRegionPermission> parseAdminPermissions(String value) {
+        EnumSet<AdminRegionPermission> result =
+                EnumSet.noneOf(AdminRegionPermission.class);
+        if (value == null || value.length() == 0 || "-".equals(value)) {
+            return result;
+        }
+        for (String token : value.split(",")) {
+            AdminRegionPermission permission =
+                    AdminRegionPermission.parse(token);
             if (permission != null) {
                 result.add(permission);
             }

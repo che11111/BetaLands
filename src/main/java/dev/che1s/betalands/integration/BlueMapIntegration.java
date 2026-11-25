@@ -24,11 +24,13 @@ import de.bluecolored.bluemap.api.math.Shape;
 
 import dev.che1s.betalands.BetaLandsPlugin;
 import dev.che1s.betalands.model.Land;
+import dev.che1s.betalands.model.AdminProtectedRegion;
 import dev.che1s.betalands.model.Rect2i;
 import dev.che1s.betalands.service.LandManager;
 
 public final class BlueMapIntegration {
     private static final String MARKER_SET_ID = "betalands";
+    private static final String ADMIN_REGION_SET_ID = "betalands_admin_regions";
 
     private final BetaLandsPlugin plugin;
     private final LandManager lands;
@@ -39,6 +41,7 @@ public final class BlueMapIntegration {
     private BlueMapAPI currentApi;
     private int configuredMainColor = MapColor.AUTO;
     private int configuredSubclaimColor = MapColor.AUTO;
+    private int configuredAdminRegionColor = MapColor.AUTO;
 
     public BlueMapIntegration(BetaLandsPlugin plugin) {
         this.plugin = plugin;
@@ -77,6 +80,8 @@ public final class BlueMapIntegration {
                 plugin.getSettings().getBluemapMainColor());
         configuredSubclaimColor = MapColor.parse(
                 plugin.getSettings().getBluemapSubclaimColor());
+        configuredAdminRegionColor = MapColor.parse(
+                plugin.getSettings().getBluemapAdminRegionColor());
         if (api != currentApi) {
             renderedMaps.clear();
             currentApi = api;
@@ -135,6 +140,7 @@ public final class BlueMapIntegration {
                 entry.getValue().delete(markerSet);
                 iterator.remove();
             }
+            refreshAdminRegions(api, map, mapMarkers);
         }
         Iterator<String> mapIterator = renderedMaps.keySet().iterator();
         while (mapIterator.hasNext()) {
@@ -142,6 +148,107 @@ public final class BlueMapIntegration {
                 mapIterator.remove();
             }
         }
+    }
+
+    private void refreshAdminRegions(BlueMapAPI api, BlueMapMap map,
+                                     MapMarkers mapMarkers) {
+        if (!plugin.getSettings().shouldShowAdminRegions()) {
+            if (map.getMarkerSets().remove(ADMIN_REGION_SET_ID) != null) {
+                mapMarkers.regions.clear();
+            }
+            return;
+        }
+        MarkerSet markerSet = map.getMarkerSets().get(ADMIN_REGION_SET_ID);
+        if (markerSet == null) {
+            markerSet = new MarkerSet(
+                    AdminRegionMapInfo.markerSetLabel(plugin), true, false);
+            markerSet.setToggleable(true);
+            markerSet.setDefaultHidden(false);
+            markerSet.setSorting(35);
+            map.getMarkerSets().put(ADMIN_REGION_SET_ID, markerSet);
+        } else {
+            markerSet.setLabel(AdminRegionMapInfo.markerSetLabel(plugin));
+        }
+        Set<String> seen = new HashSet<String>();
+        for (AdminProtectedRegion region
+                : plugin.getAdminRegions().getRegions()) {
+            if (!matchesWorld(region.getWorld(), map.getWorld().getId(),
+                    api.getWorld(region.getWorld()).isPresent()
+                            ? api.getWorld(region.getWorld()).get().getId()
+                            : null)) {
+                continue;
+            }
+            String details = AdminRegionMapInfo.details(plugin, region);
+            long fingerprint = (details + "|" + region.getWorld() + "|"
+                    + region.getMinY() + "|" + region.getMaxY()).hashCode();
+            LandMarkers previous = mapMarkers.regions.get(region.getId());
+            seen.add(region.getId());
+            if (previous != null && previous.fingerprint == fingerprint
+                    && previous.existsIn(markerSet)) {
+                continue;
+            }
+            if (previous != null) {
+                previous.delete(markerSet);
+            }
+            LandMarkers updated = drawAdminRegion(markerSet, region, details);
+            updated.fingerprint = fingerprint;
+            mapMarkers.regions.put(region.getId(), updated);
+        }
+        Iterator<Map.Entry<String, LandMarkers>> iterator =
+                mapMarkers.regions.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<String, LandMarkers> entry = iterator.next();
+            if (!seen.contains(entry.getKey())) {
+                entry.getValue().delete(markerSet);
+                iterator.remove();
+            }
+        }
+    }
+
+    private LandMarkers drawAdminRegion(MarkerSet markerSet,
+                                        AdminProtectedRegion region,
+                                        String details) {
+        LandMarkers result = new LandMarkers();
+        int index = 0;
+        for (ClaimBoundary.Component component
+                : ClaimBoundary.fromAreas(region.getAreas())) {
+            Shape shape = shape(component.getOuter());
+            Shape[] holes = new Shape[component.getHoles().size()];
+            for (int holeIndex = 0; holeIndex < holes.length; holeIndex++) {
+                holes[holeIndex] = shape(component.getHoles().get(holeIndex));
+            }
+            String markerId = "admin-region:" + region.getId() + ":"
+                    + index++;
+            int rgb = configuredAdminRegionColor >= 0
+                    ? configuredAdminRegionColor : 0x8f82a8;
+            if (region.isThreeDimensional()) {
+                ExtrudeMarker marker = ExtrudeMarker.builder()
+                        .shape(shape, region.getMinY(), region.getMaxY() + 1)
+                        .holes(holes)
+                        .label(region.getName())
+                        .detail(details)
+                        .lineColor(color(rgb, 0.95F))
+                        .fillColor(color(rgb, 0.24F))
+                        .lineWidth(2)
+                        .depthTestEnabled(true)
+                        .build();
+                markerSet.put(markerId, marker);
+            } else {
+                ShapeMarker marker = ShapeMarker.builder()
+                        .shape(shape, 128.0F)
+                        .holes(holes)
+                        .label(region.getName())
+                        .detail(details)
+                        .lineColor(color(rgb, 0.95F))
+                        .fillColor(color(rgb, 0.14F))
+                        .lineWidth(2)
+                        .depthTestEnabled(false)
+                        .build();
+                markerSet.put(markerId, marker);
+            }
+            result.markerIds.add(markerId);
+        }
+        return result;
     }
 
     private MarkerSet ensureMarkerSet(BlueMapMap map, MarkerSet existing, String label) {
@@ -262,6 +369,8 @@ public final class BlueMapIntegration {
     private static final class MapMarkers {
         private final MarkerSet markerSet;
         private final Map<String, LandMarkers> lands =
+                new HashMap<String, LandMarkers>();
+        private final Map<String, LandMarkers> regions =
                 new HashMap<String, LandMarkers>();
 
         private MapMarkers(MarkerSet markerSet) {

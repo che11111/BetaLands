@@ -6,7 +6,7 @@ BetaLands registers a read-only query API through Bukkit's `ServicesManager`:
 dev.che1s.betalands.api.BetaLandsApi
 ```
 
-The current API version is `6`. The API returns immutable snapshots and provides no write operations for creating, deleting, transferring, editing members, or modifying economic data.
+The current API version is `7`. The API returns immutable snapshots and provides no write operations for creating, deleting, transferring, editing members, or modifying economic data.
 
 ## 1. Integration
 
@@ -52,8 +52,8 @@ public final class MyPlugin extends JavaPlugin {
             getLogger().warning("BetaLands API is unavailable.");
             return;
         }
-        if (betaLandsApi.getApiVersion() < 6) {
-            getLogger().warning("BetaLands API 6 or newer is required.");
+        if (betaLandsApi.getApiVersion() < 7) {
+            getLogger().warning("BetaLands API 7 or newer is required.");
             betaLandsApi = null;
         }
     }
@@ -127,6 +127,8 @@ The old ID or old name of a soft-deleted land cannot be queried through the API.
 `AreaInfo.getMaxX()` and `getMaxZ()` are inclusive maximum boundaries.
 
 ## 3. Query Methods
+
+This section lists the regular-land and maintenance queries. The region-protection guide covers the [admin region queries](AdminRegionProtection.md#read-only-api).
 
 ```java
 public interface BetaLandsApi {
@@ -535,16 +537,18 @@ public void inspectLand(BetaLandsApi api) {
 Current API version:
 
 ```java
-BetaLandsApi.API_VERSION == 6
+BetaLandsApi.API_VERSION == 7
 ```
 
 Consumers should check it during initialization:
 
 ```java
-if (api.getApiVersion() < 6) {
-    // This code depends on API 6.
+if (api.getApiVersion() < 7) {
+    // This code depends on API 7.
 }
 ```
+
+API 7 adds read-only admin region queries alongside the existing land and maintenance queries.
 
 API 6 changes maintenance fields to represent one billing-cycle charge. The old `getDailyMaintenance()`, `getFamilyDailyMaintenance()`, and `getMaintenancePer*PerDay()` methods remain temporarily for compatibility, are deprecated, and now return the per-cycle amount.
 

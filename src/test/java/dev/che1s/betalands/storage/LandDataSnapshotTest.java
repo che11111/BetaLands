@@ -5,17 +5,41 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 
 import org.junit.Test;
 
 import dev.che1s.betalands.model.Land;
+import dev.che1s.betalands.model.AdminProtectedRegion;
 import dev.che1s.betalands.model.LandPermission;
 import dev.che1s.betalands.model.PlayerData;
 import dev.che1s.betalands.model.Rect2i;
 import dev.che1s.betalands.service.LandManager;
+import dev.che1s.betalands.service.AdminRegionManager;
 
 public class LandDataSnapshotTest {
+    @Test
+    public void capturesAdminRegionsAndWhitelists() {
+        LandManager lands = new LandManager(null);
+        AdminRegionManager regions = new AdminRegionManager();
+        AdminProtectedRegion region = new AdminProtectedRegion(
+                "region", "Spawn", "world", "Admin", 1000L,
+                true, 50, 100, Arrays.asList(new Rect2i(0, 0, 15, 15)));
+        region.setWhitelistPermissions("Builder",
+                dev.che1s.betalands.model.AdminRegionPermission.defaults());
+        regions.addRegion(region);
+
+        LandDataSnapshot snapshot =
+                LandDataSnapshot.capture(lands, regions, 2000L);
+
+        assertEquals(1, snapshot.getAdminRegions().size());
+        assertEquals("Spawn",
+                snapshot.getAdminRegions().get(0).getName());
+        assertEquals(1, snapshot.getAdminRegions().get(0)
+                .getWhitelist().size());
+    }
+
     @Test
     public void preservesMaintenanceExemptionInSnapshot() {
         LandManager manager = new LandManager(null);

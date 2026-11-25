@@ -23,12 +23,15 @@ import java.util.Map;
 import dev.che1s.betalands.BetaLandsPlugin;
 import dev.che1s.betalands.model.HomePoint;
 import dev.che1s.betalands.model.Land;
+import dev.che1s.betalands.model.AdminProtectedRegion;
+import dev.che1s.betalands.model.AdminRegionPermission;
 import dev.che1s.betalands.model.LandFlag;
 import dev.che1s.betalands.model.LandPermission;
 import dev.che1s.betalands.model.PlayerData;
 import dev.che1s.betalands.model.Rect2i;
 import dev.che1s.betalands.model.RentAccount;
 import dev.che1s.betalands.service.LandManager;
+import dev.che1s.betalands.service.AdminRegionManager;
 import dev.che1s.betalands.util.Text;
 
 public final class DataStore implements LandDataStore {
@@ -40,6 +43,8 @@ public final class DataStore implements LandDataStore {
     private final File playersFile;
     private final File rentsFile;
     private final File serverBankFile;
+    private final File adminRegionsFile;
+    private final File adminRegionWhitelistFile;
     private int loadErrors;
 
     public DataStore(BetaLandsPlugin plugin) {
@@ -50,11 +55,16 @@ public final class DataStore implements LandDataStore {
         this.playersFile = new File(folder, "players.tsv");
         this.rentsFile = new File(folder, "rents.tsv");
         this.serverBankFile = new File(folder, "server-bank.tsv");
+        this.adminRegionsFile = new File(folder, "admin-regions.tsv");
+        this.adminRegionWhitelistFile =
+                new File(folder, "admin-region-whitelist.tsv");
     }
 
     @Override
-    public void load(LandManager manager, Map<String, PlayerData> players) throws IOException {
+    public void load(LandManager manager, AdminRegionManager adminRegions,
+                     Map<String, PlayerData> players) throws IOException {
         manager.clear();
+        adminRegions.clear();
         players.clear();
         loadErrors = 0;
         if (landsFile.isFile()) {
@@ -72,10 +82,92 @@ public final class DataStore implements LandDataStore {
         if (serverBankFile.isFile()) {
             loadServerBank(manager);
         }
+        if (adminRegionsFile.isFile()) {
+            loadAdminRegions(adminRegions);
+        }
+        if (adminRegionWhitelistFile.isFile()) {
+            loadAdminRegionWhitelist(adminRegions);
+        }
+        adminRegions.rebuild();
         manager.rebuildIndexes();
         if (loadErrors > 0) {
             throw new IOException("Found " + loadErrors
                     + " invalid data line(s); automatic saving is disabled until they are fixed");
+        }
+    }
+
+    private void loadAdminRegions(AdminRegionManager manager) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(
+                new FileInputStream(adminRegionsFile), StandardCharsets.UTF_8));
+        try {
+            String line;
+            int lineNumber = 0;
+            while ((line = reader.readLine()) != null) {
+                lineNumber++;
+                if (line.length() == 0 || line.charAt(0) == '#') {
+                    continue;
+                }
+                try {
+                    String[] fields = line.split("\t", -1);
+                    if (fields.length < 10) {
+                        throw new IllegalArgumentException("expected 10 fields");
+                    }
+                    List<Rect2i> areas = parseAreas(fields[9]);
+                    if (areas.isEmpty()) {
+                        throw new IllegalArgumentException("no areas");
+                    }
+                    AdminProtectedRegion region = new AdminProtectedRegion(
+                            Text.unescape(fields[0]),
+                            Text.unescape(fields[1]),
+                            Text.unescape(fields[2]),
+                            Text.unescape(fields[6]),
+                            Long.parseLong(fields[7]),
+                            Boolean.parseBoolean(fields[3]),
+                            Integer.parseInt(fields[4]),
+                            Integer.parseInt(fields[5]), areas);
+                    region.setFlagOverrides(parseFlags(fields[8]));
+                    manager.addLoadedRegion(region);
+                } catch (RuntimeException exception) {
+                    loadErrors++;
+                    plugin.getMessages().warning("data.invalid-line",
+                            "Skipped invalid {file} line {line}: {error}",
+                            "file", adminRegionsFile.getName(),
+                            "line", Integer.toString(lineNumber),
+                            "error", exception.getMessage());
+                }
+            }
+        } finally {
+            close(reader);
+        }
+    }
+
+    private void loadAdminRegionWhitelist(AdminRegionManager manager)
+            throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(
+                new FileInputStream(adminRegionWhitelistFile),
+                StandardCharsets.UTF_8));
+        try {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.length() == 0 || line.charAt(0) == '#') {
+                    continue;
+                }
+                String[] fields = line.split("\t", -1);
+                if (fields.length < 3) {
+                    loadErrors++;
+                    continue;
+                }
+                AdminProtectedRegion region = manager.getById(
+                        Text.unescape(fields[0]));
+                if (region == null) {
+                    continue;
+                }
+                region.setWhitelistPermissions(
+                        Text.unescape(fields[1]),
+                        StorageCodec.parseAdminPermissions(fields[2]));
+            }
+        } finally {
+            close(reader);
         }
     }
 
@@ -289,8 +381,10 @@ public final class DataStore implements LandDataStore {
     }
 
     @Override
-    public void save(LandManager manager, Map<String, PlayerData> players) throws IOException {
-        saveSnapshot(LandDataSnapshot.capture(manager, System.currentTimeMillis()));
+    public void save(LandManager manager, AdminRegionManager adminRegions,
+                     Map<String, PlayerData> players) throws IOException {
+        saveSnapshot(LandDataSnapshot.capture(manager, adminRegions,
+                System.currentTimeMillis()));
     }
 
     @Override
@@ -301,6 +395,85 @@ public final class DataStore implements LandDataStore {
         saveRentAccounts(snapshot.getRentAccounts());
         savePlayers(snapshot.getPlayers());
         saveServerBank(snapshot.getServerMaintenanceBank());
+        saveAdminRegions(snapshot.getAdminRegions());
+        saveAdminRegionWhitelist(snapshot.getAdminRegions());
+    }
+
+    private void saveAdminRegions(List<AdminProtectedRegion> regions)
+            throws IOException {
+        File temporary = new File(adminRegionsFile.getParentFile(),
+                adminRegionsFile.getName() + ".tmp");
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
+                new FileOutputStream(temporary), StandardCharsets.UTF_8));
+        try {
+            writer.write("# id\tname\tworld\tthree-dimensional\tmin-y\tmax-y\tcreated-by\tcreated-at\tflags\tareas");
+            writer.newLine();
+            for (AdminProtectedRegion region : regions) {
+                writer.write(Text.escape(region.getId()));
+                writer.write('\t');
+                writer.write(Text.escape(region.getName()));
+                writer.write('\t');
+                writer.write(Text.escape(region.getWorld()));
+                writer.write('\t');
+                writer.write(Boolean.toString(region.isThreeDimensional()));
+                writer.write('\t');
+                writer.write(Integer.toString(region.getMinY()));
+                writer.write('\t');
+                writer.write(Integer.toString(region.getMaxY()));
+                writer.write('\t');
+                writer.write(Text.escape(region.getCreatedBy()));
+                writer.write('\t');
+                writer.write(Long.toString(region.getCreatedAt()));
+                writer.write('\t');
+                writer.write(serializeAdminFlags(region));
+                writer.write('\t');
+                writer.write(StorageCodec.areas(region.getAreas()));
+                writer.newLine();
+            }
+        } finally {
+            close(writer);
+        }
+        replace(temporary, adminRegionsFile);
+    }
+
+    private void saveAdminRegionWhitelist(List<AdminProtectedRegion> regions)
+            throws IOException {
+        File temporary = new File(adminRegionWhitelistFile.getParentFile(),
+                adminRegionWhitelistFile.getName() + ".tmp");
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
+                new FileOutputStream(temporary), StandardCharsets.UTF_8));
+        try {
+            writer.write("# region-id\tplayer-key\tpermissions");
+            writer.newLine();
+            for (AdminProtectedRegion region : regions) {
+                for (Map.Entry<String, EnumSet<AdminRegionPermission>> entry
+                        : region.getWhitelist().entrySet()) {
+                    writer.write(Text.escape(region.getId()));
+                    writer.write('\t');
+                    writer.write(Text.escape(entry.getKey()));
+                    writer.write('\t');
+                    writer.write(StorageCodec.adminPermissions(entry.getValue()));
+                    writer.newLine();
+                }
+            }
+        } finally {
+            close(writer);
+        }
+        replace(temporary, adminRegionWhitelistFile);
+    }
+
+    private String serializeAdminFlags(AdminProtectedRegion region) {
+        StringBuilder result = new StringBuilder();
+        for (Map.Entry<LandFlag, Boolean> entry
+                : region.getFlagOverrides().entrySet()) {
+            if (result.length() > 0) {
+                result.append(';');
+            }
+            result.append(entry.getKey().getId()).append('=')
+                    .append(entry.getValue().booleanValue()
+                            ? "allow" : "deny");
+        }
+        return result.length() == 0 ? "-" : result.toString();
     }
 
     private void saveLands(List<Land> lands) throws IOException {
@@ -486,6 +659,8 @@ public final class DataStore implements LandDataStore {
         copyIfPresent(playersFile, target);
         copyIfPresent(rentsFile, target);
         copyIfPresent(serverBankFile, target);
+        copyIfPresent(adminRegionsFile, target);
+        copyIfPresent(adminRegionWhitelistFile, target);
         return target;
     }
 

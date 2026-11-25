@@ -16,9 +16,9 @@
 
 现代化的 Beta1.7.3 领地保护插件，主领地采用2D区块保护，子领地采用3D方块保护，领地范围与信息可集成BlueMap/Dynmap显示，支持从 Towny 进行数据迁移。
 
-玩家使用说明：[PlayerWiki.md](PlayerWiki.md)
-
-其他插件可以通过 Bukkit `ServicesManager` 查询领地数据 [API.md](API.md)。
+- [玩家指南](PlayerWiki-zh.md)
+- [管理员区域保护](AdminRegionProtection-zh.md)
+- [通过 Bukkit `ServicesManager` 查询数据的只读 API](API-zh.md)
 
 ## 功能展示
 
@@ -92,7 +92,7 @@
 | `/land rent deposit <金额>` | 向全局租金账户预缴租金 | `/land rent withdraw <金额>` | 从全局租金账户取款 |
 | `/land rent info [领地]` | 查看租金和预缴账户 | `/land rent set 0 [领地]` | 关闭每日租金 |
 
-地名统一放在指令末尾。其他支持省略领地名的指令，在省略领地名时，会默认使用玩家脚下所在的领地。
+领地名统一放在指令末尾。除 `/land spawn` 和 `/land tp` 外，支持省略领地名的指令会默认使用玩家脚下的领地。需要管理权限的指令在脚下没有可管理的领地时，可以自动选用玩家唯一拥有的主领地。
 
 `/land spawn` 与 `/land tp` 功能相同，是例外：它们不会根据玩家脚下所在的领地选择目标。省略领地名时，只有玩家仅有 1 个拥有的主领地，或仅有 1 个已加入/受信任领地时才会直接传送；存在多个领地时必须指定领地名。拥有 1 个并加入 1 个也属于多个候选。
 

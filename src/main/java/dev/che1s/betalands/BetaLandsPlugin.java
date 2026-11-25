@@ -25,6 +25,8 @@ import dev.che1s.betalands.listener.ProtectionListener;
 import dev.che1s.betalands.log.AuditLogService;
 import dev.che1s.betalands.metrics.BukkitMetrics;
 import dev.che1s.betalands.service.LandManager;
+import dev.che1s.betalands.service.AdminRegionManager;
+import dev.che1s.betalands.service.AdminRegionProtectionService;
 import dev.che1s.betalands.service.LandFeeNotificationService;
 import dev.che1s.betalands.service.LandMaintenanceService;
 import dev.che1s.betalands.service.SelectionManager;
@@ -37,6 +39,8 @@ public final class BetaLandsPlugin extends JavaPlugin {
     private LandDataStore dataStore;
     private StorageManager storageManager;
     private LandManager landManager;
+    private AdminRegionManager adminRegions;
+    private AdminRegionProtectionService adminRegionProtection;
     private SelectionManager selections;
     private MapService mapService;
     private EconomyService economy;
@@ -94,9 +98,12 @@ public final class BetaLandsPlugin extends JavaPlugin {
                 return thread;
             }
         });
+        adminRegions = new AdminRegionManager();
         landManager = new LandManager(this);
+        adminRegionProtection =
+                new AdminRegionProtectionService(this, adminRegions);
         try {
-            dataStore.load(landManager, landManager.getPlayers());
+            dataStore.load(landManager, adminRegions, landManager.getPlayers());
             dataLoaded = true;
         } catch (IOException exception) {
             dataLoaded = false;
@@ -213,7 +220,7 @@ public final class BetaLandsPlugin extends JavaPlugin {
         }
         synchronized (storageSaveLock) {
             pendingStorageSnapshot = LandDataSnapshot.capture(
-                    landManager, System.currentTimeMillis());
+                    landManager, adminRegions, System.currentTimeMillis());
             pendingStorageLogFailure = logFailure;
             if (storageSaveRunning || storageExecutor == null
                     || storageExecutor.isShutdown()) {
@@ -251,7 +258,7 @@ public final class BetaLandsPlugin extends JavaPlugin {
                 return false;
             }
             snapshot = LandDataSnapshot.capture(
-                    landManager, System.currentTimeMillis());
+                    landManager, adminRegions, System.currentTimeMillis());
             try {
                 storageExecutor.execute(new Runnable() {
                     @Override
@@ -353,6 +360,14 @@ public final class BetaLandsPlugin extends JavaPlugin {
 
     public LandManager getLandManager() {
         return landManager;
+    }
+
+    public AdminRegionManager getAdminRegions() {
+        return adminRegions;
+    }
+
+    public AdminRegionProtectionService getAdminRegionProtection() {
+        return adminRegionProtection;
     }
 
     public SelectionManager getSelections() {

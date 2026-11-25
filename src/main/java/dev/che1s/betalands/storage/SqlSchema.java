@@ -11,7 +11,7 @@ import java.sql.Statement;
  * explicitly outside the plugin, so runtime startup only creates fresh tables.
  */
 final class SqlSchema {
-    static final String SCHEMA_VERSION = "3";
+    static final String SCHEMA_VERSION = "4";
 
     private final String prefix;
 
@@ -89,6 +89,37 @@ final class SqlSchema {
                     + "level_managed INTEGER NOT NULL,"
                     + "level_expires_at BIGINT NOT NULL"
                     + ")");
+            statement.executeUpdate("CREATE TABLE IF NOT EXISTS " + table("admin_protected_regions") + " ("
+                    + "id VARCHAR(64) PRIMARY KEY,"
+                    + "name VARCHAR(255) NOT NULL,"
+                    + "name_key VARCHAR(255) NOT NULL UNIQUE,"
+                    + "world VARCHAR(255) NOT NULL,"
+                    + "three_dimensional INTEGER NOT NULL,"
+                    + "min_y INTEGER NOT NULL,"
+                    + "max_y INTEGER NOT NULL,"
+                    + "created_by VARCHAR(255) NOT NULL,"
+                    + "created_at BIGINT NOT NULL,"
+                    + "flags TEXT"
+                    + ")");
+            statement.executeUpdate("CREATE TABLE IF NOT EXISTS " + table("admin_protected_region_areas") + " ("
+                    + "region_id VARCHAR(64) NOT NULL,"
+                    + "ordinal INTEGER NOT NULL,"
+                    + "min_x INTEGER NOT NULL,"
+                    + "max_x INTEGER NOT NULL,"
+                    + "min_z INTEGER NOT NULL,"
+                    + "max_z INTEGER NOT NULL,"
+                    + "PRIMARY KEY (region_id, ordinal),"
+                    + "CONSTRAINT fk_admin_region_areas FOREIGN KEY (region_id)"
+                    + " REFERENCES " + table("admin_protected_regions") + "(id) ON DELETE CASCADE"
+                    + ")");
+            statement.executeUpdate("CREATE TABLE IF NOT EXISTS " + table("admin_protected_region_whitelist") + " ("
+                    + "region_id VARCHAR(64) NOT NULL,"
+                    + "player_key VARCHAR(255) NOT NULL,"
+                    + "permissions TEXT NOT NULL,"
+                    + "PRIMARY KEY (region_id, player_key),"
+                    + "CONSTRAINT fk_admin_region_whitelist FOREIGN KEY (region_id)"
+                    + " REFERENCES " + table("admin_protected_regions") + "(id) ON DELETE CASCADE"
+                    + ")");
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS " + table("metadata") + " ("
                     + "meta_key VARCHAR(128) PRIMARY KEY,"
                     + "meta_value TEXT"
@@ -104,6 +135,8 @@ final class SqlSchema {
                 "members", "player_key");
         createIndex(connection, prefix + "idx_rent_debt_land", "rent_accounts",
                 "debt_land_id");
+        createIndex(connection, prefix + "idx_admin_region_name",
+                "admin_protected_regions", "name_key");
     }
 
     private void createIndex(Connection connection, String indexName,

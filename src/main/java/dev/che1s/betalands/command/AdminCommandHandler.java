@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.List;
 
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
 import dev.che1s.betalands.BetaLandsPlugin;
@@ -17,22 +18,29 @@ import dev.che1s.betalands.util.Text;
 final class AdminCommandHandler extends CommandSupport {
     private final PlayerCommandHandler playerCommands;
     private final TownyMigrationCommandHandler migrationCommands;
+    private final AdminRegionCommandHandler adminRegionCommands;
 
     AdminCommandHandler(BetaLandsPlugin plugin,
                         PlayerCommandHandler playerCommands) {
         super(plugin);
         this.playerCommands = playerCommands;
         this.migrationCommands = new TownyMigrationCommandHandler(plugin);
+        this.adminRegionCommands = new AdminRegionCommandHandler(plugin);
     }
 
     boolean handle(CommandSender sender, String[] args) {
-        if (!sender.isOp() && !sender.hasPermission(PermissionNodes.ADMIN)) {
+        boolean protectCommand = args.length >= 2
+                && "protect".equalsIgnoreCase(args[1]);
+        if (!(sender instanceof ConsoleCommandSender)
+                && !sender.isOp() && !sender.hasPermission(PermissionNodes.ADMIN)
+                && !(protectCommand
+                && sender.hasPermission(PermissionNodes.ADMIN_PROTECT))) {
             noPermission(sender);
             return true;
         }
         if (args.length < 2) {
             msg(sender, "admin.usage-v4",
-                    "&eUsage: /land admin <tp|version|level|refresh-map|server-bank|maintenance-exempt|setlevel|reload|save|status|logs|migrate-towny>");
+                    "&eUsage: /land admin <tp|protect|version|level|refresh-map|server-bank|maintenance-exempt|setlevel|reload|save|status|logs|migrate-towny>");
             return true;
         }
         String action = args[1].toLowerCase(java.util.Locale.ROOT);
@@ -45,6 +53,9 @@ final class AdminCommandHandler extends CommandSupport {
         }
         if ("tp".equals(action)) {
             return teleport(sender, args);
+        }
+        if ("protect".equals(action)) {
+            return adminRegionCommands.handle(sender, args);
         }
         if ("setlevel".equals(action)) {
             return setManagedLevel(sender, args);

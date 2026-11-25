@@ -7,7 +7,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
 public interface BetaLandsApi {
-    int API_VERSION = 6;
+    int API_VERSION = 7;
 
     static BetaLandsApi get() {
         RegisteredServiceProvider<BetaLandsApi> registration =
@@ -29,6 +29,16 @@ public interface BetaLandsApi {
 
     List<PlayerLandAccess> findLandsWithPermission(String playerName,
                                                    LandPermission permission);
+
+    Optional<AdminRegionInfo> getAdminRegion(String nameOrId);
+
+    Optional<AdminRegionInfo> getAdminRegionAt(String worldName,
+                                               int x, int y, int z);
+
+    List<AdminRegionInfo> getAdminRegions();
+
+    boolean canUseAdminRegion(String playerName, String nameOrId,
+                              AdminRegionPermission permission);
 
     double getServerMaintenanceBankBalance();
 }

@@ -7,28 +7,40 @@ import java.util.List;
 import java.util.Map;
 
 import dev.che1s.betalands.model.Land;
+import dev.che1s.betalands.model.AdminProtectedRegion;
 import dev.che1s.betalands.model.PlayerData;
 import dev.che1s.betalands.model.RentAccount;
 import dev.che1s.betalands.service.LandManager;
+import dev.che1s.betalands.service.AdminRegionManager;
 
 public final class LandDataSnapshot {
     private final List<Land> lands;
     private final Map<String, PlayerData> players;
     private final Map<String, RentAccount> rentAccounts;
     private final double serverMaintenanceBank;
+    private final List<AdminProtectedRegion> adminRegions;
 
     private LandDataSnapshot(List<Land> lands, Map<String, PlayerData> players,
                              Map<String, RentAccount> rentAccounts,
-                             double serverMaintenanceBank) {
+                             double serverMaintenanceBank,
+                             List<AdminProtectedRegion> adminRegions) {
         this.lands = Collections.unmodifiableList(new ArrayList<Land>(lands));
         this.players = Collections.unmodifiableMap(
                 new LinkedHashMap<String, PlayerData>(players));
         this.rentAccounts = Collections.unmodifiableMap(
                 new LinkedHashMap<String, RentAccount>(rentAccounts));
         this.serverMaintenanceBank = serverMaintenanceBank;
+        this.adminRegions = Collections.unmodifiableList(
+                new ArrayList<AdminProtectedRegion>(adminRegions));
     }
 
     public static LandDataSnapshot capture(LandManager manager, long now) {
+        return capture(manager, new AdminRegionManager(), now);
+    }
+
+    public static LandDataSnapshot capture(LandManager manager,
+                                           AdminRegionManager adminRegions,
+                                           long now) {
         List<Land> lands = new ArrayList<Land>();
         for (Land land : manager.getPersistedLands()) {
             lands.add(land.copyForImport());
@@ -53,8 +65,15 @@ public final class LandDataSnapshot {
                     source.getPlayerName(), source.getBalance(),
                     source.getDebtLandId()));
         }
+        List<AdminProtectedRegion> regions =
+                new ArrayList<AdminProtectedRegion>();
+        if (adminRegions != null) {
+            for (AdminProtectedRegion region : adminRegions.getRegions()) {
+                regions.add(region.copyForStorage());
+            }
+        }
         return new LandDataSnapshot(lands, players, rentAccounts,
-                manager.getServerMaintenanceBank());
+                manager.getServerMaintenanceBank(), regions);
     }
 
     public List<Land> getLands() {
@@ -71,5 +90,9 @@ public final class LandDataSnapshot {
 
     public double getServerMaintenanceBank() {
         return serverMaintenanceBank;
+    }
+
+    public List<AdminProtectedRegion> getAdminRegions() {
+        return adminRegions;
     }
 }

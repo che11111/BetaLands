@@ -75,7 +75,9 @@ Map details show creation time directly below the land ID and the owner's person
 | `/land rent deposit <amount>` | Prepay into the global rent account | `/land rent withdraw <amount>` | Withdraw from the global rent account |
 | `/land rent info [land]` | View rent and prepaid account information | `/land rent set 0 [land]` | Disable daily rent |
 
-Land names belong at the end of a command. If the land name is omitted, BetaLands first uses the current land you are allowed to manage; otherwise it automatically selects your main land only when you own exactly one.
+Land names belong at the end of a command. If you omit the land name in a management command, BetaLands first looks for a land you can manage at your current position. If there is none and you own exactly one main land, the command can select it automatically.
+
+`/land spawn` and `/land tp` use your owned main lands and the lands you have joined as candidates. With one candidate, you can omit the name. With more than one candidate, including one owned and one joined land, specify the land name.
 
 Land deletion takes two steps: run `/land delete [land]`, then `/land delete confirm <land>`. The second command must include the land name. The main-land bank must be exactly `0` before deletion. If the bank is in debt, the plugin shows a `/land bank deposit <amount> [land]` command to clear it. If a prepaid balance remains, the plugin shows a `/land bank withdraw <amount> [land]` command first.
 

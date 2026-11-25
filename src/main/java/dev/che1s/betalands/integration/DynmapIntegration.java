@@ -16,6 +16,7 @@ import org.dynmap.markers.MarkerSet;
 
 import dev.che1s.betalands.BetaLandsPlugin;
 import dev.che1s.betalands.model.Land;
+import dev.che1s.betalands.model.AdminProtectedRegion;
 import dev.che1s.betalands.model.Rect2i;
 
 /**
@@ -27,12 +28,14 @@ import dev.che1s.betalands.model.Rect2i;
 public final class DynmapIntegration {
     private static final String MAIN_SET_ID = "betalands";
     private static final String SUB_SET_ID = "betalands_subclaims";
+    private static final String ADMIN_REGION_SET_ID = "betalands_admin_regions";
     private static final double OUTLINE_HALF_WIDTH = 0.005D;
 
     private final BetaLandsPlugin plugin;
     private final DynmapAPI dynmap;
     private int configuredMainColor = MapColor.AUTO;
     private int configuredSubclaimColor = MapColor.AUTO;
+    private int configuredAdminRegionColor = MapColor.AUTO;
 
     public DynmapIntegration(BetaLandsPlugin plugin, Plugin dynmapPlugin) {
         this.plugin = plugin;
@@ -44,6 +47,8 @@ public final class DynmapIntegration {
                 plugin.getSettings().getDynmapMainColor());
         configuredSubclaimColor = MapColor.parse(
                 plugin.getSettings().getDynmapSubclaimColor());
+        configuredAdminRegionColor = MapColor.parse(
+                plugin.getSettings().getDynmapAdminRegionColor());
         if (!dynmap.markerAPIInitialized()) {
             return false;
         }
@@ -58,6 +63,15 @@ public final class DynmapIntegration {
         replaceSet(api, SUB_SET_ID,
                 plugin.getMessages().map("dynmap.subclaim-set",
                         "BetaLands 3D Subclaims"), true);
+        if (plugin.getSettings().shouldShowAdminRegions()) {
+            replaceSet(api, ADMIN_REGION_SET_ID,
+                    AdminRegionMapInfo.markerSetLabel(plugin), false);
+        } else {
+            MarkerSet existing = api.getMarkerSet(ADMIN_REGION_SET_ID);
+            if (existing != null) {
+                existing.deleteMarkerSet();
+            }
+        }
 
         MarkerSet mainSet = api.getMarkerSet(MAIN_SET_ID);
         MarkerSet subSet = api.getMarkerSet(SUB_SET_ID);
@@ -74,13 +88,55 @@ public final class DynmapIntegration {
                 drawLand(set, land);
             }
         }
+        MarkerSet adminRegionSet =
+                api.getMarkerSet(ADMIN_REGION_SET_ID);
+        if (adminRegionSet != null) {
+            drawAdminRegions(adminRegionSet);
+        }
         int markerCount = mainSet.getAreaMarkers().size()
-                + (subSet == null ? 0 : subSet.getAreaMarkers().size());
+                + (subSet == null ? 0 : subSet.getAreaMarkers().size())
+                + (adminRegionSet == null ? 0
+                : adminRegionSet.getAreaMarkers().size());
         plugin.getMessages().info("maps.dynmap-updated",
                 "Dynmap rebuilt {lands} land(s) with {markers} marker(s).",
                 "lands", Integer.toString(lands.size()),
                 "markers", Integer.toString(markerCount));
         return true;
+    }
+
+    private void drawAdminRegions(MarkerSet set) {
+        int color = configuredAdminRegionColor >= 0
+                ? configuredAdminRegionColor : 0x8f82a8;
+        for (AdminProtectedRegion region
+                : plugin.getAdminRegions().getRegions()) {
+            World world = plugin.getServer().getWorld(region.getWorld());
+            if (world == null) {
+                continue;
+            }
+            int rectIndex = 0;
+            for (Rect2i area : region.getAreas()) {
+                String markerId = "admin-region:" + region.getId() + ":"
+                        + rectIndex++;
+                double[] x = {area.getMinX(), area.getMaxX() + 1,
+                        area.getMaxX() + 1, area.getMinX()};
+                double[] z = {area.getMinZ(), area.getMinZ(),
+                        area.getMaxZ() + 1, area.getMaxZ() + 1};
+                AreaMarker marker = set.createAreaMarker(markerId,
+                        rectIndex == 1 ? region.getName() : "", false,
+                        world.getName(), x, z, false);
+                if (marker == null) {
+                    continue;
+                }
+                marker.setDescription(AdminRegionMapInfo.details(plugin, region));
+                marker.setLineStyle(2, 0.95D, color);
+                marker.setFillStyle(region.isThreeDimensional()
+                        ? 0.25D : 0.12D, color);
+                marker.setRangeY(region.isThreeDimensional()
+                                ? region.getMinY() : 0,
+                        region.isThreeDimensional()
+                                ? region.getMaxY() + 1 : 128);
+            }
+        }
     }
 
     private void replaceSet(MarkerAPI api, String id, String label, boolean hidden) {
@@ -205,6 +261,7 @@ public final class DynmapIntegration {
         }
         MarkerSet main = api.getMarkerSet(MAIN_SET_ID);
         MarkerSet sub = api.getMarkerSet(SUB_SET_ID);
+        MarkerSet adminRegions = api.getMarkerSet(ADMIN_REGION_SET_ID);
         List<Land> lands = plugin.getLandManager().getLands();
         int drawableWorlds = 0;
         for (Land land : lands) {
@@ -216,6 +273,9 @@ public final class DynmapIntegration {
                 + (main == null ? "missing" : Integer.toString(main.getAreaMarkers().size()))
                 + ", subAreas="
                 + (sub == null ? "missing" : Integer.toString(sub.getAreaMarkers().size()))
+                + ", adminRegionAreas="
+                + (adminRegions == null ? "missing"
+                : Integer.toString(adminRegions.getAreaMarkers().size()))
                 + ", landWorlds=" + drawableWorlds + "/" + lands.size();
     }
 }

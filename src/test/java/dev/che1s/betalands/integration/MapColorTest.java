@@ -9,6 +9,7 @@ public class MapColorTest {
     public void parsesQuotedHexAndBareHexColors() {
         assertEquals(0x40b4ff, MapColor.parse("#40B4FF"));
         assertEquals(0xffa640, MapColor.parse("FFA640"));
+        assertEquals(0x8f82a8, MapColor.parse("#8F82A8"));
         assertEquals(0x123456, MapColor.parse("0x123456"));
     }
 

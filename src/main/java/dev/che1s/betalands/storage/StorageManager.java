@@ -7,6 +7,7 @@ import java.util.Map;
 import dev.che1s.betalands.BetaLandsPlugin;
 import dev.che1s.betalands.model.PlayerData;
 import dev.che1s.betalands.service.LandManager;
+import dev.che1s.betalands.service.AdminRegionManager;
 
 public final class StorageManager implements LandDataStore {
     private final BetaLandsPlugin plugin;
@@ -28,17 +29,20 @@ public final class StorageManager implements LandDataStore {
     }
 
     @Override
-    public void load(LandManager manager, Map<String, PlayerData> players) throws IOException {
+    public void load(LandManager manager, AdminRegionManager adminRegions,
+                     Map<String, PlayerData> players) throws IOException {
         if ("tsv".equals(backend)) {
-            tsv.load(manager, players);
+            tsv.load(manager, adminRegions, players);
             return;
         }
-        sql.load(manager, players);
+        sql.load(manager, adminRegions, players);
     }
 
     @Override
-    public void save(LandManager manager, Map<String, PlayerData> players) throws IOException {
-        saveSnapshot(LandDataSnapshot.capture(manager, System.currentTimeMillis()));
+    public void save(LandManager manager, AdminRegionManager adminRegions,
+                     Map<String, PlayerData> players) throws IOException {
+        saveSnapshot(LandDataSnapshot.capture(manager, adminRegions,
+                System.currentTimeMillis()));
     }
 
     @Override

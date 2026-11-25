@@ -35,6 +35,8 @@ import dev.che1s.betalands.BetaLandsPlugin;
 import dev.che1s.betalands.model.Land;
 import dev.che1s.betalands.model.LandFlag;
 import dev.che1s.betalands.model.LandPermission;
+import dev.che1s.betalands.model.AdminProtectedRegion;
+import dev.che1s.betalands.model.AdminRegionPermission;
 import dev.che1s.betalands.permission.PermissionNodes;
 import dev.che1s.betalands.service.AccessCheck;
 import dev.che1s.betalands.service.ClaimResult;
@@ -57,6 +59,12 @@ public final class ProtectionListener implements Listener {
 
     @EventHandler(priority = Event.Priority.Highest, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
+        if (!plugin.getAdminRegionProtection().canUse(event.getPlayer(),
+                event.getBlock().getLocation(), AdminRegionPermission.BREAK)) {
+            event.setCancelled(true);
+            denyAdminRegion(event.getPlayer(), "break blocks");
+            return;
+        }
         AccessCheck check = lands.checkBuildPermission(
                 event.getPlayer(), event.getBlock(), LandPermission.BREAK);
         if (!check.isAllowed()) {
@@ -67,6 +75,12 @@ public final class ProtectionListener implements Listener {
 
     @EventHandler(priority = Event.Priority.Highest, ignoreCancelled = true)
     public void onBlockPlace(BlockPlaceEvent event) {
+        if (!plugin.getAdminRegionProtection().canUse(event.getPlayer(),
+                event.getBlockPlaced().getLocation(), AdminRegionPermission.BUILD)) {
+            event.setCancelled(true);
+            denyAdminRegion(event.getPlayer(), "place blocks");
+            return;
+        }
         AccessCheck check = lands.checkBuildPermission(
                 event.getPlayer(), event.getBlockPlaced(), LandPermission.BUILD);
         if (!check.isAllowed()) {
@@ -77,6 +91,12 @@ public final class ProtectionListener implements Listener {
 
     @EventHandler(priority = Event.Priority.Highest, ignoreCancelled = true)
     public void onBucketEmpty(PlayerBucketEmptyEvent event) {
+        if (!plugin.getAdminRegionProtection().canUse(event.getPlayer(),
+                event.getBlockClicked().getLocation(), AdminRegionPermission.BUILD)) {
+            event.setCancelled(true);
+            denyAdminRegion(event.getPlayer(), "use buckets");
+            return;
+        }
         AccessCheck check = lands.checkBuildPermission(
                 event.getPlayer(), event.getBlockClicked(), LandPermission.BUILD);
         if (!check.isAllowed()) {
@@ -87,6 +107,12 @@ public final class ProtectionListener implements Listener {
 
     @EventHandler(priority = Event.Priority.Highest, ignoreCancelled = true)
     public void onBucketFill(PlayerBucketFillEvent event) {
+        if (!plugin.getAdminRegionProtection().canUse(event.getPlayer(),
+                event.getBlockClicked().getLocation(), AdminRegionPermission.BREAK)) {
+            event.setCancelled(true);
+            denyAdminRegion(event.getPlayer(), "use buckets");
+            return;
+        }
         AccessCheck check = lands.checkBuildPermission(
                 event.getPlayer(), event.getBlockClicked(), LandPermission.BREAK);
         if (!check.isAllowed()) {
@@ -100,6 +126,14 @@ public final class ProtectionListener implements Listener {
         if (event.getAction() == Action.PHYSICAL) {
             Block below = event.getPlayer().getLocation().getBlock().getRelative(BlockFace.DOWN);
             if (isTrampleBlock(below.getTypeId())) {
+                AdminProtectedRegion region =
+                        plugin.getAdminRegionProtection().findAt(below.getLocation());
+                if (region != null
+                        && !plugin.getAdminRegionProtection().flag(
+                        region, LandFlag.TRAMPLING)) {
+                    event.setCancelled(true);
+                    return;
+                }
                 Land land = lands.findLandAt(below);
                 if (land != null && !lands.getEffectiveLandFlag(land, LandFlag.TRAMPLING)) {
                     event.setCancelled(true);
@@ -107,6 +141,13 @@ public final class ProtectionListener implements Listener {
                 }
             }
             if (event.getClickedBlock() != null) {
+                if (!plugin.getAdminRegionProtection().canUse(event.getPlayer(),
+                        event.getClickedBlock().getLocation(),
+                        AdminRegionPermission.USE)) {
+                    event.setCancelled(true);
+                    denyAdminRegion(event.getPlayer(), "interact");
+                    return;
+                }
                 Land land = lands.findLandAt(event.getClickedBlock());
                 if (land != null) {
                     AccessCheck check = lands.checkLandPermission(
@@ -155,6 +196,15 @@ public final class ProtectionListener implements Listener {
             return;
         }
         Block block = event.getClickedBlock();
+        AdminRegionPermission adminPermission = isContainer(block.getTypeId())
+                ? AdminRegionPermission.CONTAINER
+                : AdminRegionPermission.USE;
+        if (!plugin.getAdminRegionProtection().canUse(event.getPlayer(),
+                block.getLocation(), adminPermission)) {
+            event.setCancelled(true);
+            denyAdminRegion(event.getPlayer(), "interact");
+            return;
+        }
         Land land = lands.findLandAt(block);
         if (land == null) {
             return;
@@ -174,6 +224,14 @@ public final class ProtectionListener implements Listener {
         Iterator<Block> iterator = event.blockList().iterator();
         while (iterator.hasNext()) {
             Block block = iterator.next();
+            AdminProtectedRegion region =
+                    plugin.getAdminRegionProtection().findAt(block.getLocation());
+            if (region != null
+                    && !plugin.getAdminRegionProtection().flag(
+                    region, LandFlag.EXPLOSION)) {
+                iterator.remove();
+                continue;
+            }
             Land land = lands.findLandAt(block);
             if (land != null && !lands.getEffectiveLandFlag(land, LandFlag.EXPLOSION)) {
                 iterator.remove();
@@ -183,9 +241,17 @@ public final class ProtectionListener implements Listener {
 
     @EventHandler(priority = Event.Priority.Highest, ignoreCancelled = true)
     public void onBlockIgnite(BlockIgniteEvent event) {
+        AdminProtectedRegion region =
+                plugin.getAdminRegionProtection().findAt(event.getBlock().getLocation());
         Land land = lands.findLandAt(event.getBlock());
         Player player = event.getPlayer();
         if (player != null) {
+            if (region != null && !plugin.getAdminRegionProtection()
+                    .canUse(player, region, AdminRegionPermission.BUILD)) {
+                event.setCancelled(true);
+                denyAdminRegion(player, "ignite blocks");
+                return;
+            }
             AccessCheck check = lands.checkBuildPermission(
                     player, event.getBlock(), LandPermission.BUILD);
             if (!check.isAllowed()) {
@@ -194,13 +260,22 @@ public final class ProtectionListener implements Listener {
                 return;
             }
         }
-        if (land != null && !lands.getEffectiveLandFlag(land, LandFlag.FIRE)) {
+        if ((region != null && !plugin.getAdminRegionProtection().flag(
+                region, LandFlag.FIRE))
+                || (land != null && !lands.getEffectiveLandFlag(land, LandFlag.FIRE))) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler(priority = Event.Priority.Highest, ignoreCancelled = true)
     public void onBlockBurn(BlockBurnEvent event) {
+        AdminProtectedRegion region =
+                plugin.getAdminRegionProtection().findAt(event.getBlock().getLocation());
+        if (region != null && !plugin.getAdminRegionProtection().flag(
+                region, LandFlag.FIRE)) {
+            event.setCancelled(true);
+            return;
+        }
         Land land = lands.findLandAt(event.getBlock());
         if (land != null && !lands.getEffectiveLandFlag(land, LandFlag.FIRE)) {
             event.setCancelled(true);
@@ -209,6 +284,18 @@ public final class ProtectionListener implements Listener {
 
     @EventHandler(priority = Event.Priority.Highest, ignoreCancelled = true)
     public void onFluidFlow(BlockFromToEvent event) {
+        AdminProtectedRegion regionTo =
+                plugin.getAdminRegionProtection().findAt(event.getToBlock().getLocation());
+        AdminProtectedRegion regionFrom =
+                plugin.getAdminRegionProtection().findAt(event.getBlock().getLocation());
+        if (regionTo != null
+                && (regionFrom == null
+                || !regionFrom.getId().equals(regionTo.getId()))
+                && !plugin.getAdminRegionProtection().flag(
+                regionTo, LandFlag.FLUID)) {
+            event.setCancelled(true);
+            return;
+        }
         Land from = lands.findLandAt(event.getBlock());
         Land to = lands.findLandAt(event.getToBlock());
         if (to != null && !lands.getEffectiveLandFlag(to, LandFlag.FLUID)
@@ -232,6 +319,17 @@ public final class ProtectionListener implements Listener {
             return;
         }
         Land land = lands.findLandAt(victim.getLocation());
+        AdminProtectedRegion region =
+                plugin.getAdminRegionProtection().findAt(victim.getLocation());
+        if (region != null
+                && !plugin.getAdminRegionProtection().flag(
+                region, LandFlag.PVP)
+                && !plugin.getAdminRegionProtection().canUse(
+                attacker, region, AdminRegionPermission.PVP)) {
+            event.setCancelled(true);
+            denyAdminRegion(attacker, "fight in this protected region");
+            return;
+        }
         if (land == null) {
             return;
         }
@@ -258,6 +356,14 @@ public final class ProtectionListener implements Listener {
             return;
         }
         Land land = lands.findLandAt(event.getLocation());
+        AdminProtectedRegion region =
+                plugin.getAdminRegionProtection().findAt(event.getLocation());
+        if (region != null
+                && !plugin.getAdminRegionProtection().flag(
+                region, LandFlag.MOBS)) {
+            event.setCancelled(true);
+            return;
+        }
         if (land != null && !lands.getEffectiveLandFlag(land, LandFlag.MOBS)) {
             event.setCancelled(true);
         }
@@ -269,6 +375,14 @@ public final class ProtectionListener implements Listener {
             return;
         }
         Land land = lands.findLandAt(event.getBlock());
+        AdminProtectedRegion region =
+                plugin.getAdminRegionProtection().findAt(event.getBlock().getLocation());
+        if (region != null
+                && !plugin.getAdminRegionProtection().flag(
+                region, LandFlag.TRAMPLING)) {
+            event.setCancelled(true);
+            return;
+        }
         if (land != null && !lands.getEffectiveLandFlag(land, LandFlag.TRAMPLING)) {
             event.setCancelled(true);
         }
@@ -411,6 +525,19 @@ public final class ProtectionListener implements Listener {
             plugin.getMessages().send(player, "protection.generic-denied",
                     "&cBlocked by BetaLands protection.");
         }
+    }
+
+    private void denyAdminRegion(Player player, String action) {
+        long now = System.currentTimeMillis();
+        String key = player.getName().toLowerCase(java.util.Locale.ROOT);
+        Long previous = lastMessageAt.get(key);
+        if (previous != null && now - previous.longValue() < 1000L) {
+            return;
+        }
+        lastMessageAt.put(key, Long.valueOf(now));
+        plugin.getMessages().send(player, "protection.admin-region-denied",
+                "&cThe administrator protected region blocks you from {action}.",
+                "action", action);
     }
 
     private boolean isContainer(int typeId) {

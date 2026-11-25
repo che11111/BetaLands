@@ -13,12 +13,14 @@ import java.util.Set;
 import dev.che1s.betalands.BetaLandsPlugin;
 import dev.che1s.betalands.levels.LevelProfile;
 import dev.che1s.betalands.model.HomePoint;
+import dev.che1s.betalands.model.AdminProtectedRegion;
 import dev.che1s.betalands.model.Land;
 import dev.che1s.betalands.model.PlayerData;
 import dev.che1s.betalands.model.Rect2i;
 import dev.che1s.betalands.model.RentAccount;
 import dev.che1s.betalands.service.LandMaintenanceService;
 import dev.che1s.betalands.service.LandManager;
+import dev.che1s.betalands.service.AdminRegionManager;
 import dev.che1s.betalands.util.Text;
 
 public final class BetaLandsApiImpl implements BetaLandsApi {
@@ -36,6 +38,79 @@ public final class BetaLandsApiImpl implements BetaLandsApi {
     @Override
     public double getServerMaintenanceBankBalance() {
         return plugin.getLandManager().getServerMaintenanceBank();
+    }
+
+    @Override
+    public Optional<AdminRegionInfo> getAdminRegion(String nameOrId) {
+        return adminRegionSnapshot(plugin.getAdminRegions().resolve(nameOrId));
+    }
+
+    @Override
+    public Optional<AdminRegionInfo> getAdminRegionAt(String worldName,
+                                                       int x, int y, int z) {
+        return adminRegionSnapshot(plugin.getAdminRegions().findAt(
+                worldName, x, y, z));
+    }
+
+    @Override
+    public List<AdminRegionInfo> getAdminRegions() {
+        List<AdminRegionInfo> result = new ArrayList<AdminRegionInfo>();
+        for (AdminProtectedRegion region
+                : plugin.getAdminRegions().getRegions()) {
+            result.add(adminRegionSnapshot(region).get());
+        }
+        return Collections.unmodifiableList(result);
+    }
+
+    @Override
+    public boolean canUseAdminRegion(String playerName, String nameOrId,
+                                     AdminRegionPermission permission) {
+        AdminProtectedRegion region =
+                plugin.getAdminRegions().resolve(nameOrId);
+        if (region == null || permission == null) {
+            return false;
+        }
+        return region.hasPermission(playerName,
+                dev.che1s.betalands.model.AdminRegionPermission.valueOf(
+                        permission.name()));
+    }
+
+    private Optional<AdminRegionInfo> adminRegionSnapshot(
+            AdminProtectedRegion region) {
+        if (region == null) {
+            return Optional.empty();
+        }
+        List<AdminRegionInfo.AreaInfo> areas =
+                new ArrayList<AdminRegionInfo.AreaInfo>();
+        for (Rect2i area : region.getAreas()) {
+            areas.add(new AdminRegionInfo.AreaInfo(area.getMinX(),
+                    area.getMinZ(), area.getMaxX(), area.getMaxZ()));
+        }
+        Map<String, Set<AdminRegionPermission>> whitelist =
+                new java.util.LinkedHashMap<String, Set<AdminRegionPermission>>();
+        for (Map.Entry<String,
+                EnumSet<dev.che1s.betalands.model.AdminRegionPermission>>
+                entry : region.getWhitelist().entrySet()) {
+            EnumSet<AdminRegionPermission> permissions =
+                    EnumSet.noneOf(AdminRegionPermission.class);
+            for (dev.che1s.betalands.model.AdminRegionPermission permission
+                    : entry.getValue()) {
+                permissions.add(AdminRegionPermission.valueOf(
+                        permission.name()));
+            }
+            whitelist.put(entry.getKey(), permissions);
+        }
+        EnumMap<LandFlag, Boolean> flags = new EnumMap<LandFlag, Boolean>(
+                LandFlag.class);
+        for (Map.Entry<dev.che1s.betalands.model.LandFlag, Boolean> entry
+                : region.getFlagOverrides().entrySet()) {
+            flags.put(api(entry.getKey()), entry.getValue());
+        }
+        return Optional.of(new AdminRegionInfo(region.getId(),
+                region.getName(), region.getWorld(),
+                region.isThreeDimensional(), region.getMinY(),
+                region.getMaxY(), region.getCreatedBy(),
+                region.getCreatedAt(), areas, whitelist, flags));
     }
 
     @Override

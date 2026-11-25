@@ -13,11 +13,13 @@ import java.util.Map;
 import dev.che1s.betalands.BetaLandsPlugin;
 import dev.che1s.betalands.model.HomePoint;
 import dev.che1s.betalands.model.Land;
+import dev.che1s.betalands.model.AdminProtectedRegion;
 import dev.che1s.betalands.model.LandPermission;
 import dev.che1s.betalands.model.PlayerData;
 import dev.che1s.betalands.model.Rect2i;
 import dev.che1s.betalands.model.RentAccount;
 import dev.che1s.betalands.service.LandManager;
+import dev.che1s.betalands.service.AdminRegionManager;
 import dev.che1s.betalands.util.MoneyCodec;
 
 /**
@@ -34,8 +36,10 @@ final class SqlDataLoader {
     }
 
     int load(Connection connection, LandManager manager,
+             AdminRegionManager adminRegions,
              Map<String, PlayerData> players) throws SQLException {
         manager.clear();
+        adminRegions.clear();
         players.clear();
         loadErrors = 0;
         Map<String, List<Rect2i>> areas = loadAreas(connection);
@@ -44,8 +48,94 @@ final class SqlDataLoader {
         loadMembers(connection, manager);
         loadRentAccounts(connection, manager);
         loadPlayers(connection, players);
+        loadAdminRegions(connection, adminRegions);
+        loadAdminRegionWhitelist(connection, adminRegions);
+        adminRegions.rebuild();
         manager.rebuildIndexes();
         return loadErrors;
+    }
+
+    private void loadAdminRegions(Connection connection,
+                                  AdminRegionManager manager)
+            throws SQLException {
+        Map<String, List<Rect2i>> areas =
+                new HashMap<String, List<Rect2i>>();
+        Statement areaStatement = connection.createStatement();
+        ResultSet areaRows = null;
+        try {
+            areaRows = areaStatement.executeQuery(
+                    "SELECT region_id, min_x, max_x, min_z, max_z FROM "
+                            + schema.table("admin_protected_region_areas")
+                            + " ORDER BY region_id, ordinal");
+            while (areaRows.next()) {
+                String id = areaRows.getString("region_id");
+                List<Rect2i> values = areas.get(id);
+                if (values == null) {
+                    values = new ArrayList<Rect2i>();
+                    areas.put(id, values);
+                }
+                values.add(new Rect2i(areaRows.getInt("min_x"),
+                        areaRows.getInt("min_z"), areaRows.getInt("max_x"),
+                        areaRows.getInt("max_z")));
+            }
+        } finally {
+            close(areaRows);
+            close(areaStatement);
+        }
+        Statement statement = connection.createStatement();
+        ResultSet rows = null;
+        try {
+            rows = statement.executeQuery(
+                    "SELECT id, name, world, three_dimensional, min_y, max_y,"
+                            + " created_by, created_at, flags FROM "
+                            + schema.table("admin_protected_regions"));
+            while (rows.next()) {
+                String id = rows.getString("id");
+                List<Rect2i> regionAreas = areas.get(id);
+                if (regionAreas == null || regionAreas.isEmpty()) {
+                    loadErrors++;
+                    continue;
+                }
+                AdminProtectedRegion region = new AdminProtectedRegion(
+                        id, rows.getString("name"), rows.getString("world"),
+                        rows.getString("created_by"), rows.getLong("created_at"),
+                        rows.getInt("three_dimensional") != 0,
+                        rows.getInt("min_y"), rows.getInt("max_y"),
+                        regionAreas);
+                region.setFlagOverrides(DataStore.parseFlags(
+                        rows.getString("flags")));
+                manager.addLoadedRegion(region);
+            }
+        } finally {
+            close(rows);
+            close(statement);
+        }
+    }
+
+    private void loadAdminRegionWhitelist(Connection connection,
+                                          AdminRegionManager manager)
+            throws SQLException {
+        Statement statement = connection.createStatement();
+        ResultSet rows = null;
+        try {
+            rows = statement.executeQuery(
+                    "SELECT region_id, player_key, permissions FROM "
+                            + schema.table("admin_protected_region_whitelist"));
+            while (rows.next()) {
+                AdminProtectedRegion region =
+                        manager.getById(rows.getString("region_id"));
+                if (region == null) {
+                    loadErrors++;
+                    continue;
+                }
+                region.setWhitelistPermissions(rows.getString("player_key"),
+                        StorageCodec.parseAdminPermissions(
+                                rows.getString("permissions")));
+            }
+        } finally {
+            close(rows);
+            close(statement);
+        }
     }
 
     private Map<String, List<Rect2i>> loadAreas(Connection connection)

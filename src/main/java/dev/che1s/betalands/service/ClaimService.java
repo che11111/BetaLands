@@ -13,6 +13,7 @@ import dev.che1s.betalands.levels.LevelProfile;
 import dev.che1s.betalands.model.HomePoint;
 import dev.che1s.betalands.model.Land;
 import dev.che1s.betalands.model.LandIdentity;
+import dev.che1s.betalands.model.AdminRegionPermission;
 import dev.che1s.betalands.model.Rect2i;
 
 /**
@@ -50,6 +51,11 @@ public final class ClaimService {
                             + plugin.getSettings().getMaxNameLength() + ".");
         }
         LevelProfile profile = plugin.getLevels().getProfile(owner);
+        if (!plugin.getAdminRegionProtection().canUse(owner,
+                owner.getLocation(), AdminRegionPermission.LANDCREATE)) {
+            return CreateResult.error(
+                    "The administrator protected region blocks land creation here.");
+        }
         if (!force && lands.countMainLands(owner.getName())
                 >= profile.getMaxMainLands()) {
             return CreateResult.error("Your " + profile.getDisplayName()
@@ -116,6 +122,11 @@ public final class ClaimService {
         }
         if (!permissions.isAdmin(actor) && !land.isOwner(actor.getName())) {
             return CreateResult.error("Only the main-land owner can expand it.");
+        }
+        if (!plugin.getAdminRegionProtection().canUse(actor,
+                actor.getLocation(), AdminRegionPermission.LANDCLAIM)) {
+            return CreateResult.error(
+                    "The administrator protected region blocks land claims here.");
         }
         if (!force && lands.isFamilyInDebt(land)) {
             return CreateResult.error(
@@ -278,6 +289,14 @@ public final class ClaimService {
         if (world != null) {
             minY = Math.max(0, minY);
             maxY = Math.min(world.getMaxHeight() - 1, maxY);
+        }
+        List<Rect2i> selectedAreas = new ArrayList<Rect2i>();
+        selectedAreas.add(area);
+        if (!plugin.getAdminRegionProtection().canUseArea(actor,
+                selection.getWorldName(), selectedAreas, minY, maxY, true,
+                AdminRegionPermission.LANDCLAIM)) {
+            return CreateResult.error(
+                    "The administrator protected region blocks subclaim creation here.");
         }
         String territoryName = parent.getTerritoryName() + "." + name;
         if (lands.findByName(territoryName) != null) {

@@ -22,6 +22,7 @@ public final class PermissionNodes {
     public static final String RENT_USE = "betalands.rent.use";
     public static final String BYPASS = "betalands.bypass";
     public static final String ADMIN = "betalands.admin";
+    public static final String ADMIN_PROTECT = "betalands.admin.protect";
     public static final String ADMIN_FORCE = "betalands.admin.force";
 
     private PermissionNodes() {

@@ -96,6 +96,9 @@ maps:
   # 当前只影响 BlueMap；关闭后保护仍然生效。 / Currently affects BlueMap only; protection remains active.
   show-subclaims: true
 
+  # 是否在地图中显示管理员“区域保护”。 / Show administrator protected regions on maps.
+  show-admin-regions: true
+
   dynmap:
     # 是否启用 Dynmap 领地标记。 / Enable Dynmap land markers.
     enabled: true
@@ -124,9 +127,11 @@ maps:
     dynmap:
       main: auto
       subclaim: auto
+      admin-region: "#8F82A8"
     bluemap:
       main: auto
       subclaim: auto
+      admin-region: "#8F82A8"
 
 territory-messages:
   # 玩家跨入或离开主领地、子领地时是否发送提示。 / Send messages when entering or leaving land.

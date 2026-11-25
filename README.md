@@ -18,9 +18,9 @@
 
 BetaLands is a modern land-protection plugin for Minecraft Beta 1.7.3. Main lands use 2D chunk coverage, subclaims use 3D block ranges, land boundaries and details appear on BlueMap and Dynmap, and data can be migrated from Towny.
 
-Player guide: [PlayerWiki.md](PlayerWiki.md)
-
-Other plugins can query land data through Bukkit's `ServicesManager`: [API.md](API.md).
+- [Player guide](PlayerWiki.md)
+- [Admin region protection](AdminRegionProtection.md)
+- [Read-only API via Bukkit's `ServicesManager`](API.md)
 
 ## Feature Gallery
 
@@ -94,7 +94,7 @@ Other plugins can query land data through Bukkit's `ServicesManager`: [API.md](A
 | `/land rent deposit <amount>` | Prepay into the global rent account | `/land rent withdraw <amount>` | Withdraw from the global rent account |
 | `/land rent info [land]` | View rent and prepaid-account information | `/land rent set 0 [land]` | Disable daily rent |
 
-Land names belong at the end of commands. For other commands that accept an optional land name, omitting the name defaults to the land under the player's feet.
+Land names belong at the end of commands. For commands other than `/land spawn` and `/land tp` that accept an optional land name, the default is the land under the player's feet. Commands that require management permission can fall back to the player's only main land when there is no manageable land at the current position.
 
 `/land spawn` and `/land tp` are aliases and are the exception: they do not select a target from the land under the player's feet. Without a land name, they teleport only when exactly one owned main land or one joined/trusted land is available. If multiple lands are available, including one owned and one joined land, the player must specify the land name.
 
