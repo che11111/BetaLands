@@ -2,7 +2,7 @@
 # beta 1.7.3 clients do not render Chinese. Keep this file ASCII/English only.
 # Supports & color codes and named placeholders such as {land}, {player}.
 
-prefix: "&e[BetaLands] "
+prefix: "&7[&eBetaLands&7] "
 
 common:
   no-permission: "&cYou do not have permission."

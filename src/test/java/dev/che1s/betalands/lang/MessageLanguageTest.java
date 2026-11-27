@@ -105,4 +105,13 @@ public class MessageLanguageTest {
                 MessageService.formatBody("&cDanger {player} again",
                         "player", "Alice"));
     }
+
+    @Test
+    public void colorizesConfiguredGamePrefix() {
+        assertEquals(ChatColor.YELLOW + "[Lands] ",
+                MessageService.colorize("&e[Lands] "));
+        assertEquals(ChatColor.GRAY + "[" + ChatColor.YELLOW + "BetaLands"
+                        + ChatColor.GRAY + "] ",
+                MessageService.colorize("&7[&eBetaLands&7] "));
+    }
 }

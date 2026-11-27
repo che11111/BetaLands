@@ -95,8 +95,9 @@ public final class MessageService {
         mapFallback.load();
         mapLanguage = requestedMap.isFile() ? load(requestedMap) : mapFallback;
         mapChinese = mapFilename.toLowerCase(Locale.ROOT).startsWith("map-zh");
-        gamePrefix = fallbackValue(game, gameFallback,
-                "prefix", ChatColor.YELLOW + "[BetaLands] ");
+        gamePrefix = colorize(fallbackValue(game, gameFallback,
+                "prefix", ChatColor.GRAY + "[" + ChatColor.YELLOW
+                        + "BetaLands" + ChatColor.GRAY + "] "));
         consolePrefix = fallbackValue(console, consoleFallback,
                 "prefix", "[BetaLands]");
 
@@ -314,9 +315,9 @@ public final class MessageService {
                 || "duration".equals(key) || "remaining".equals(key);
     }
 
-    private String color(String value) {
-        return ChatColor.translateAlternateColorCodes('&', value == null ? "" : value)
-                .replace("&r", "");
+    static String colorize(String value) {
+        return ChatColor.translateAlternateColorCodes(
+                '&', value == null ? "" : value);
     }
 
     static boolean isChinese(String language) {
